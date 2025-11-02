@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "492446718599",
+    "project_id": "projetocontroledepresenca",
+    "storage_bucket": "projetocontroledepresenca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492446718599:android:bce4d21c79e6d565f9b622",
+        "android_client_info": {
+          "package_name": "com.example.leitor_qr_code"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhfSzUwnb4zSEEPUMe3NfjLl0kMvZbho8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
