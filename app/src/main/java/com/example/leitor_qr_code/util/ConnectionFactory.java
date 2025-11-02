@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 public class ConnectionFactory extends SQLiteOpenHelper {
-
-    // pica
     public ConnectionFactory(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, null, version);
     }

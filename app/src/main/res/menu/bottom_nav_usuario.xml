@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/icn_home"
+        android:title="Home"/>
+
+    <item
+        android:id="@+id/nav_qrcode"
+        android:icon="@drawable/icn_qr_code"
+        android:title="QR Code"/>
+
+    <item
+        android:id="@+id/nav_perfil"
+        android:icon="@drawable/icn_perfil_2"
+        android:title="Perfil"/>
+</menu>

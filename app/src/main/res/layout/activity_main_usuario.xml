@@ -1,0 +1,28 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho">
+
+    <!-- Fragments do usuário serão carregados -->
+
+    <FrameLayout
+        android:id="@+id/frame_container_usuario"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="70dp" />
+
+    <!-- Bottom Navigation do usuário -->
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_usuario"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_gravity="bottom"
+        android:background="@color/azul_cinza"
+        android:elevation="8dp"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/bottom_nav_usuario" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
