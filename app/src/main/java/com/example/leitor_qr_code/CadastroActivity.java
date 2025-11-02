@@ -10,6 +10,7 @@ import com.example.leitor_qr_code.R;
 
 public class CadastroActivity extends AppCompatActivity {
 
+    //Teste
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
