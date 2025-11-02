@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho"
+    android:padding="24dp">
+
+    <!-- Layout principal branco -->
+    <LinearLayout
+        android:id="@+id/layoutScanner"
+        android:layout_width="336dp"
+        android:layout_height="556dp"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_conteudo_branco"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Imagem ilustrativa da impressão -->
+        <ImageView
+            android:id="@+id/imagemDica"
+            android:layout_width="220dp"
+            android:layout_height="210dp"
+            android:layout_marginTop="60dp"
+            android:contentDescription="Imagem Impressora"
+            android:scaleType="centerCrop"
+            android:src="@drawable/icn_impressora" />
+
+        <!-- Texto explicativo da dica -->
+        <TextView
+            android:id="@+id/textoDica"
+            android:layout_width="260dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Após registrar a presença, você pode imprimir um comprovante para o participante em poucos instantes."
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

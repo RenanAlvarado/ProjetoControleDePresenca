@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:id="@+id/layoutScanner"
+        android:layout_width="336dp"
+        android:layout_height="556dp"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="24dp"
+        android:background="@drawable/bg_conteudo_branco"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Imagem ilustrativa do QR Code -->
+        <ImageView
+            android:id="@+id/imagemDica"
+            android:layout_width="194dp"
+            android:layout_height="218dp"
+            android:layout_marginTop="40dp"
+            android:contentDescription="Imagem QR Code"
+            android:scaleType="centerCrop"
+            android:src="@drawable/icn_ler_qr" />
+
+        <!-- Texto explicativo da dica -->
+        <TextView
+            android:id="@+id/textoDica"
+            android:layout_width="260dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="80dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Use a câmera para ler o QR Code e controlar a entrada e saída de forma rápida e segura."
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

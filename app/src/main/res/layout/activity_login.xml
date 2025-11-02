@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho"
+    tools:context=".LoginActivity">
+
+    <!-- Imagem de fundo -->
+    <ImageView
+        android:id="@+id/imagemFundo"
+        android:layout_width="match_parent"
+        android:layout_height="286dp"
+        android:layout_marginTop="2dp"
+        android:adjustViewBounds="true"
+        android:alpha="0.25"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_fundo" />
+
+    <!-- Conteúdo central -->
+    <LinearLayout
+        android:id="@+id/layoutConteudo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="24dp" />
+
+        <EditText
+            android:id="@+id/editEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/edit_text"
+            android:hint="E-mail"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#6B6B6A6A" />
+
+        <EditText
+            android:id="@+id/editSenha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@android:drawable/edit_text"
+            android:hint="Senha"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:textColor="#020202"
+            android:textColorHint="#6B6B6A6A" />
+
+        <Button
+            android:id="@+id/btnEntrar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#4c6d9b"
+            android:text="Entrar"
+            android:textColor="@color/azul_marinho" />
+
+        <!-- Botão com aparência de texto (tipo link) -->
+        <Button
+            android:id="@+id/btnCadastrar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@android:color/transparent"
+            android:text="Não faz parte do time? Cadastre-se"
+            android:textColor="@color/azul_cinza"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- Rodapé -->
+    <TextView
+        android:id="@+id/textRodape"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/azul_cinza"
+        android:gravity="center"
+        android:text="Makitos - 2025"
+        android:textColor="@color/azul_marinho"
+        android:textSize="14sp" />
+
+</RelativeLayout>

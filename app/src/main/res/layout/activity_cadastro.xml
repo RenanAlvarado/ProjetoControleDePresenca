@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho"
+    tools:context=".CadastroActivity">
+
+    <!-- Imagem de fundo -->
+    <ImageView
+        android:id="@+id/imagemFundoCadastro"
+        android:layout_width="match_parent"
+        android:layout_height="286dp"
+        android:layout_marginTop="2dp"
+        android:adjustViewBounds="true"
+        android:alpha="0.25"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_fundo" />
+
+    <!-- Scroll principal -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/textRodapeCadastro">
+
+        <!-- Conteúdo centralizado -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="110dp"
+            android:padding="24dp">
+
+            <LinearLayout
+                android:id="@+id/layoutConteudoCadastro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:text="Cadastro"
+                    android:textColor="#FFFFFF"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/editNome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/edit_text"
+                    android:hint="Nome completo"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#6B6B6A6A" />
+
+                <EditText
+                    android:id="@+id/editEmailCadastro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:hint="E-mail"
+                    android:inputType="textEmailAddress"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#6B6B6A6A" />
+
+                <EditText
+                    android:id="@+id/editSenhaCadastro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:hint="Senha"
+                    android:inputType="textPassword"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#6B6B6A6A" />
+
+                <EditText
+                    android:id="@+id/editRepetirSenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:hint="Repetir senha"
+                    android:inputType="textPassword"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#6B6B6A6A" />
+
+                <Button
+                    android:id="@+id/btnCadastrar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:backgroundTint="#4c6d9b"
+                    android:text="Cadastrar"
+                    android:textColor="@color/azul_marinho" />
+
+                <!-- Botão visualmente igual a texto -->
+                <Button
+                    android:id="@+id/btnVoltarLogin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="0dp"
+                    android:text="Já tem uma conta? Faça login"
+                    android:textAllCaps="false"
+                    android:textColor="@color/azul_cinza"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+    <!-- Rodapé -->
+    <TextView
+        android:id="@+id/textRodapeCadastro"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/azul_cinza"
+        android:gravity="center"
+        android:text="Makitos - 2025"
+        android:textColor="@color/azul_marinho"
+        android:textSize="14sp" />
+
+</RelativeLayout>

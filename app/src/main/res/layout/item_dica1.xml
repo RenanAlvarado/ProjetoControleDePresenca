@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:id="@+id/layoutScanner"
+        android:layout_width="336dp"
+        android:layout_height="556dp"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_conteudo_branco"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Imagem ilustrativa da dica -->
+        <ImageView
+            android:id="@+id/imagemDica"
+            android:layout_width="239dp"
+            android:layout_height="240dp"
+            android:layout_marginTop="40dp"
+            android:contentDescription="Imagem de boas-vindas"
+            android:scaleType="centerCrop"
+            android:src="@drawable/icn_festa" />
+
+        <!-- Texto principal da dica -->
+        <TextView
+            android:id="@+id/textoDica"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Bem-vindo ao time!\nFacilite seu trabalho com o nosso app."
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

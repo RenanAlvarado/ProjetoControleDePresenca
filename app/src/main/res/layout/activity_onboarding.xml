@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EAEAEA"
+    android:padding="24dp">
+
+    <!-- ViewPager2 para deslizar as dicas -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerOnboarding"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layoutBotoes" />
+
+    <!-- Botões Pular e Próximo -->
+    <LinearLayout
+        android:id="@+id/layoutBotoes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="24dp">
+
+        <Button
+            android:id="@+id/btnPular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pular"
+            android:backgroundTint="#777777"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="16dp" />
+
+        <Button
+            android:id="@+id/btnProximo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Próximo"
+            android:backgroundTint="#0D8C00"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+</RelativeLayout>

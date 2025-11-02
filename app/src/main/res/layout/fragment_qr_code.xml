@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/azul_marinho"
+    tools:context=".ui.qrcode.QRCodeFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="100dp"
+        android:background="@color/azul_marinho">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Título -->
+            <TextView
+                android:id="@+id/textTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Leitor de QR Code"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginTop="32dp"
+                android:gravity="center" />
+
+            <!-- Scanner -->
+            <LinearLayout
+                android:id="@+id/layoutScanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="24dp"
+                android:background="@drawable/bg_conteudo_branco"
+                android:layout_marginTop="32dp">
+
+                <FrameLayout
+                    android:layout_width="250dp"
+                    android:layout_height="250dp"
+                    android:background="@drawable/qrcode_border">
+
+                    <ImageView
+                        android:id="@+id/imgScannerPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:alpha="0.20"
+                        android:src="@drawable/icn_qr_code" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/textInstrucao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Aponte a câmera para o QR Code do participante"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:layout_marginTop="16dp" />
+
+                <Button
+                    android:id="@+id/btnIniciarLeitura"
+                    android:layout_width="199dp"
+                    android:layout_height="wrap_content"
+                    android:text="Iniciar leitura"
+                    android:backgroundTint="@color/azul_cinza"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="24dp" />
+
+                <TextView
+                    android:id="@+id/textResultado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Resultado: -"
+                    android:textAlignment="center"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    android:textStyle="italic"
+                    android:layout_marginTop="24dp" />
+
+                <Button
+                    android:id="@+id/btnImprimir"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Imprimir comprovante"
+                    android:backgroundTint="@color/verde_musgo"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="24dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
