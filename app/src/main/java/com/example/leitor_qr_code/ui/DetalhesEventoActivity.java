@@ -1,19 +1,24 @@
 package com.example.leitor_qr_code.ui;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.leitor_qr_code.R;
+import com.example.leitor_qr_code.dao.EventoDAO;
 import com.example.leitor_qr_code.model.Evento;
 
 public class DetalhesEventoActivity extends AppCompatActivity {
 
     private TextView txtTitulo, txtDescricao, txtData, txtLocal;
     private ImageButton btnVoltar;
+    private Button btnExcluir;
     private Evento evento;
 
     @Override
@@ -27,6 +32,7 @@ public class DetalhesEventoActivity extends AppCompatActivity {
         txtData = findViewById(R.id.txtDataEvento);
         txtLocal = findViewById(R.id.txtLocalEvento);
         btnVoltar = findViewById(R.id.btnVoltar);
+        btnExcluir = findViewById(R.id.btnExcluirEvento);
 
         // Configurando a ação do botão voltar
         btnVoltar.setOnClickListener(v -> finish());
@@ -41,5 +47,21 @@ public class DetalhesEventoActivity extends AppCompatActivity {
             txtData.setText(evento.getData());
             txtLocal.setText(evento.getLocal());
         }
+
+        btnExcluir.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Excluir Evento")
+                    .setMessage("Tem certeza que deseja excluir este evento?")
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+
+                        EventoDAO dao = new EventoDAO();
+                        dao.excluirEvento(evento.getIdEvento(), this, () -> {
+                            finish(); // fecha a tela após excluir
+                        });
+
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
     }
 }

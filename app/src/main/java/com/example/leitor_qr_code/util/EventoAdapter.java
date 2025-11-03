@@ -3,6 +3,7 @@ package com.example.leitor_qr_code.util;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,12 +40,15 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     public void onBindViewHolder(@NonNull EventoViewHolder holder, int position) {
         Evento evento = listaEventos.get(position);
 
-        // CORREÇÃO: Alterado de getTitulo() para getNome()
         holder.txtNome.setText(evento.getNome());
         holder.txtLocal.setText(evento.getLocal());
         holder.txtData.setText(evento.getData());
 
+        // Define o clique para o item inteiro
         holder.itemView.setOnClickListener(v -> listener.onClick(evento));
+
+        // CORREÇÃO: Define o clique também para o botão "Detalhes"
+        holder.btnDetalhes.setOnClickListener(v -> listener.onClick(evento));
     }
 
     @Override
@@ -55,6 +59,7 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     static class EventoViewHolder extends RecyclerView.ViewHolder {
 
         TextView txtNome, txtData, txtLocal;
+        Button btnDetalhes; // Referência para o botão
 
         public EventoViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -62,6 +67,8 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
             txtNome = itemView.findViewById(R.id.textNomeEvento);
             txtLocal = itemView.findViewById(R.id.textLocalEvento);
             txtData = itemView.findViewById(R.id.textDataEvento);
+            // CORREÇÃO: Encontra o botão pelo ID
+            btnDetalhes = itemView.findViewById(R.id.btnDetalhesEvento);
         }
     }
 }

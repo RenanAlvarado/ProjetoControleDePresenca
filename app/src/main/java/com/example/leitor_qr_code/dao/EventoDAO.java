@@ -66,10 +66,24 @@ public class EventoDAO {
                     List<Evento> lista = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : query) {
                         Evento evento = doc.toObject(Evento.class);
+                        evento.setIdEvento(doc.getId()); // 🔥 salva o ID do Firestore no objeto
                         lista.add(evento);
                     }
                     callback.onCallback(lista);
                 })
                 .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+    }
+
+    public void excluirEvento(String idEvento, Activity activity, Runnable onSuccess) {
+        db.collection("eventos")
+                .document(idEvento)
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(activity, "Evento excluído com sucesso!", Toast.LENGTH_SHORT).show();
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(activity, "Erro ao excluir evento: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
 }

@@ -12,8 +12,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Calendar;
 
@@ -82,6 +84,24 @@ public class CriarEventoFragment extends Fragment {
 
             // O último argumento (imagem) é null por enquanto
             eventoDAO.salvarEvento(requireActivity(), nome, desc, local, data, null);
+
+            // Limpa os campos após salvar (opcional, mas boa prática)
+            editNome.setText("");
+            editDescricao.setText("");
+            editLocal.setText("");
+            editData.setText("");
+
+            // Muda para o fragmento da Home
+            Fragment homeFragment = new HomeOrganizadorFragment();
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.frame_container, homeFragment)
+                .commit();
+
+            // Atualiza o BottomNavigationView para refletir a mudança de tela
+            BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNav != null) {
+                bottomNav.setSelectedItemId(R.id.nav_home);
+            }
         });
     }
 }
