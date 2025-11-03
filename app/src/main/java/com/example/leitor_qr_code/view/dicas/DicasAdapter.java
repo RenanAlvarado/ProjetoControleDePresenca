@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.dicas;
+package com.example.leitor_qr_code.view.dicas;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/azul_marinho"
-    tools:context=".ui.shows.AlterarShowFragment">
+    tools:context=".view.shows.AlterarShowFragment">
 
     <ScrollView
         android:id="@+id/scrollConteudo"

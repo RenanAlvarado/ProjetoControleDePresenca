@@ -25,17 +25,22 @@
 
         <!-- Tela de Dicas -->
         <activity
-            android:name=".dicas.DicasActivity"
+            android:name=".view.dicas.DicasActivity"
             android:exported="true" />
 
-        <!-- Tela Principal / Home (contém BottomNavigationView) -->
+        <!-- Tela Principal do participante / Home (contém BottomNavigationView) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".view.participante.MainParticipanteActivity"
+            android:exported="true" />
+
+        <!-- Tela Principal do organizador / Home (contém BottomNavigationView) -->
+        <activity
+            android:name=".view.organizador.MainOrganizadorActivity"
             android:exported="true" />
 
         <!-- Tela de Detalhes do Evento -->
         <activity
-            android:name=".ui.organizador.DetalhesEventoActivity"
+            android:name=".view.organizador.DetalhesEventoActivity"
             android:exported="true" />
 
     </application>

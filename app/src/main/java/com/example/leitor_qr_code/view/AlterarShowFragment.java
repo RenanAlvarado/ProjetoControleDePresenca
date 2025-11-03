@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui; // This package declaration is fine
+package com.example.leitor_qr_code.view; // This package declaration is fine
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -5,24 +6,25 @@
     android:layout_height="match_parent"
     android:background="@color/azul_marinho">
 
-    <!-- Fragments do usuário serão carregados -->
-
     <FrameLayout
-        android:id="@+id/frame_container_usuario"
+        android:id="@+id/frame_container_organizador"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="70dp" />
-
-    <!-- Bottom Navigation do usuário -->
+        android:layout_marginBottom="100dp"
+        android:background="@color/azul_marinho" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation_usuario"
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="129dp"
         android:layout_gravity="bottom"
         android:background="@color/azul_cinza"
         android:elevation="8dp"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
-        app:menu="@menu/bottom_nav_usuario" />
+        app:labelVisibilityMode="labeled"
+        app:layout_anchor="@+id/frame_container_organizador"
+        app:layout_anchorGravity="bottom|center"
+        app:menu="@menu/bottom_nav_menu_organizador" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

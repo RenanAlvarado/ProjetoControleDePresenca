@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.organizador;
+package com.example.leitor_qr_code.view.organizador;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -94,8 +94,8 @@ public class CriarEventoFragment extends Fragment {
             // Muda para o fragmento da Home
             Fragment homeFragment = new HomeOrganizadorFragment();
             getParentFragmentManager().beginTransaction()
-                .replace(R.id.frame_container, homeFragment)
-                .commit();
+                .replace(R.id.frame_container_organizador, homeFragment)
+                .commitAllowingStateLoss();
 
             // Atualiza o BottomNavigationView para refletir a mudança de tela
             BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);

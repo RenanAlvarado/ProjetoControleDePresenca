@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.organizador;
+package com.example.leitor_qr_code.view.organizador;
 
 import android.content.Intent;
 import android.os.Bundle;

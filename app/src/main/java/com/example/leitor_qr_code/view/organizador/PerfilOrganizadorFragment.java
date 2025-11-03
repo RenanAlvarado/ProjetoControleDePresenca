@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.organizador;
+package com.example.leitor_qr_code.view.organizador;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -77,29 +77,12 @@ public class PerfilOrganizadorFragment extends Fragment {
         btnEditarFoto.setOnClickListener(v -> imagePicker.launch("image/*"));
 
         // Carrega os dados do usuário (foto e campos de texto)
-        carregarDadosUsuario();
-    }
-
-    private void carregarDadosUsuario() {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore.getInstance().collection("usuarios").document(uid)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        // Carrega a foto
-                        String base64 = doc.getString("photoBase64");
-                        if (base64 != null && !base64.isEmpty()) {
-                            byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
-                            Glide.with(this).load(bytes).circleCrop().into(imgPerfil);
-                        } else {
-                            imgPerfil.setImageResource(R.drawable.icn_perfil_2);
-                        }
-
-                        // Carrega e preenche os campos de texto
-                        editNome.setText(doc.getString("nome"));
-                        editEmail.setText(doc.getString("email"));
-                        editTipo.setText(doc.getString("tipo"));
-                    }
-                });
+        usuarioDAO.carregarDadosUsuario(
+                imgPerfil,
+                editNome,
+                editEmail,
+                editTipo,
+                this
+        );
     }
 }

@@ -1,21 +1,18 @@
-package com.example.leitor_qr_code;
+package com.example.leitor_qr_code.view.organizador;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.leitor_qr_code.ui.organizador.HomeOrganizadorFragment;
-import com.example.leitor_qr_code.ui.organizador.PerfilOrganizadorFragment;
-import com.example.leitor_qr_code.ui.organizador.QrCodeFragment;
-import com.example.leitor_qr_code.ui.organizador.CriarEventoFragment;
+import com.example.leitor_qr_code.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainOrganizadorActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_organizador);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -38,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.frame_container, fragmentSelecionado)
+                    .replace(R.id.frame_container_organizador, fragmentSelecionado)
                     .commit();
 
             return true;

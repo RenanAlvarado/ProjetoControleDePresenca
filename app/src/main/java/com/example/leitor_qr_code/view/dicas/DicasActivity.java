@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.dicas;
+package com.example.leitor_qr_code.view.dicas;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.leitor_qr_code.MainActivity;
+import com.example.leitor_qr_code.view.organizador.MainOrganizadorActivity;
 import com.example.leitor_qr_code.R;
 
 public class DicasActivity extends AppCompatActivity {
@@ -65,7 +65,7 @@ public class DicasActivity extends AppCompatActivity {
 
         // 5. Ação de clique do botão
         botaoAvancar.setOnClickListener(v -> {
-            Intent intent = new Intent(DicasActivity.this, MainActivity.class);
+            Intent intent = new Intent(DicasActivity.this, MainOrganizadorActivity.class);
             startActivity(intent);
             finish();
         });
