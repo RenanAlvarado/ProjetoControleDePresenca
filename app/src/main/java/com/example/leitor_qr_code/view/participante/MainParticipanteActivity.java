@@ -29,6 +29,10 @@ public class MainParticipanteActivity extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
                 fragmentSelecionado = new HomeParticipanteFragment();
+            } else if (id == R.id.nav_perfil) {
+                fragmentSelecionado = new PerfilParticipanteFragment();
+            } else if (id == R.id.nav_qrcode) {
+                fragmentSelecionado = new QrCodeParticipanteFragment();
             } else {
                 return false;
             }
