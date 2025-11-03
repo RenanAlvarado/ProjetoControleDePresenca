@@ -64,33 +64,24 @@
                 android:textColor="#000"/>
 
             <EditText
-                android:id="@+id/editTelefone"
+                android:id="@+id/editEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Telefone"
+                android:background="@android:drawable/edit_text"
+                android:hint="Email"
                 android:inputType="phone"
-                android:background="@android:drawable/edit_text"
-                android:padding="12dp"/>
+                android:padding="12dp" />
 
             <EditText
-                android:id="@+id/editCpf"
+                android:id="@+id/editTipo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="CPF"
+                android:background="@android:drawable/edit_text"
+                android:hint="Tipo"
                 android:inputType="number"
-                android:background="@android:drawable/edit_text"
-                android:padding="12dp"/>
-
-            <EditText
-                android:id="@+id/editNascimento"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Data de Nascimento (dd/mm/aaaa)"
-                android:background="@android:drawable/edit_text"
-                android:padding="12dp"/>
+                android:padding="12dp" />
 
             <Button
                 android:id="@+id/btnSalvar"
