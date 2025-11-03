@@ -8,7 +8,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Leitor_Qr_Code">
 
-        <!-- Tela de Login (inicial) -->
+        <!-- Tela de LoginCadastro (inicial) -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">

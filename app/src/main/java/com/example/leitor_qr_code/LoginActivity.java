@@ -8,14 +8,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.leitor_qr_code.util.LoginCadastro;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class LoginActivity extends AppCompatActivity {
+
+    //Variaveis do Firebase
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Log.d("LoginActivity_DEBUG", "Tela de Login iniciada.");
+        Log.d("LoginActivity_DEBUG", "Tela de LoginCadastro iniciada.");
+
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // Campos e botões do layout
         EditText editEmail = findViewById(R.id.editEmail);
@@ -37,10 +48,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("LoginActivity_DEBUG", "Botão ENTRAR clicado.");
-                // Após login bem-sucedido, vai para DicasActivity
-                Intent intent = new Intent(LoginActivity.this, com.example.leitor_qr_code.DicasActivity.class);
-                startActivity(intent);
-                finish();
+                String email = editEmail.getText().toString().trim();
+                String senha = editSenha.getText().toString().trim();
+
+                // Chamando a classe LoginCadastro
+                LoginCadastro loginCadastro = new LoginCadastro();
+                loginCadastro.fazerLogin(LoginActivity.this, email, senha);
             }
         });
 

@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Leitor_Qr_Code"
 include(":app")
+
+
