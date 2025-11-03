@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.example.leitor_qr_code.LoginActivity;
-import com.example.leitor_qr_code.MainActivity;
+import com.example.leitor_qr_code.dicas.DicasActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -49,9 +49,9 @@ public class UsuarioDAO {
                                 Toast.makeText(activity, "LoginCadastro bem-sucedido!", Toast.LENGTH_SHORT).show();
 
                                 if ("organizador".equals(tipo)) {
-                                    activity.startActivity(new Intent(activity, MainActivity.class));
+                                    activity.startActivity(new Intent(activity, DicasActivity.class));
                                 } else {
-                                    activity.startActivity(new Intent(activity, MainActivity.class));
+                                    activity.startActivity(new Intent(activity, DicasActivity.class));
                                 }
 
                                 activity.finish();

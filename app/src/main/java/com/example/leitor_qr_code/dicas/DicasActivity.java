@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code;
+package com.example.leitor_qr_code.dicas;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.example.leitor_qr_code.MainActivity;
+import com.example.leitor_qr_code.R;
 
 public class DicasActivity extends AppCompatActivity {
 
@@ -36,7 +39,7 @@ public class DicasActivity extends AppCompatActivity {
         Log.d("DicasActivity", "Número de layouts a serem mostrados: " + layouts.length);
 
         // 3. Criar e configurar o Adapter
-        com.example.leitor_qr_code.DicasAdapter adapter = new com.example.leitor_qr_code.DicasAdapter(layouts);
+        DicasAdapter adapter = new DicasAdapter(layouts);
         viewPager.setAdapter(adapter);
 
         Log.d("DicasActivity", "Adapter foi configurado no ViewPager.");
