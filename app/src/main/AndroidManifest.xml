@@ -35,7 +35,7 @@
 
         <!-- Tela de Detalhes do Evento -->
         <activity
-            android:name=".ui.DetalhesEventoActivity"
+            android:name=".ui.organizador.DetalhesEventoActivity"
             android:exported="true" />
 
     </application>

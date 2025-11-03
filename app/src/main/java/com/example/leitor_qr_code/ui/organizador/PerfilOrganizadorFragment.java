@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui;
+package com.example.leitor_qr_code.ui.organizador;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;

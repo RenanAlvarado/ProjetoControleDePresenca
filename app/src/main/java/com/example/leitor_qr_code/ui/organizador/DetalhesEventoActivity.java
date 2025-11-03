@@ -1,10 +1,9 @@
-package com.example.leitor_qr_code.ui;
+package com.example.leitor_qr_code.ui.organizador;
 
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
