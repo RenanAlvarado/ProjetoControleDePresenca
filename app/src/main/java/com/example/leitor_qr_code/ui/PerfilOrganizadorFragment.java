@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.home.shows.qrcode.perfil;
+package com.example.leitor_qr_code.ui;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.home.shows.qrcode.perfil;
+package com.example.leitor_qr_code.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -17,7 +17,7 @@ import com.example.leitor_qr_code.dao.EventoDAO;
 
 import java.util.Calendar;
 
-public class ShowsFragment extends Fragment {
+public class CriarEventoFragment extends Fragment {
 
     private EditText txtDataNascimento;
     private EditText editLocal;
@@ -26,7 +26,7 @@ public class ShowsFragment extends Fragment {
     private EditText editDescricao;
     private Button btnSalvarEvento;
 
-    public ShowsFragment() {
+    public CriarEventoFragment() {
         // Construtor vazio é necessário
     }
 
@@ -34,7 +34,7 @@ public class ShowsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Apenas infla o layout e o retorna
-        return inflater.inflate(R.layout.fragment_shows, container, false);
+        return inflater.inflate(R.layout.fragment_criar_eventos, container, false);
     }
 
     @Override

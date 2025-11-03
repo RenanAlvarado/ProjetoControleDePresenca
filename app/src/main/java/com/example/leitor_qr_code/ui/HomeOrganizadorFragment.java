@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.home.shows.qrcode.perfil;
+package com.example.leitor_qr_code.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +18,7 @@ import com.example.leitor_qr_code.util.EventoAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class HomeOrganizadorFragment extends Fragment {
 
     private RecyclerView recyclerEventos;
     private EventoAdapter adapter;
@@ -29,7 +28,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home_organizador, container, false);
 
         recyclerEventos = view.findViewById(R.id.recyclerEventos);
         recyclerEventos.setLayoutManager(new LinearLayoutManager(getContext()));

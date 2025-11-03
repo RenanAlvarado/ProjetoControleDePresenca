@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.ui.qrcode;
+package com.example.leitor_qr_code.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

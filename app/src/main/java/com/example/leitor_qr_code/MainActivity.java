@@ -4,10 +4,10 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.HomeFragment;
-import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.PerfilOrganizadorFragment;
-import com.example.leitor_qr_code.ui.qrcode.QrCodeFragment;
-import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.ShowsFragment;
+import com.example.leitor_qr_code.ui.HomeOrganizadorFragment;
+import com.example.leitor_qr_code.ui.PerfilOrganizadorFragment;
+import com.example.leitor_qr_code.ui.QrCodeFragment;
+import com.example.leitor_qr_code.ui.CriarEventoFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,9 +25,9 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
-                fragmentSelecionado = new HomeFragment();
+                fragmentSelecionado = new HomeOrganizadorFragment();
             } else if (id == R.id.nav_shows) {
-                fragmentSelecionado = new ShowsFragment();
+                fragmentSelecionado = new CriarEventoFragment();
             } else if (id == R.id.nav_qrcode) {
                 fragmentSelecionado = new QrCodeFragment();
             } else if (id == R.id.nav_perfil) {
