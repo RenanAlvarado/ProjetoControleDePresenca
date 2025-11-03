@@ -4,11 +4,11 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.leitor_qr_code.ui.home.HomeFragment;
-import com.example.leitor_qr_code.ui.shows.ShowsFragment;
+import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.PerfilOrganizadorFragment;
 import com.example.leitor_qr_code.ui.qrcode.QrCodeFragment;
-import com.example.leitor_qr_code.ui.perfil.PerfilFragment;
+import com.example.leitor_qr_code.ui.shows.ShowsFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_qrcode) {
                 fragmentSelecionado = new QrCodeFragment();
             } else if (id == R.id.nav_perfil) {
-                fragmentSelecionado = new PerfilFragment();
+                fragmentSelecionado = new PerfilOrganizadorFragment();
             } else {
                 return false;
             }
