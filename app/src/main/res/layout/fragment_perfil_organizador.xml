@@ -58,10 +58,11 @@
                 android:id="@+id/editNome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nome completo"
                 android:background="@android:drawable/edit_text"
+                android:enabled="true"
+                android:hint="Nome completo"
                 android:padding="12dp"
-                android:textColor="#000"/>
+                android:textColor="#000" />
 
             <EditText
                 android:id="@+id/editEmail"
@@ -69,6 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@android:drawable/edit_text"
+                android:enabled="true"
                 android:hint="Email"
                 android:inputType="phone"
                 android:padding="12dp" />
@@ -79,6 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@android:drawable/edit_text"
+                android:enabled="true"
                 android:hint="Tipo"
                 android:inputType="number"
                 android:padding="12dp" />

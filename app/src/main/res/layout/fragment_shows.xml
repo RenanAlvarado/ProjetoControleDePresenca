@@ -2,7 +2,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
     android:paddingStart="24dp"
     android:paddingEnd="24dp"
     android:paddingTop="24dp"
@@ -19,112 +18,99 @@
             android:id="@+id/textTitulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Controle de Shows"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="Criar Evento"
             android:textColor="@color/white"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
+            android:textStyle="bold" />
 
-        <!-- Card do Show Atual -->
+        <!-- Card de Formulário -->
         <LinearLayout
-            android:id="@+id/layoutShowAtual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:padding="24dp"
-            android:background="@drawable/bg_conteudo_branco">
-
-            <TextView
-                android:id="@+id/textShowAtual"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Show Atual"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textNomeShow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Festival de Verão 2025"
-                android:textColor="#333333"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:id="@+id/textDataShow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Data: 30/10/2025"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/textLocalShow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Local: Arena Central"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-        </LinearLayout>
-
-        <!-- Card da Lista de Presenças -->
-        <LinearLayout
-            android:id="@+id/layoutPresencas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="24dp"
             android:padding="24dp"
             android:background="@drawable/bg_conteudo_branco">
 
-            <TextView
-                android:id="@+id/textTituloPresencas"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pessoas Presentes"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
-
-            <ListView
-                android:id="@+id/listaPresencas"
+            <!-- Nome do Evento -->
+            <EditText
+                android:id="@+id/editNomeEvento"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:divider="#CCCCCC"
-                android:dividerHeight="1dp" />
-
-            <TextView
-                android:id="@+id/textTotalPresencas"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total de presentes: 45"
-                android:textColor="#333333"
-                android:textSize="14sp"
-                android:layout_marginTop="12dp" />
+                android:hint="Nome do Evento"
+                android:padding="12dp"
+                android:background="@android:drawable/edit_text"
+                android:textSize="16sp" />
+
+            <!-- Descrição -->
+            <EditText
+                android:id="@+id/editDescricao"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="12dp"
+                android:hint="Descrição"
+                android:gravity="top"
+                android:padding="12dp"
+                android:background="@android:drawable/edit_text"
+                android:textSize="16sp" />
+
+            <!-- Local -->
+            <EditText
+                android:id="@+id/editLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Local do Evento"
+                android:padding="12dp"
+                android:background="@android:drawable/edit_text"
+                android:textSize="16sp" />
+
+            <!-- Data e Hora -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+                <EditText
+                    android:id="@+id/editDataNascimento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Data do Evento"
+                    android:padding="12dp"
+                    android:layout_toLeftOf="@+id/btnCalendar"
+                    android:layout_toStartOf="@+id/btnCalendar"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="none"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="16sp"/>
+
+                <ImageView
+                    android:id="@+id/btnCalendar"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_calendario"
+                    android:padding="4dp"/>
+            </RelativeLayout>
         </LinearLayout>
 
-        <!-- Botão para alterar características -->
+        <!-- Botão de Salvar -->
         <Button
-            android:id="@+id/btnAlterar"
+            android:id="@+id/btnSalvarEvento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Alterar Características"
+            android:text="Salvar Evento"
             android:textAllCaps="false"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="@color/azul_cinza"
             android:layout_marginTop="24dp"
-            android:layout_marginBottom="32dp"
-            android:padding="12dp" />
+            android:padding="14dp" />
 
     </LinearLayout>
+
 </ScrollView>

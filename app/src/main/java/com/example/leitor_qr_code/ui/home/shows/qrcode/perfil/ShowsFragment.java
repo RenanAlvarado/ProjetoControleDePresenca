@@ -1,18 +1,86 @@
-package com.example.leitor_qr_code.ui.shows;
+package com.example.leitor_qr_code.ui.home.shows.qrcode.perfil;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.leitor_qr_code.R;
+import com.example.leitor_qr_code.dao.EventoDAO;
+
+import java.util.Calendar;
 
 public class ShowsFragment extends Fragment {
-    public ShowsFragment() {}
+
+    private EditText txtDataNascimento;
+    private EditText editLocal;
+    private EditText editData;
+    private EditText editNome;
+    private EditText editDescricao;
+    private Button btnSalvarEvento;
+
+    public ShowsFragment() {
+        // Construtor vazio é necessário
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Apenas infla o layout e o retorna
         return inflater.inflate(R.layout.fragment_shows, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        txtDataNascimento = view.findViewById(R.id.editDataNascimento);
+        btnSalvarEvento = view.findViewById(R.id.btnSalvarEvento);
+        editNome = view.findViewById(R.id.editNomeEvento);
+        editDescricao = view.findViewById(R.id.editDescricao);
+        editLocal = view.findViewById(R.id.editLocal);
+        editData = view.findViewById(R.id.editDataNascimento);
+
+        // Picker de data
+        txtDataNascimento.setOnClickListener(v -> {
+            final Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePicker = new DatePickerDialog(
+                    requireContext(),
+                    (view1, y, m, d) -> {
+                        String dataSelecionada = d + "/" + (m + 1) + "/" + y;
+                        txtDataNascimento.setText(dataSelecionada);
+                    },
+                    year, month, day
+            );
+            datePicker.show();
+        });
+
+        // Botão salvar
+        EventoDAO eventoDAO = new EventoDAO();
+
+        btnSalvarEvento.setOnClickListener(v -> {
+            String nome = editNome.getText().toString();
+            String desc = editDescricao.getText().toString();
+            String local = editLocal.getText().toString();
+            String data = editData.getText().toString();
+
+            if (nome.isEmpty() || desc.isEmpty() || local.isEmpty() || data.isEmpty()) {
+                Toast.makeText(getContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            eventoDAO.salvarEvento(requireActivity(), nome, desc, local, data);
+        });
     }
 }
