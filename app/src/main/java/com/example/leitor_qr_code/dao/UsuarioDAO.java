@@ -1,4 +1,4 @@
-package com.example.leitor_qr_code.util;
+package com.example.leitor_qr_code.dao;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,12 +11,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
-public class LoginCadastro {
+public class UsuarioDAO {
 
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
-    public LoginCadastro() {
+    public UsuarioDAO() {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
     }

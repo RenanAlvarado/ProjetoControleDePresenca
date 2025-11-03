@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.leitor_qr_code.util.LoginCadastro;
+import com.example.leitor_qr_code.dao.UsuarioDAO;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -52,8 +52,8 @@ public class LoginActivity extends AppCompatActivity {
                 String senha = editSenha.getText().toString().trim();
 
                 // Chamando a classe LoginCadastro
-                LoginCadastro loginCadastro = new LoginCadastro();
-                loginCadastro.fazerLogin(LoginActivity.this, email, senha);
+                UsuarioDAO usuarioDAO = new UsuarioDAO();
+                usuarioDAO.fazerLogin(LoginActivity.this, email, senha);
             }
         });
 

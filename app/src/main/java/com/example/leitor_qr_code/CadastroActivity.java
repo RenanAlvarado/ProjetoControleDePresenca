@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.leitor_qr_code.LoginActivity;
 import com.example.leitor_qr_code.R;
-import com.example.leitor_qr_code.util.LoginCadastro;
+import com.example.leitor_qr_code.dao.UsuarioDAO;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -67,7 +67,8 @@ public class CadastroActivity extends AppCompatActivity {
                 return;
             }
 
-            new LoginCadastro().cadastrarUsuario(this, nome, email, senha, tipo);
+            UsuarioDAO usuarioDAO = new UsuarioDAO();
+            usuarioDAO.cadastrarUsuario(this, nome, email, senha, tipo);
         });
     }
 }
