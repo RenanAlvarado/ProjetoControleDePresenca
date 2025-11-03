@@ -1,9 +1,12 @@
 package com.example.leitor_qr_code.model;
 
-public class Evento {
+import java.io.Serializable;
+
+// IMPORTANTE: Adicionado "implements Serializable" para passar o objeto entre Activities
+public class Evento implements Serializable {
     private String idEvento;
     private String organizadorId;
-    private String nome; // Renomeado de 'titulo'
+    private String nome;
     private String data;
     private String hora;
     private String local;
@@ -30,8 +33,8 @@ public class Evento {
     public String getOrganizadorId() { return organizadorId; }
     public void setOrganizadorId(String organizadorId) { this.organizadorId = organizadorId; }
 
-    public String getNome() { return nome; } // Renomeado de 'getTitulo'
-    public void setNome(String nome) { this.nome = nome; } // Renomeado de 'setTitulo'
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
     public String getData() { return data; }
     public void setData(String data) { this.data = data; }

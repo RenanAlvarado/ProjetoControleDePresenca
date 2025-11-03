@@ -33,6 +33,11 @@
             android:name=".MainActivity"
             android:exported="true" />
 
+        <!-- Tela de Detalhes do Evento -->
+        <activity
+            android:name=".ui.DetalhesEventoActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>

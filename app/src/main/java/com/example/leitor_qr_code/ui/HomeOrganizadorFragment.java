@@ -1,5 +1,6 @@
 package com.example.leitor_qr_code.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,16 @@ public class HomeOrganizadorFragment extends Fragment {
 
         adapter = new EventoAdapter(listaEventos, evento -> {
             Toast.makeText(getContext(), "Selecionado: " + evento.getNome(), Toast.LENGTH_SHORT).show();
+
             // Aqui depois vamos abrir tela de detalhes
+            Intent intent = new Intent(getActivity(), DetalhesEventoActivity.class);
+            intent.putExtra("eventoId", evento.getIdEvento());
+            intent.putExtra("nome", evento.getNome());
+            intent.putExtra("descricao", evento.getDescricao());
+            intent.putExtra("local", evento.getLocal());
+            intent.putExtra("data", evento.getData());
+            intent.putExtra("imagemBase64", evento.getImagemBase64());
+            startActivity(intent);
         });
         recyclerEventos.setAdapter(adapter);
 
