@@ -4,7 +4,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.leitor_qr_code.ui.home.HomeFragment;
+import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.HomeFragment;
 import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.PerfilOrganizadorFragment;
 import com.example.leitor_qr_code.ui.qrcode.QrCodeFragment;
 import com.example.leitor_qr_code.ui.home.shows.qrcode.perfil.ShowsFragment;

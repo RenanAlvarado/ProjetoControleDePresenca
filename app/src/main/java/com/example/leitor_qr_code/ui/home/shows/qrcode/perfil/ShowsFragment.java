@@ -80,7 +80,8 @@ public class ShowsFragment extends Fragment {
                 return;
             }
 
-            eventoDAO.salvarEvento(requireActivity(), nome, desc, local, data);
+            // O último argumento (imagem) é null por enquanto
+            eventoDAO.salvarEvento(requireActivity(), nome, desc, local, data, null);
         });
     }
 }
