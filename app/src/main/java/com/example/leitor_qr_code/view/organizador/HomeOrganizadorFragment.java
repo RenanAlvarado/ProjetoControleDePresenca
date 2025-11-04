@@ -36,7 +36,7 @@ public class HomeOrganizadorFragment extends Fragment {
 
         adapter = new EventoAdapter(listaEventos, evento -> {
             // Cria a intenção para abrir a tela de detalhes
-            Intent intent = new Intent(getActivity(), DetalhesEventoActivity.class);
+            Intent intent = new Intent(getActivity(), DetalhesEventoOrganizadorActivity.class);
             
             // CORREÇÃO: Passa o objeto Evento inteiro de uma só vez
             intent.putExtra("eventoSelecionado", evento);

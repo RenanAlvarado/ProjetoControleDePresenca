@@ -1,91 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="@color/azul_marinho">
+    android:orientation="vertical"
+    android:background="@color/azul_marinho"
+    android:padding="24dp">
 
-    <LinearLayout
+    <!-- Título -->
+    <TextView
+        android:id="@+id/textTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bem-vindo(a)!"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="32dp" />
+
+    <!-- Mensagem -->
+    <TextView
+        android:id="@+id/textMensagem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:text="Veja abaixo os eventos disponíveis para inscrição."
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:gravity="center" />
 
-        <!-- Título -->
-        <TextView
-            android:id="@+id/textTitulo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Bem-vindo(a)!"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_marginTop="92dp" />
+    <!-- LISTA DE EVENTOS -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEventosDisponiveis"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_weight="1" />
 
-        <!-- Mensagem -->
-        <TextView
-            android:id="@+id/textMensagem"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Acompanhe aqui sua presença e acesse seu QR Code para entrada e saída nos eventos."
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:gravity="center" />
-
-        <!-- Container branco com informações -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:background="@drawable/bg_conteudo_branco"
-            android:padding="24dp"
-            android:layout_marginTop="40dp">
-
-            <!-- Evento atual -->
-            <TextView
-                android:id="@+id/textEventoAtual"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Evento atual:"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textNomeEvento"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Show Makitos - São Paulo"
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:layout_marginTop="8dp" />
-
-            <!-- Situação do usuário no evento -->
-            <TextView
-                android:id="@+id/textStatusEvento"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="🔴 Você ainda não entrou no evento."
-                android:textAlignment="center"
-                android:textColor="#D32F2F"
-                android:textSize="16sp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_status_usuario"
-                android:padding="12dp"
-                android:gravity="center" />
-
-            <!-- Botão para ver o QR Code -->
-            <Button
-                android:id="@+id/btnVerQr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ver meu QR Code"
-                android:backgroundTint="@color/azul_cinza"
-                android:textColor="#FFFFFF"
-                android:layout_marginTop="24dp" />
-
-        </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

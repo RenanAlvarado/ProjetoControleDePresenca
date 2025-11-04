@@ -38,9 +38,14 @@
             android:name=".view.organizador.MainOrganizadorActivity"
             android:exported="true" />
 
-        <!-- Tela de Detalhes do Evento -->
+        <!-- Tela de Detalhes do Evento (Organizador) -->
         <activity
-            android:name=".view.organizador.DetalhesEventoActivity"
+            android:name=".view.organizador.DetalhesEventoOrganizadorActivity"
+            android:exported="true" />
+
+        <!-- CORREÇÃO: Tela de Detalhes do Evento (Participante) -->
+        <activity
+            android:name=".view.participante.DetalhesEventoParticipanteActivity"
             android:exported="true" />
 
     </application>

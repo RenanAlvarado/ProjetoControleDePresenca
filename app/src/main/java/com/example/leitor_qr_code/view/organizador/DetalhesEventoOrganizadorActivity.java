@@ -13,7 +13,7 @@ import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
 import com.example.leitor_qr_code.model.Evento;
 
-public class DetalhesEventoActivity extends AppCompatActivity {
+public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
 
     private TextView txtTitulo, txtDescricao, txtData, txtLocal;
     private ImageButton btnVoltar;
@@ -23,7 +23,7 @@ public class DetalhesEventoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detalhes_evento);
+        setContentView(R.layout.activity_detalhes_evento_organizador);
 
         // Referenciando os componentes da tela
         txtTitulo = findViewById(R.id.txtTituloEvento);
