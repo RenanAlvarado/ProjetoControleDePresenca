@@ -1,12 +1,15 @@
 package com.example.leitor_qr_code.view.organizador;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,27 +18,26 @@ import androidx.fragment.app.Fragment;
 
 import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
+import com.example.leitor_qr_code.model.Evento;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class CriarEventoFragment extends Fragment {
 
-    private EditText txtDataNascimento;
-    private EditText editLocal;
-    private EditText editData;
-    private EditText editNome;
-    private EditText editDescricao;
+    private EditText editNome, editDescricao, editLocal;
+    private EditText editDataInicio, editHoraInicio, editDataFim, editHoraFim;
+    private Spinner spinnerLiberarScanner;
     private Button btnSalvarEvento;
+    private EventoDAO eventoDAO;
 
-    public CriarEventoFragment() {
-        // Construtor vazio é necessário
-    }
-
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Apenas infla o layout e o retorna
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_criar_eventos, container, false);
     }
 
@@ -43,65 +45,114 @@ public class CriarEventoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        txtDataNascimento = view.findViewById(R.id.editDataNascimento);
-        btnSalvarEvento = view.findViewById(R.id.btnSalvarEvento);
+        // Referências
         editNome = view.findViewById(R.id.editNomeEvento);
         editDescricao = view.findViewById(R.id.editDescricao);
         editLocal = view.findViewById(R.id.editLocal);
-        editData = view.findViewById(R.id.editDataNascimento);
+        editDataInicio = view.findViewById(R.id.editDataInicio);
+        editHoraInicio = view.findViewById(R.id.editHoraInicio);
+        editDataFim = view.findViewById(R.id.editDataFim);
+        editHoraFim = view.findViewById(R.id.editHoraFim);
+        spinnerLiberarScanner = view.findViewById(R.id.spinnerLiberarScanner);
+        btnSalvarEvento = view.findViewById(R.id.btnSalvarEvento);
+        eventoDAO = new EventoDAO();
 
-        // Picker de data
-        txtDataNascimento.setOnClickListener(v -> {
-            final Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
+        setupDateTimePickers();
+        setupScannerSpinner();
 
-            DatePickerDialog datePicker = new DatePickerDialog(
-                    requireContext(),
-                    (view1, y, m, d) -> {
-                        String dataSelecionada = d + "/" + (m + 1) + "/" + y;
-                        txtDataNascimento.setText(dataSelecionada);
-                    },
-                    year, month, day
-            );
-            datePicker.show();
-        });
+        btnSalvarEvento.setOnClickListener(v -> salvarEvento());
+    }
 
-        // Botão salvar
-        EventoDAO eventoDAO = new EventoDAO();
+    private void setupDateTimePickers() {
+        editDataInicio.setOnClickListener(v -> showDatePickerDialog(editDataInicio));
+        editHoraInicio.setOnClickListener(v -> showTimePickerDialog(editHoraInicio));
+        editDataFim.setOnClickListener(v -> showDatePickerDialog(editDataFim));
+        editHoraFim.setOnClickListener(v -> showTimePickerDialog(editHoraFim));
+    }
 
-        btnSalvarEvento.setOnClickListener(v -> {
-            String nome = editNome.getText().toString();
-            String desc = editDescricao.getText().toString();
-            String local = editLocal.getText().toString();
-            String data = editData.getText().toString();
+    private void showDatePickerDialog(EditText editText) {
+        Calendar c = Calendar.getInstance();
+        new DatePickerDialog(getContext(), (view, year, month, day) -> {
+            editText.setText(String.format(Locale.getDefault(), "%02d/%02d/%d", day, month + 1, year));
+        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+    }
 
-            if (nome.isEmpty() || desc.isEmpty() || local.isEmpty() || data.isEmpty()) {
-                Toast.makeText(getContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show();
-                return;
+    private void showTimePickerDialog(EditText editText) {
+        Calendar c = Calendar.getInstance();
+        new TimePickerDialog(getContext(), (view, hour, minute) -> {
+            editText.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, minute));
+        }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show();
+    }
+
+    private void setupScannerSpinner() {
+        String[] tempos = {"No início do evento", "1 hora antes", "2 horas antes", "3 horas antes"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, tempos);
+        spinnerLiberarScanner.setAdapter(adapter);
+    }
+
+    private boolean validarDatas(String dataInicioStr, String horaInicioStr, String dataFimStr, String horaFimStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        try {
+            Date inicio = sdf.parse(dataInicioStr + " " + horaInicioStr);
+            Date fim = sdf.parse(dataFimStr + " " + horaFimStr);
+            Date agora = new Date();
+
+            if (inicio.before(agora)) {
+                Toast.makeText(getContext(), "A data de início não pode ser no passado.", Toast.LENGTH_SHORT).show();
+                return false;
             }
+            if (fim.before(inicio)) {
+                Toast.makeText(getContext(), "A data de fim não pode ser anterior à data de início.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            return true;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Formato de data ou hora inválido.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
 
-            // O último argumento (imagem) é null por enquanto
-            eventoDAO.salvarEvento(requireActivity(), nome, desc, local, data, null);
+    private void salvarEvento() {
+        String nome = editNome.getText().toString().trim();
+        String descricao = editDescricao.getText().toString().trim();
+        String local = editLocal.getText().toString().trim();
+        String dataInicio = editDataInicio.getText().toString().trim();
+        String horaInicio = editHoraInicio.getText().toString().trim();
+        String dataFim = editDataFim.getText().toString().trim();
+        String horaFim = editHoraFim.getText().toString().trim();
+        String liberarScanner = spinnerLiberarScanner.getSelectedItem().toString();
 
-            // Limpa os campos após salvar (opcional, mas boa prática)
-            editNome.setText("");
-            editDescricao.setText("");
-            editLocal.setText("");
-            editData.setText("");
+        if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty()) {
+            Toast.makeText(getContext(), "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            // Muda para o fragmento da Home
-            Fragment homeFragment = new HomeOrganizadorFragment();
+        if (!validarDatas(dataInicio, horaInicio, dataFim, horaFim)) {
+            return; // Interrompe se as datas forem inválidas
+        }
+
+        Evento novoEvento = new Evento();
+        novoEvento.setNome(nome);
+        novoEvento.setDescricao(descricao);
+        novoEvento.setLocal(local);
+        novoEvento.setDataInicio(dataInicio);
+        novoEvento.setHoraInicio(horaInicio);
+        novoEvento.setDataFim(dataFim);
+        novoEvento.setHoraFim(horaFim);
+        novoEvento.setLiberarScannerAntes(liberarScanner);
+
+        eventoDAO.salvarEvento(getContext(), novoEvento, () -> {
             getParentFragmentManager().beginTransaction()
-                .replace(R.id.frame_container_organizador, homeFragment)
-                .commitAllowingStateLoss();
-
-            // Atualiza o BottomNavigationView para refletir a mudança de tela
+                    .replace(R.id.frame_container_organizador, new HomeOrganizadorFragment())
+                    .commit();
+            
             BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);
             if (bottomNav != null) {
                 bottomNav.setSelectedItemId(R.id.nav_home);
             }
+        }, () -> {
+            Toast.makeText(getContext(), "Ocorreu um erro ao salvar o evento.", Toast.LENGTH_SHORT).show();
         });
     }
 }

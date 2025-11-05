@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.leitor_qr_code.LoginActivity;
 import com.example.leitor_qr_code.R;
+import com.example.leitor_qr_code.model.Usuario;
 import com.example.leitor_qr_code.view.dicas.DicasActivity;
 import com.example.leitor_qr_code.view.participante.MainParticipanteActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,16 +34,35 @@ public class UsuarioDAO {
     private final FirebaseFirestore db;
     private final FirebaseStorage storage;
 
-    // CORREÇÃO: Interface agora retorna os dados separadamente
     public interface QrCodeDataCallback {
         void onDataReady(String nome, String email, String jsonData);
         void onFailure();
+    }
+
+    public interface NomeUsuarioCallback {
+        void onNomeCarregado(String nome);
     }
 
     public UsuarioDAO() {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+    }
+
+    public void buscarNomePorId(String uid, NomeUsuarioCallback callback) {
+        if (uid == null || uid.isEmpty()) {
+            callback.onNomeCarregado("Desconhecido");
+            return;
+        }
+        db.collection("usuarios").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        callback.onNomeCarregado(documentSnapshot.getString("nome"));
+                    } else {
+                        callback.onNomeCarregado("Desconhecido");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onNomeCarregado("Desconhecido"));
     }
 
     public void gerarDadosQrCode(QrCodeDataCallback callback) {
@@ -64,7 +84,6 @@ public class UsuarioDAO {
                             json.put("uid", uid);
                             json.put("nome", nome);
                             json.put("email", email);
-                            // CORREÇÃO: Chama o callback com os dados separados
                             callback.onDataReady(nome, email, json.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -76,8 +95,6 @@ public class UsuarioDAO {
                 })
                 .addOnFailureListener(e -> callback.onFailure());
     }
-
-    // --- DEMAIS MÉTODOS (NÃO FORAM ALTERADOS) ---
 
     public void fazerLogin(Activity activity, String email, String senha) {
         if (email.isEmpty() || senha.isEmpty()) {

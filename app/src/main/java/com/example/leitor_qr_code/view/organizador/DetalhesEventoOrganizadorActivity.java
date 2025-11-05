@@ -39,11 +39,13 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         eventoDAO = new EventoDAO();
         evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
 
-        // --- Configuração dos Componentes ---
+        // --- Referências ---
         TextView txtTitulo = findViewById(R.id.txtTituloEvento);
         TextView txtDescricao = findViewById(R.id.txtDescricaoEvento);
-        TextView txtData = findViewById(R.id.txtDataEvento);
         TextView txtLocal = findViewById(R.id.txtLocalEvento);
+        TextView txtDataHoraInicio = findViewById(R.id.txtDataHoraInicio);
+        TextView txtDataHoraFim = findViewById(R.id.txtDataHoraFim);
+        TextView txtLiberarScanner = findViewById(R.id.txtLiberarScanner);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
         btnExcluir = findViewById(R.id.btnExcluirEvento);
         btnEscanear = findViewById(R.id.btnEscanearQrCodes);
@@ -72,8 +74,10 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         if(evento != null){
             txtTitulo.setText(evento.getNome());
             txtDescricao.setText(evento.getDescricao());
-            txtData.setText(evento.getData());
             txtLocal.setText(evento.getLocal());
+            txtDataHoraInicio.setText("Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio());
+            txtDataHoraFim.setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
+            txtLiberarScanner.setText("Scanner liberado: " + evento.getLiberarScannerAntes());
 
             recyclerInscritos = findViewById(R.id.recyclerInscritos);
             recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));

@@ -2,30 +2,24 @@ package com.example.leitor_qr_code.model;
 
 import java.io.Serializable;
 
-// IMPORTANTE: Adicionado "implements Serializable" para passar o objeto entre Activities
 public class Evento implements Serializable {
     private String idEvento;
     private String organizadorId;
     private String nome;
-    private String data;
-    private String hora;
-    private String local;
     private String descricao;
-    private String imagemBase64; // Foto em base64
+    private String local;
+    private String data; // Mantido por compatibilidade, mas os novos campos são melhores
 
-    // Construtor vazio para Firebase
+    // Novos campos
+    private String dataInicio;
+    private String horaInicio;
+    private String dataFim;
+    private String horaFim;
+    private String liberarScannerAntes; 
+
     public Evento() {}
 
-    public Evento(String idEvento, String organizadorId, String nome, String data, String hora, String local, String descricao, String imagemBase64) {
-        this.idEvento = idEvento;
-        this.organizadorId = organizadorId;
-        this.nome = nome;
-        this.data = data;
-        this.hora = hora;
-        this.local = local;
-        this.descricao = descricao;
-        this.imagemBase64 = imagemBase64;
-    }
+    // --- Getters e Setters ---
 
     public String getIdEvento() { return idEvento; }
     public void setIdEvento(String idEvento) { this.idEvento = idEvento; }
@@ -36,18 +30,27 @@ public class Evento implements Serializable {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
-    public String getData() { return data; }
-    public void setData(String data) { this.data = data; }
-
-    public String getHora() { return hora; }
-    public void setHora(String hora) { this.hora = hora; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 
     public String getLocal() { return local; }
     public void setLocal(String local) { this.local = local; }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public String getData() { return data; }
+    public void setData(String data) { this.data = data; }
 
-    public String getImagemBase64() { return imagemBase64; }
-    public void setImagemBase64(String imagemBase64) { this.imagemBase64 = imagemBase64; }
+    public String getDataInicio() { return dataInicio; }
+    public void setDataInicio(String dataInicio) { this.dataInicio = dataInicio; }
+
+    public String getHoraInicio() { return horaInicio; }
+    public void setHoraInicio(String horaInicio) { this.horaInicio = horaInicio; }
+
+    public String getDataFim() { return dataFim; }
+    public void setDataFim(String dataFim) { this.dataFim = dataFim; }
+
+    public String getHoraFim() { return horaFim; }
+    public void setHoraFim(String horaFim) { this.horaFim = horaFim; }
+
+    public String getLiberarScannerAntes() { return liberarScannerAntes; }
+    public void setLiberarScannerAntes(String liberarScannerAntes) { this.liberarScannerAntes = liberarScannerAntes; }
 }

@@ -24,6 +24,26 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <!-- Data e Hora de Início -->
+        <TextView
+            android:id="@+id/textDataHoraInicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Início: DD/MM/AAAA às HH:MM"
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Data e Hora de Fim -->
+        <TextView
+            android:id="@+id/textDataHoraFim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fim: DD/MM/AAAA às HH:MM"
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"/>
+            
         <!-- Local -->
         <TextView
             android:id="@+id/textLocalEvento"
@@ -32,17 +52,7 @@
             android:text="Local do Evento"
             android:textColor="#555555"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
-
-        <!-- Data -->
-        <TextView
-            android:id="@+id/textDataEvento"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Data"
-            android:textColor="#777777"
-            android:textSize="14sp"
-            android:layout_marginTop="2dp"/>
+            android:layout_marginTop="8dp"/>
 
         <!-- Botão ver mais -->
         <Button

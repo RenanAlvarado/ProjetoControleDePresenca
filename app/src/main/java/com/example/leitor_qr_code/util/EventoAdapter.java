@@ -42,12 +42,14 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
 
         holder.txtNome.setText(evento.getNome());
         holder.txtLocal.setText(evento.getLocal());
-        holder.txtData.setText(evento.getData());
+        
+        String inicio = "Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio();
+        holder.txtDataHoraInicio.setText(inicio);
 
-        // Define o clique para o item inteiro
+        String fim = "Fim: " + evento.getDataFim() + " às " + evento.getHoraFim();
+        holder.txtDataHoraFim.setText(fim);
+
         holder.itemView.setOnClickListener(v -> listener.onClick(evento));
-
-        // CORREÇÃO: Define o clique também para o botão "Detalhes"
         holder.btnDetalhes.setOnClickListener(v -> listener.onClick(evento));
     }
 
@@ -58,16 +60,16 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
 
     static class EventoViewHolder extends RecyclerView.ViewHolder {
 
-        TextView txtNome, txtData, txtLocal;
-        Button btnDetalhes; // Referência para o botão
+        TextView txtNome, txtLocal, txtDataHoraInicio, txtDataHoraFim;
+        Button btnDetalhes;
 
         public EventoViewHolder(@NonNull View itemView) {
             super(itemView);
 
             txtNome = itemView.findViewById(R.id.textNomeEvento);
             txtLocal = itemView.findViewById(R.id.textLocalEvento);
-            txtData = itemView.findViewById(R.id.textDataEvento);
-            // CORREÇÃO: Encontra o botão pelo ID
+            txtDataHoraInicio = itemView.findViewById(R.id.textDataHoraInicio);
+            txtDataHoraFim = itemView.findViewById(R.id.textDataHoraFim);
             btnDetalhes = itemView.findViewById(R.id.btnDetalhesEvento);
         }
     }

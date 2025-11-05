@@ -1,6 +1,7 @@
 package com.example.leitor_qr_code.dao;
 
 import android.app.Activity;
+import android.content.Context;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EventoDAO {
@@ -45,6 +47,41 @@ public class EventoDAO {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
     }
+
+    // MÉTODO ATUALIZADO
+    public void salvarEvento(Context context, Evento evento, Runnable onSuccess, Runnable onFailure) {
+        String uid = auth.getCurrentUser().getUid();
+        if (uid == null) {
+            Toast.makeText(context, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            onFailure.run();
+            return;
+        }
+
+        Map<String, Object> dadosEvento = new HashMap<>();
+        dadosEvento.put("nome", evento.getNome());
+        dadosEvento.put("descricao", evento.getDescricao());
+        dadosEvento.put("local", evento.getLocal());
+        dadosEvento.put("dataInicio", evento.getDataInicio());
+        dadosEvento.put("horaInicio", evento.getHoraInicio());
+        dadosEvento.put("dataFim", evento.getDataFim());
+        dadosEvento.put("horaFim", evento.getHoraFim());
+        dadosEvento.put("liberarScannerAntes", evento.getLiberarScannerAntes());
+        dadosEvento.put("organizadorId", uid);
+        dadosEvento.put("criadoEm", com.google.firebase.firestore.FieldValue.serverTimestamp());
+
+        db.collection("eventos")
+                .add(dadosEvento)
+                .addOnSuccessListener(ref -> {
+                    Toast.makeText(context, "Evento criado com sucesso!", Toast.LENGTH_SHORT).show();
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(context, "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    onFailure.run();
+                });
+    }
+
+    // --- DEMAIS MÉTODOS (INTACTOS) ---
 
     public void validarInscricao(String eventoId, String usuarioId, ValidacaoCallback callback) {
         db.collection("inscricoes")
@@ -97,33 +134,6 @@ public class EventoDAO {
                 });
             })
             .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
-    }
-
-    public void salvarEvento(Activity activity, String nome, String descricao, String local, String data, @Nullable String imgBase64) {
-        String uid = auth.getCurrentUser().getUid();
-
-        if(uid == null){
-            Toast.makeText(activity, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        HashMap<String, Object> evento = new HashMap<>();
-        evento.put("nome", nome);
-        evento.put("descricao", descricao);
-        evento.put("local", local);
-        evento.put("data", data);
-        evento.put("imagemBase64", imgBase64);
-        evento.put("organizadorId", uid);
-        evento.put("criadoEm", com.google.firebase.firestore.FieldValue.serverTimestamp());
-
-        db.collection("eventos")
-                .add(evento)
-                .addOnSuccessListener(ref -> {
-                    Toast.makeText(activity, "Evento criado com sucesso!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(activity, "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
     }
 
     public void carregarEventosPorOrganizador(EventoCallback callback) {

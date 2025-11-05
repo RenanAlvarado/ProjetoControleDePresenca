@@ -6,6 +6,7 @@
     android:paddingEnd="24dp"
     android:paddingTop="24dp"
     android:paddingBottom="16dp"
+    android:fillViewport="true"
     android:background="@color/azul_marinho">
 
     <LinearLayout
@@ -66,36 +67,73 @@
                 android:background="@android:drawable/edit_text"
                 android:textSize="16sp" />
 
-            <!-- Data e Hora -->
-            <RelativeLayout
+            <!-- Início do Evento -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Início do Evento"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="16dp"/>
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
-
+                android:orientation="horizontal">
                 <EditText
-                    android:id="@+id/editDataNascimento"
-                    android:layout_width="match_parent"
+                    android:id="@+id/editDataInicio"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:hint="Data do Evento"
-                    android:padding="12dp"
-                    android:layout_toLeftOf="@+id/btnCalendar"
-                    android:layout_toStartOf="@+id/btnCalendar"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:inputType="none"
-                    android:background="@android:drawable/edit_text"
-                    android:textSize="16sp"/>
+                    android:hint="Data"
+                    android:focusable="false" />
+                <EditText
+                    android:id="@+id/editHoraInicio"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Hora"
+                    android:focusable="false" />
+            </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/btnCalendar"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_calendario"
-                    android:padding="4dp"/>
-            </RelativeLayout>
+            <!-- Fim do Evento -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fim do Evento"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="12dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/editDataFim"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Data"
+                    android:focusable="false" />
+                <EditText
+                    android:id="@+id/editHoraFim"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Hora"
+                    android:focusable="false" />
+            </LinearLayout>
+
+            <!-- Liberação do Scanner -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Liberar escaneamento"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="12dp"/>
+            <Spinner
+                android:id="@+id/spinnerLiberarScanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"/>
+
         </LinearLayout>
 
         <!-- Botão de Salvar -->
