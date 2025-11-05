@@ -29,6 +29,7 @@ public class InscricoesParticipanteFragment extends Fragment {
     private TextView textEmptyState;
     private EventoDAO eventoDAO;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

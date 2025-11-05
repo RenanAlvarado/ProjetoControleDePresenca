@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/azul_marinho"
-    android:padding="24dp">
+    tools:context=".view.participante.HomeParticipanteFragment">
 
-    <!-- Título -->
     <TextView
         android:id="@+id/textTitulo"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Bem-vindo(a)!"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Eventos Disponíveis"
+        android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Mensagem -->
-    <TextView
-        android:id="@+id/textMensagem"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Veja abaixo os eventos disponíveis para inscrição."
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"
-        android:gravity="center" />
-
-    <!-- LISTA DE EVENTOS -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerEventosDisponiveis"
-        android:layout_width="match_parent"
+        android:id="@+id/recyclerEventos" 
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
-        android:layout_weight="1" />
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textTitulo"
+        tools:listitem="@layout/item_evento" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/textEmptyStateHome" 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nenhum evento disponível no momento."
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

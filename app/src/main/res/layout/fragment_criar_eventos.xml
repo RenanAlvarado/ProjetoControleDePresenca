@@ -34,7 +34,7 @@
             android:padding="24dp"
             android:background="@drawable/bg_conteudo_branco">
 
-            <!-- Nome do Evento -->
+            <!-- Campos existentes... -->
             <EditText
                 android:id="@+id/editNomeEvento"
                 android:layout_width="match_parent"
@@ -44,7 +44,6 @@
                 android:background="@android:drawable/edit_text"
                 android:textSize="16sp" />
 
-            <!-- Descrição -->
             <EditText
                 android:id="@+id/editDescricao"
                 android:layout_width="match_parent"
@@ -56,7 +55,6 @@
                 android:background="@android:drawable/edit_text"
                 android:textSize="16sp" />
 
-            <!-- Local -->
             <EditText
                 android:id="@+id/editLocal"
                 android:layout_width="match_parent"
@@ -67,7 +65,6 @@
                 android:background="@android:drawable/edit_text"
                 android:textSize="16sp" />
 
-            <!-- Início do Evento -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,7 +91,6 @@
                     android:focusable="false" />
             </LinearLayout>
 
-            <!-- Fim do Evento -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -121,7 +117,20 @@
                     android:focusable="false" />
             </LinearLayout>
 
-            <!-- Liberação do Scanner -->
+            <!-- NOVO CAMPO: Data Limite de Inscrição -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Data Limite para Inscrição"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="12dp"/>
+            <EditText
+                android:id="@+id/editDataLimiteInscricao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Selecione a data limite"
+                android:focusable="false"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -136,7 +145,6 @@
 
         </LinearLayout>
 
-        <!-- Botão de Salvar -->
         <Button
             android:id="@+id/btnSalvarEvento"
             android:layout_width="match_parent"

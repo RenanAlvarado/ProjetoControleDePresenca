@@ -30,7 +30,7 @@ import java.util.Locale;
 public class CriarEventoFragment extends Fragment {
 
     private EditText editNome, editDescricao, editLocal;
-    private EditText editDataInicio, editHoraInicio, editDataFim, editHoraFim;
+    private EditText editDataInicio, editHoraInicio, editDataFim, editHoraFim, editDataLimiteInscricao;
     private Spinner spinnerLiberarScanner;
     private Button btnSalvarEvento;
     private EventoDAO eventoDAO;
@@ -53,6 +53,7 @@ public class CriarEventoFragment extends Fragment {
         editHoraInicio = view.findViewById(R.id.editHoraInicio);
         editDataFim = view.findViewById(R.id.editDataFim);
         editHoraFim = view.findViewById(R.id.editHoraFim);
+        editDataLimiteInscricao = view.findViewById(R.id.editDataLimiteInscricao);
         spinnerLiberarScanner = view.findViewById(R.id.spinnerLiberarScanner);
         btnSalvarEvento = view.findViewById(R.id.btnSalvarEvento);
         eventoDAO = new EventoDAO();
@@ -68,6 +69,7 @@ public class CriarEventoFragment extends Fragment {
         editHoraInicio.setOnClickListener(v -> showTimePickerDialog(editHoraInicio));
         editDataFim.setOnClickListener(v -> showDatePickerDialog(editDataFim));
         editHoraFim.setOnClickListener(v -> showTimePickerDialog(editHoraFim));
+        editDataLimiteInscricao.setOnClickListener(v -> showDatePickerDialog(editDataLimiteInscricao));
     }
 
     private void showDatePickerDialog(EditText editText) {
@@ -90,24 +92,42 @@ public class CriarEventoFragment extends Fragment {
         spinnerLiberarScanner.setAdapter(adapter);
     }
 
-    private boolean validarDatas(String dataInicioStr, String horaInicioStr, String dataFimStr, String horaFimStr) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+    // MÉTODO ATUALIZADO
+    private boolean validarDatas(String dataInicioStr, String horaInicioStr, String dataFimStr, String horaFimStr, String dataLimiteStr) {
+        SimpleDateFormat sdfDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdfDateOnly = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         try {
-            Date inicio = sdf.parse(dataInicioStr + " " + horaInicioStr);
-            Date fim = sdf.parse(dataFimStr + " " + horaFimStr);
-            Date agora = new Date();
+            Date inicioDateTime = sdfDateTime.parse(dataInicioStr + " " + horaInicioStr);
+            Date fimDateTime = sdfDateTime.parse(dataFimStr + " " + horaFimStr);
+            
+            // Para comparar apenas as datas, sem as horas
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
+            Date hoje = cal.getTime();
 
-            if (inicio.before(agora)) {
+            Date limiteDate = sdfDateOnly.parse(dataLimiteStr);
+            Date inicioDate = sdfDateOnly.parse(dataInicioStr);
+
+            if (inicioDateTime.before(new Date())) {
                 Toast.makeText(getContext(), "A data de início não pode ser no passado.", Toast.LENGTH_SHORT).show();
                 return false;
             }
-            if (fim.before(inicio)) {
+            if (fimDateTime.before(inicioDateTime)) {
                 Toast.makeText(getContext(), "A data de fim não pode ser anterior à data de início.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            // NOVA VALIDAÇÃO 1: Limite não pode ser no passado
+            if (limiteDate.before(hoje)) {
+                Toast.makeText(getContext(), "A data limite para inscrição não pode ser anterior a hoje.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            // NOVA VALIDAÇÃO 2: Limite não pode ser depois do início do evento
+            if (limiteDate.after(inicioDate)) {
+                 Toast.makeText(getContext(), "A data limite de inscrição não pode ser depois da data de início do evento.", Toast.LENGTH_SHORT).show();
                 return false;
             }
             return true;
         } catch (ParseException e) {
-            e.printStackTrace();
             Toast.makeText(getContext(), "Formato de data ou hora inválido.", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -121,14 +141,15 @@ public class CriarEventoFragment extends Fragment {
         String horaInicio = editHoraInicio.getText().toString().trim();
         String dataFim = editDataFim.getText().toString().trim();
         String horaFim = editHoraFim.getText().toString().trim();
+        String dataLimite = editDataLimiteInscricao.getText().toString().trim();
         String liberarScanner = spinnerLiberarScanner.getSelectedItem().toString();
 
-        if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty()) {
+        if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty() || dataLimite.isEmpty()) {
             Toast.makeText(getContext(), "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!validarDatas(dataInicio, horaInicio, dataFim, horaFim)) {
+        if (!validarDatas(dataInicio, horaInicio, dataFim, horaFim, dataLimite)) {
             return; // Interrompe se as datas forem inválidas
         }
 
@@ -140,6 +161,7 @@ public class CriarEventoFragment extends Fragment {
         novoEvento.setHoraInicio(horaInicio);
         novoEvento.setDataFim(dataFim);
         novoEvento.setHoraFim(horaFim);
+        novoEvento.setDataLimiteInscricao(dataLimite);
         novoEvento.setLiberarScannerAntes(liberarScanner);
 
         eventoDAO.salvarEvento(getContext(), novoEvento, () -> {

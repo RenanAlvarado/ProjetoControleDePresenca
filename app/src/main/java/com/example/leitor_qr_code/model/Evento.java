@@ -8,14 +8,14 @@ public class Evento implements Serializable {
     private String nome;
     private String descricao;
     private String local;
-    private String data; // Mantido por compatibilidade, mas os novos campos são melhores
+    private String data; // Mantido por compatibilidade
 
-    // Novos campos
     private String dataInicio;
     private String horaInicio;
     private String dataFim;
     private String horaFim;
-    private String liberarScannerAntes; 
+    private String liberarScannerAntes;
+    private String dataLimiteInscricao; // Novo Campo
 
     public Evento() {}
 
@@ -53,4 +53,7 @@ public class Evento implements Serializable {
 
     public String getLiberarScannerAntes() { return liberarScannerAntes; }
     public void setLiberarScannerAntes(String liberarScannerAntes) { this.liberarScannerAntes = liberarScannerAntes; }
+
+    public String getDataLimiteInscricao() { return dataLimiteInscricao; }
+    public void setDataLimiteInscricao(String dataLimiteInscricao) { this.dataLimiteInscricao = dataLimiteInscricao; }
 }

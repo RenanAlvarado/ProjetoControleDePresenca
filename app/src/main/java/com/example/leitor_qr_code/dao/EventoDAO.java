@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
 import com.example.leitor_qr_code.model.Evento;
 import com.example.leitor_qr_code.model.Usuario;
 import com.google.android.gms.tasks.Task;
@@ -27,28 +25,18 @@ public class EventoDAO {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
-    public interface EventoCallback {
-        void onCallback(List<Evento> eventos);
+    public interface EventoCallback { void onCallback(List<Evento> eventos); }
+    public interface UsuarioCallback { void onCallback(List<Usuario> usuarios); }
+    public interface ValidacaoCallback { void onValidado(boolean sucesso, String mensagem); }
+    public interface InscricaoCallback { void onResult(boolean inscrito); }
+
+    public EventoDAO() {
+        this.db = FirebaseFirestore.getInstance();
+        this.auth = FirebaseAuth.getInstance();
     }
 
-    public interface UsuarioCallback {
-        void onCallback(List<Usuario> usuarios);
-    }
+    // --- Métodos de Evento ---
 
-    public interface ValidacaoCallback {
-        void onValidado(boolean sucesso, String mensagem);
-    }
-    
-    public interface InscricaoCallback {
-        void onResult(boolean inscrito);
-    }
-
-    public EventoDAO(){
-        db = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-    }
-
-    // MÉTODO ATUALIZADO
     public void salvarEvento(Context context, Evento evento, Runnable onSuccess, Runnable onFailure) {
         String uid = auth.getCurrentUser().getUid();
         if (uid == null) {
@@ -66,11 +54,11 @@ public class EventoDAO {
         dadosEvento.put("dataFim", evento.getDataFim());
         dadosEvento.put("horaFim", evento.getHoraFim());
         dadosEvento.put("liberarScannerAntes", evento.getLiberarScannerAntes());
+        dadosEvento.put("dataLimiteInscricao", evento.getDataLimiteInscricao());
         dadosEvento.put("organizadorId", uid);
         dadosEvento.put("criadoEm", com.google.firebase.firestore.FieldValue.serverTimestamp());
 
-        db.collection("eventos")
-                .add(dadosEvento)
+        db.collection("eventos").add(dadosEvento)
                 .addOnSuccessListener(ref -> {
                     Toast.makeText(context, "Evento criado com sucesso!", Toast.LENGTH_SHORT).show();
                     onSuccess.run();
@@ -81,114 +69,45 @@ public class EventoDAO {
                 });
     }
 
-    // --- DEMAIS MÉTODOS (INTACTOS) ---
-
-    public void validarInscricao(String eventoId, String usuarioId, ValidacaoCallback callback) {
-        db.collection("inscricoes")
-                .whereEqualTo("eventoId", eventoId)
-                .whereEqualTo("usuarioId", usuarioId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        callback.onValidado(false, "Usuário não está inscrito neste evento.");
-                    } else {
-                        callback.onValidado(true, "Inscrição válida!");
-                    }
-                })
-                .addOnFailureListener(e -> callback.onValidado(false, "Erro ao validar inscrição: " + e.getMessage()));
-    }
-
-    public void carregarEventosInscritos(EventoCallback callback) {
+    public void excluirEvento(String idEvento, Activity activity, Runnable onSuccess) {
         String uid = auth.getCurrentUser().getUid();
-        if (uid == null) {
-            callback.onCallback(new ArrayList<>());
-            return;
-        }
-
-        db.collection("inscricoes").whereEqualTo("usuarioId", uid).get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                if (queryDocumentSnapshots.isEmpty()) {
-                    callback.onCallback(new ArrayList<>());
+        db.collection("eventos").document(idEvento).get()
+            .addOnSuccessListener(doc -> {
+                if (!doc.exists() || !doc.getString("organizadorId").equals(uid)) {
+                    Toast.makeText(activity, "Operação não permitida.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    String eventoId = doc.getString("eventoId");
-                    tasks.add(db.collection("eventos").document(eventoId).get());
-                }
-
-                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
-                    List<Evento> eventos = new ArrayList<>();
-                    for (Object res : results) {
-                        DocumentSnapshot eventoDoc = (DocumentSnapshot) res;
-                        if (eventoDoc.exists()) {
-                            Evento evento = eventoDoc.toObject(Evento.class);
-                            if (evento != null) {
-                                evento.setIdEvento(eventoDoc.getId());
-                                eventos.add(evento);
-                            }
+                // LÓGICA CORRETA RESTAURADA
+                db.collection("inscricoes").whereEqualTo("eventoId", idEvento).get()
+                    .addOnSuccessListener(query -> {
+                        WriteBatch batch = db.batch();
+                        for (QueryDocumentSnapshot inscricao : query) {
+                            batch.delete(inscricao.getReference());
                         }
-                    }
-                    callback.onCallback(eventos);
-                });
-            })
-            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+                        batch.commit().addOnSuccessListener(v -> 
+                            db.collection("eventos").document(idEvento).delete()
+                                .addOnSuccessListener(v2 -> {
+                                    Toast.makeText(activity, "Evento e inscrições foram excluídos.", Toast.LENGTH_SHORT).show();
+                                    onSuccess.run();
+                                })
+                        ).addOnFailureListener(e -> Toast.makeText(activity, "Falha ao excluir inscrições.", Toast.LENGTH_SHORT).show());
+                    });
+            });
     }
 
     public void carregarEventosPorOrganizador(EventoCallback callback) {
         String uid = auth.getCurrentUser().getUid();
-
-        db.collection("eventos")
-                .whereEqualTo("organizadorId", uid)
-                .get()
-                .addOnSuccessListener(query -> {
-                    List<Evento> lista = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : query) {
-                        Evento evento = doc.toObject(Evento.class);
-                        evento.setIdEvento(doc.getId());
-                        lista.add(evento);
-                    }
-                    callback.onCallback(lista);
-                })
-                .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
-    }
-
-    public void excluirEvento(String idEvento, Activity activity, Runnable onSuccess) {
-        String uid = auth.getCurrentUser().getUid();
-
-        db.collection("eventos").document(idEvento).get()
-                .addOnSuccessListener(doc -> {
-                    if (!doc.exists()) {
-                        Toast.makeText(activity, "Evento não encontrado.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    String organizadorId = doc.getString("organizadorId");
-                    if (organizadorId == null || !organizadorId.equals(uid)) {
-                        Toast.makeText(activity, "Você não tem permissão para excluir este evento.", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    db.collection("inscricoes").whereEqualTo("eventoId", idEvento).get()
-                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                WriteBatch batch = db.batch();
-                                for (QueryDocumentSnapshot inscricaoDoc : queryDocumentSnapshots) {
-                                    batch.delete(inscricaoDoc.getReference());
-                                }
-
-                                batch.commit().addOnSuccessListener(aVoid -> {
-                                    db.collection("eventos").document(idEvento).delete()
-                                            .addOnSuccessListener(unused -> {
-                                                Toast.makeText(activity, "Evento e inscrições foram excluídos!", Toast.LENGTH_SHORT).show();
-                                                onSuccess.run();
-                                            })
-                                            .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao excluir o evento: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                                }).addOnFailureListener(e -> Toast.makeText(activity, "Erro ao excluir inscrições: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                            })
-                            .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao buscar inscrições para exclusão: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao validar permissão: " + e.getMessage(), Toast.LENGTH_LONG).show());
+        db.collection("eventos").whereEqualTo("organizadorId", uid).get()
+            .addOnSuccessListener(query -> {
+                List<Evento> lista = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : query) {
+                    Evento evento = doc.toObject(Evento.class);
+                    evento.setIdEvento(doc.getId());
+                    lista.add(evento);
+                }
+                callback.onCallback(lista);
+            })
+            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
 
     public void carregarEventosDisponiveis(EventoCallback callback) {
@@ -200,15 +119,13 @@ public class EventoDAO {
 
         db.collection("inscricoes").whereEqualTo("usuarioId", uid).get()
             .addOnSuccessListener(inscricoesSnapshot -> {
-                List<String> idsEventosInscritos = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : inscricoesSnapshot) {
-                    idsEventosInscritos.add(doc.getString("eventoId"));
-                }
+                List<String> idsEventosInscritos = inscricoesSnapshot.getDocuments().stream()
+                    .map(d -> d.getString("eventoId"))
+                    .collect(Collectors.toList());
 
                 db.collection("eventos").get()
                     .addOnSuccessListener(eventosSnapshot -> {
-                        List<Evento> eventosDisponiveis;
-                        eventosDisponiveis = eventosSnapshot.getDocuments().stream()
+                        List<Evento> eventosDisponiveis = eventosSnapshot.getDocuments().stream()
                             .map(doc -> {
                                 Evento evento = doc.toObject(Evento.class);
                                 if (evento != null) evento.setIdEvento(doc.getId());
@@ -216,120 +133,100 @@ public class EventoDAO {
                             })
                             .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
                             .collect(Collectors.toList());
-
                         callback.onCallback(eventosDisponiveis);
-                    })
-                    .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
-            })
-            .addOnFailureListener(e -> {
-                db.collection("eventos").get().addOnSuccessListener(eventosSnapshot -> {
-                    List<Evento> todosEventos = new ArrayList<>();
-                     for (QueryDocumentSnapshot doc : eventosSnapshot) {
-                        Evento evento = doc.toObject(Evento.class);
-                        if(evento != null) evento.setIdEvento(doc.getId());
-                        todosEventos.add(evento);
-                    }
-                    callback.onCallback(todosEventos);
+                    });
+            });
+    }
+    
+    // --- Métodos de Inscrição ---
+
+    public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {
+        String uid = auth.getCurrentUser().getUid();
+        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener(query -> {
+                if (!query.isEmpty()) {
+                    Toast.makeText(activity, "Você já está inscrito.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Map<String, Object> data = new HashMap<>();
+                data.put("eventoId", eventoId);
+                data.put("usuarioId", uid);
+                data.put("dataInscricao", com.google.firebase.firestore.FieldValue.serverTimestamp());
+                db.collection("inscricoes").add(data).addOnSuccessListener(ref -> {
+                    Toast.makeText(activity, "Inscrição realizada!", Toast.LENGTH_SHORT).show();
+                    callback.run();
                 });
             });
     }
 
-    public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {
-        String uid = auth.getCurrentUser().getUid();
-
-        db.collection("inscricoes")
-                .whereEqualTo("eventoId", eventoId)
-                .whereEqualTo("usuarioId", uid)
-                .get()
-                .addOnSuccessListener(query -> {
-
-                    if (!query.isEmpty()) {
-                        Toast.makeText(activity, "Você já está inscrito neste evento.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    HashMap<String, Object> data = new HashMap<>();
-                    data.put("eventoId", eventoId);
-                    data.put("usuarioId", uid);
-                    data.put("dataInscricao", com.google.firebase.firestore.FieldValue.serverTimestamp());
-
-                    db.collection("inscricoes")
-                            .add(data)
-                            .addOnSuccessListener(ref -> {
-                                Toast.makeText(activity, "Inscrição realizada com sucesso!", Toast.LENGTH_SHORT).show();
-                                callback.run();
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(activity, "Erro ao se inscrever: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                });
-    }
-
     public void cancelarInscricao(String eventoId, Activity activity, Runnable onSuccess) {
         String uid = auth.getCurrentUser().getUid();
-        if (uid == null) {
-            Toast.makeText(activity, "Usuário não autenticado.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        db.collection("inscricoes")
-                .whereEqualTo("eventoId", eventoId)
-                .whereEqualTo("usuarioId", uid)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        Toast.makeText(activity, "Inscrição não encontrada para cancelar.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    DocumentSnapshot inscricaoDoc = queryDocumentSnapshots.getDocuments().get(0);
-                    inscricaoDoc.getReference().delete()
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(activity, "Inscrição cancelada.", Toast.LENGTH_SHORT).show();
-                                onSuccess.run();
-                            })
-                            .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao cancelar inscrição: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao buscar inscrição: " + e.getMessage(), Toast.LENGTH_LONG).show());
+        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener(query -> {
+                if (query.isEmpty()) return;
+                query.getDocuments().get(0).getReference().delete()
+                    .addOnSuccessListener(v -> {
+                        Toast.makeText(activity, "Inscrição cancelada.", Toast.LENGTH_SHORT).show();
+                        onSuccess.run();
+                    });
+            });
     }
 
     public void verificarInscricao(String eventoId, String uid, InscricaoCallback callback) {
-        db.collection("inscricoes")
-                .whereEqualTo("eventoId", eventoId)
-                .whereEqualTo("usuarioId", uid)
-                .get()
-                .addOnSuccessListener(query -> {
-                    callback.onResult(!query.isEmpty());
-                })
-                .addOnFailureListener(e -> {
-                    callback.onResult(false);
-                });
+        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener(query -> callback.onResult(!query.isEmpty()))
+            .addOnFailureListener(e -> callback.onResult(false));
+    }
+
+    public void validarInscricao(String eventoId, String usuarioId, ValidacaoCallback callback) {
+        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).get()
+            .addOnSuccessListener(query -> {
+                if (query.isEmpty()) {
+                    callback.onValidado(false, "Participante não inscrito neste evento.");
+                } else {
+                    callback.onValidado(true, "Inscrição Válida!");
+                }
+            });
     }
 
     public void carregarInscritos(String eventoId, UsuarioCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        callback.onCallback(new ArrayList<>());
-                        return;
-                    }
-
-                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        String usuarioId = doc.getString("usuarioId");
-                        tasks.add(db.collection("usuarios").document(usuarioId).get());
-                    }
-
-                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
-                        List<Usuario> usuarios = new ArrayList<>();
-                        for (Object res : results) {
-                            DocumentSnapshot userDoc = (DocumentSnapshot) res;
-                            if (userDoc.exists()) {
-                                Usuario usuario = userDoc.toObject(Usuario.class);
-                                usuarios.add(usuario);
-                            }
+            .addOnSuccessListener(query -> {
+                List<Task<DocumentSnapshot>> tasks = query.getDocuments().stream()
+                    .map(doc -> db.collection("usuarios").document(doc.getString("usuarioId")).get())
+                    .collect(Collectors.toList());
+                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                    List<Usuario> usuarios = results.stream()
+                        .map(res -> ((DocumentSnapshot) res).toObject(Usuario.class))
+                        .collect(Collectors.toList());
+                    callback.onCallback(usuarios);
+                });
+            });
+    }
+    
+    public void carregarEventosInscritos(EventoCallback callback) {
+        String uid = auth.getCurrentUser().getUid();
+        if (uid == null) {
+            callback.onCallback(new ArrayList<>());
+            return;
+        }
+        db.collection("inscricoes").whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener(query -> {
+                List<Task<DocumentSnapshot>> tasks = query.getDocuments().stream()
+                    .map(doc -> db.collection("eventos").document(doc.getString("eventoId")).get())
+                    .collect(Collectors.toList());
+                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                    List<Evento> eventos = new ArrayList<>();
+                    for(Object res : results){
+                        DocumentSnapshot doc = (DocumentSnapshot) res;
+                        if(doc.exists()){
+                            Evento evento = doc.toObject(Evento.class);
+                            evento.setIdEvento(doc.getId());
+                            eventos.add(evento);
                         }
-                        callback.onCallback(usuarios);
-                    });
-                })
-                .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+                    }
+                    callback.onCallback(eventos);
+                });
+            });
     }
 }

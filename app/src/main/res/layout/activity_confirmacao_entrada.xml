@@ -7,33 +7,60 @@
     android:background="@color/azul_marinho"
     tools:context=".view.organizador.ConfirmacaoEntradaActivity">
 
+    <!-- Grupo de confirmação que será centralizado -->
     <ImageView
         android:id="@+id/iconCheck"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@android:drawable/checkbox_on_background" 
-        app:tint="@color/verde_musgo"
-        app:layout_constraintBottom_toTopOf="@+id/textConfirmacao"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_joinha"
+        app:layout_constraintBottom_toTopOf="@+id/textBoasVindas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
-        android:id="@+id/textConfirmacao"
+        android:id="@+id/textBoasVindas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Entrada Armazenada"
+        android:layout_marginTop="16dp"
+        android:text="Seja Bem-Vindo(a)!"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btnImprimir"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toTopOf="@+id/textNomeParticipanteConfirmacao"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iconCheck" />
 
+    <TextView
+        android:id="@+id/textNomeParticipanteConfirmacao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/white"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textHorarioEntrada"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textBoasVindas"
+        tools:text="Nome do Participante" />
 
+    <TextView
+        android:id="@+id/textHorarioEntrada"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="#CCCCCC"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textNomeParticipanteConfirmacao"
+        tools:text="Entrada registrada às 14:35:12" />
+
+
+    <!-- Botões na parte inferior -->
     <Button
         android:id="@+id/btnImprimir"
         android:layout_width="0dp"
@@ -41,8 +68,8 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp"
-        android:text="Imprimir Comprovante"
         android:backgroundTint="@color/azul_cinza"
+        android:text="Imprimir Comprovante"
         app:layout_constraintBottom_toTopOf="@+id/btnVoltarScanner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -54,8 +81,8 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="64dp"
-        android:text="Voltar ao Scanner"
         android:backgroundTint="@android:color/transparent"
+        android:text="Voltar ao Scanner"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

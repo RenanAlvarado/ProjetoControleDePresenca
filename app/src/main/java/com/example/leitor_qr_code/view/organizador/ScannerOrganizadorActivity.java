@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -27,7 +28,7 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
 
     private DecoratedBarcodeView barcodeScannerView;
     private String eventoId;
-    private EventoDAO eventoDAO;
+    private EventoDAO eventoDAO; // CORREÇÃO: Usa o DAO de Evento unificado
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -35,7 +36,7 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
                     barcodeScannerView.resume();
                 } else {
                     Toast.makeText(this, "A permissão da câmera é necessária para escanear.", Toast.LENGTH_LONG).show();
-                    finish(); // Fecha a tela se a permissão for negada
+                    finish();
                 }
             });
 
@@ -45,10 +46,10 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scanner_organizador);
 
         eventoId = getIntent().getStringExtra("eventoId");
-        eventoDAO = new EventoDAO();
+        eventoDAO = new EventoDAO(); // CORREÇÃO: Instancia o DAO correto
 
         barcodeScannerView = findViewById(R.id.barcode_scanner);
-        findViewById(R.id.imgSeta).setOnClickListener(v -> finish()); // Ação do botão de voltar
+        findViewById(R.id.imgSeta).setOnClickListener(v -> finish());
 
         barcodeScannerView.decodeContinuous(new BarcodeCallback() {
             @Override
@@ -70,21 +71,23 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
         try {
             JSONObject json = new JSONObject(qrCodeContent);
             String usuarioId = json.getString("uid");
+            String nomeUsuario = json.getString("nome");
 
+            // CORREÇÃO: Chama o método do DAO correto
             eventoDAO.validarInscricao(eventoId, usuarioId, (sucesso, mensagem) -> {
                 if (sucesso) {
                     Intent intent = new Intent(this, ConfirmacaoEntradaActivity.class);
+                    intent.putExtra("nomeParticipante", nomeUsuario);
                     startActivity(intent);
-                    // Não finaliza para poder voltar para o scanner
                 } else {
                     Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show();
-                    barcodeScannerView.resume(); // Permite escanear novamente após um erro
+                    barcodeScannerView.resume();
                 }
             });
 
         } catch (Exception e) {
             Toast.makeText(this, "QR Code inválido.", Toast.LENGTH_LONG).show();
-            barcodeScannerView.resume(); // Permite escanear novamente
+            barcodeScannerView.resume();
             e.printStackTrace();
         }
     }

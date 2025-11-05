@@ -21,6 +21,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
 
     private Evento evento;
     private EventoDAO eventoDAO;
+
     private UsuarioDAO usuarioDAO;
     private Button btnInscrever;
     private TextView textStatusInscricao;
