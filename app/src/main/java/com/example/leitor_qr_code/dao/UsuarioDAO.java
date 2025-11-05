@@ -17,8 +17,12 @@ import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.view.dicas.DicasActivity;
 import com.example.leitor_qr_code.view.participante.MainParticipanteActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -29,11 +33,51 @@ public class UsuarioDAO {
     private final FirebaseFirestore db;
     private final FirebaseStorage storage;
 
+    // CORREÇÃO: Interface agora retorna os dados separadamente
+    public interface QrCodeDataCallback {
+        void onDataReady(String nome, String email, String jsonData);
+        void onFailure();
+    }
+
     public UsuarioDAO() {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
     }
+
+    public void gerarDadosQrCode(QrCodeDataCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onFailure();
+            return;
+        }
+
+        String uid = user.getUid();
+        db.collection("usuarios").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String nome = documentSnapshot.getString("nome");
+                        String email = documentSnapshot.getString("email");
+
+                        JSONObject json = new JSONObject();
+                        try {
+                            json.put("uid", uid);
+                            json.put("nome", nome);
+                            json.put("email", email);
+                            // CORREÇÃO: Chama o callback com os dados separados
+                            callback.onDataReady(nome, email, json.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callback.onFailure();
+                        }
+                    } else {
+                        callback.onFailure();
+                    }
+                })
+                .addOnFailureListener(e -> callback.onFailure());
+    }
+
+    // --- DEMAIS MÉTODOS (NÃO FORAM ALTERADOS) ---
 
     public void fazerLogin(Activity activity, String email, String senha) {
         if (email.isEmpty() || senha.isEmpty()) {

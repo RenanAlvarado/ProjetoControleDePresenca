@@ -53,7 +53,7 @@
 
             <!-- Dados do usuário -->
             <TextView
-                android:id="@+id/textNomeUsuario"
+                android:id="@+id/txtNomeParticipante"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nome do Usuário"
@@ -63,7 +63,7 @@
                 android:layout_marginTop="8dp" />
 
             <TextView
-                android:id="@+id/textIdUsuario"
+                android:id="@+id/txtEmailParticipante"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ID: 12345"
