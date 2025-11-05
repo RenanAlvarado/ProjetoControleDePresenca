@@ -1,11 +1,13 @@
 package com.example.leitor_qr_code.view.organizador;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +28,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     private RecyclerView recyclerInscritos;
     private InscritoAdapter adapter;
     private List<Usuario> listaInscritos = new ArrayList<>();
+    private Button btnExcluir; // Variável apenas declarada aqui
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,6 +44,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         TextView txtData = findViewById(R.id.txtDataEvento);
         TextView txtLocal = findViewById(R.id.txtLocalEvento);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
+        btnExcluir = findViewById(R.id.btnExcluirEvento); // Inicialização movida para cá
 
         // --- Preenchimento dos Dados do Evento ---
         if(evento != null){
@@ -61,6 +65,23 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
 
         // --- Ação do Botão Voltar ---
         btnVoltar.setOnClickListener(v -> finish());
+
+        //Ação do Botão excluir evento
+        btnExcluir.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Excluir Evento")
+                    .setMessage("Tem certeza que deseja excluir este evento?")
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+
+                        EventoDAO dao = new EventoDAO();
+                        dao.excluirEvento(evento.getIdEvento(), this, () -> {
+                            finish(); // fecha a tela após excluir
+                        });
+
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
     }
 
     private void carregarInscritos(String eventoId) {

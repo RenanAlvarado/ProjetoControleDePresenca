@@ -45,7 +45,7 @@
 
             <!-- QR Code gerado dinamicamente -->
             <ImageView
-                android:id="@+id/imgQrUsuario"
+                android:id="@+id/imgQrParticipante"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:contentDescription="QR Code do usuário"

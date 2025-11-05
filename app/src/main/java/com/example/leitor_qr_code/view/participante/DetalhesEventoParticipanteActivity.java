@@ -1,11 +1,14 @@
 package com.example.leitor_qr_code.view.participante;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
@@ -16,47 +19,75 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
 
     private Evento evento;
     private EventoDAO eventoDAO;
+    private Button btnInscrever;
+    private TextView textStatusInscricao;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalhes_evento_participante);
 
-        evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
         eventoDAO = new EventoDAO();
+        evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        // --- Referências dos Componentes ---
         TextView textNome = findViewById(R.id.txtTituloEvento);
         TextView textLocal = findViewById(R.id.txtLocalEvento);
         TextView textData = findViewById(R.id.txtDataEvento);
         TextView textDescricao = findViewById(R.id.txtDescricaoEvento);
-        Button btnInscrever = findViewById(R.id.btnInscrever);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
+        btnInscrever = findViewById(R.id.btnInscrever);
+        textStatusInscricao = findViewById(R.id.textStatusInscricao);
 
-        // Configurando a ação do botão voltar
+        // --- Ações dos Botões ---
         btnVoltar.setOnClickListener(v -> finish());
+        btnInscrever.setOnClickListener(v -> handleInscricaoClick());
 
-        textNome.setText(evento.getNome());
-        textLocal.setText(evento.getLocal());
-        textData.setText(evento.getData());
-        textDescricao.setText(evento.getDescricao());
+        // --- Preenchimento dos Dados ---
+        if (evento != null) {
+            textNome.setText(evento.getNome());
+            textLocal.setText(evento.getLocal());
+            textData.setText(evento.getData());
+            textDescricao.setText(evento.getDescricao());
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            // --- Atualiza o status inicial do botão ---
+            atualizarStatusBotao();
+        }
+    }
 
-        // Verificar inscrição ao abrir tela
+    private void atualizarStatusBotao() {
         eventoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
             if (inscrito) {
-                btnInscrever.setText("Inscrito ✅");
-                btnInscrever.setEnabled(false);
+                textStatusInscricao.setVisibility(View.VISIBLE);
+                btnInscrever.setText("Cancelar Inscrição");
+                // CORREÇÃO: Define a cor do botão para vermelho
+                btnInscrever.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bordo)));
+                btnInscrever.setEnabled(true);
             } else {
+                textStatusInscricao.setVisibility(View.GONE);
                 btnInscrever.setText("Inscrever-se");
+                // CORREÇÃO: Define a cor do botão para verde (a cor original)
+                btnInscrever.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.verde_musgo)));
                 btnInscrever.setEnabled(true);
             }
         });
-        btnInscrever.setOnClickListener(v -> {
-            eventoDAO.inscreverEmEvento(evento.getIdEvento(), this, () -> {
-                btnInscrever.setEnabled(false);
-                btnInscrever.setText("Inscrito ✅");
-            });
+    }
+
+    private void handleInscricaoClick() {
+        eventoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
+            if (inscrito) {
+                // Se já está inscrito, a ação é cancelar
+                eventoDAO.cancelarInscricao(evento.getIdEvento(), this, () -> {
+                    atualizarStatusBotao(); // Atualiza a UI após cancelar
+                });
+            } else {
+                // Se não está inscrito, a ação é inscrever
+                eventoDAO.inscreverEmEvento(evento.getIdEvento(), this, () -> {
+                    atualizarStatusBotao(); // Atualiza a UI após inscrever
+                });
+            }
         });
     }
 }

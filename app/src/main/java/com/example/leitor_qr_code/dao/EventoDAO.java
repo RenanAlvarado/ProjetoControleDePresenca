@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,10 @@ public class EventoDAO {
 
     public interface UsuarioCallback {
         void onCallback(List<Usuario> usuarios);
+    }
+
+    public interface InscricaoCallback {
+        void onResult(boolean inscrito);
     }
 
     public EventoDAO(){
@@ -82,51 +87,157 @@ public class EventoDAO {
     }
 
     public void excluirEvento(String idEvento, Activity activity, Runnable onSuccess) {
-        // ... (código existente)
+        String uid = auth.getCurrentUser().getUid();
+
+        db.collection("eventos").document(idEvento).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        Toast.makeText(activity, "Evento não encontrado.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String organizadorId = doc.getString("organizadorId");
+                    if (organizadorId == null || !organizadorId.equals(uid)) {
+                        Toast.makeText(activity, "Você não tem permissão para excluir este evento.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    db.collection("inscricoes").whereEqualTo("eventoId", idEvento).get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                WriteBatch batch = db.batch();
+                                for (QueryDocumentSnapshot inscricaoDoc : queryDocumentSnapshots) {
+                                    batch.delete(inscricaoDoc.getReference());
+                                }
+
+                                batch.commit().addOnSuccessListener(aVoid -> {
+                                    db.collection("eventos").document(idEvento).delete()
+                                            .addOnSuccessListener(unused -> {
+                                                Toast.makeText(activity, "Evento e inscrições foram excluídos!", Toast.LENGTH_SHORT).show();
+                                                onSuccess.run();
+                                            })
+                                            .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao excluir o evento: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                                }).addOnFailureListener(e -> Toast.makeText(activity, "Erro ao excluir inscrições: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao buscar inscrições para exclusão: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao validar permissão: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
     public void carregarEventosDisponiveis(EventoCallback callback) {
-        // ... (código existente)
+        db.collection("eventos")
+                .get()
+                .addOnSuccessListener(query -> {
+                    List<Evento> lista = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : query) {
+                        Evento evento = doc.toObject(Evento.class);
+                        evento.setIdEvento(doc.getId()); 
+                        lista.add(evento);
+                    }
+                    callback.onCallback(lista);
+                })
+                .addOnFailureListener(e -> {
+                    callback.onCallback(new ArrayList<>());
+                });
     }
 
     public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {
-        // ... (código existente)
+        String uid = auth.getCurrentUser().getUid();
+
+        db.collection("inscricoes")
+                .whereEqualTo("eventoId", eventoId)
+                .whereEqualTo("usuarioId", uid)
+                .get()
+                .addOnSuccessListener(query -> {
+
+                    if (!query.isEmpty()) {
+                        Toast.makeText(activity, "Você já está inscrito neste evento.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("eventoId", eventoId);
+                    data.put("usuarioId", uid);
+                    data.put("dataInscricao", com.google.firebase.firestore.FieldValue.serverTimestamp());
+
+                    db.collection("inscricoes")
+                            .add(data)
+                            .addOnSuccessListener(ref -> {
+                                Toast.makeText(activity, "Inscrição realizada com sucesso!", Toast.LENGTH_SHORT).show();
+                                callback.run();
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(activity, "Erro ao se inscrever: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                });
+    }
+
+    public void cancelarInscricao(String eventoId, Activity activity, Runnable onSuccess) {
+        String uid = auth.getCurrentUser().getUid();
+        if (uid == null) {
+            Toast.makeText(activity, "Usuário não autenticado.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("inscricoes")
+                .whereEqualTo("eventoId", eventoId)
+                .whereEqualTo("usuarioId", uid)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Toast.makeText(activity, "Inscrição não encontrada para cancelar.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    DocumentSnapshot inscricaoDoc = queryDocumentSnapshots.getDocuments().get(0);
+                    inscricaoDoc.getReference().delete()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(activity, "Inscrição cancelada.", Toast.LENGTH_SHORT).show();
+                                onSuccess.run();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao cancelar inscrição: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao buscar inscrição: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
     public void verificarInscricao(String eventoId, String uid, InscricaoCallback callback) {
-        // ... (código existente)
+        db.collection("inscricoes")
+                .whereEqualTo("eventoId", eventoId)
+                .whereEqualTo("usuarioId", uid)
+                .get()
+                .addOnSuccessListener(query -> {
+                    callback.onResult(!query.isEmpty());
+                })
+                .addOnFailureListener(e -> {
+                    callback.onResult(false);
+                });
     }
 
     public void carregarInscritos(String eventoId, UsuarioCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                if (queryDocumentSnapshots.isEmpty()) {
-                    callback.onCallback(new ArrayList<>());
-                    return;
-                }
-
-                List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    String usuarioId = doc.getString("usuarioId");
-                    tasks.add(db.collection("usuarios").document(usuarioId).get());
-                }
-
-                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
-                    List<Usuario> usuarios = new ArrayList<>();
-                    for (Object res : results) {
-                        DocumentSnapshot userDoc = (DocumentSnapshot) res;
-                        if (userDoc.exists()) {
-                            Usuario usuario = userDoc.toObject(Usuario.class);
-                            usuarios.add(usuario);
-                        }
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        callback.onCallback(new ArrayList<>());
+                        return;
                     }
-                    callback.onCallback(usuarios);
-                });
-            })
-            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+
+                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String usuarioId = doc.getString("usuarioId");
+                        tasks.add(db.collection("usuarios").document(usuarioId).get());
+                    }
+
+                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                        List<Usuario> usuarios = new ArrayList<>();
+                        for (Object res : results) {
+                            DocumentSnapshot userDoc = (DocumentSnapshot) res;
+                            if (userDoc.exists()) {
+                                Usuario usuario = userDoc.toObject(Usuario.class);
+                                usuarios.add(usuario);
+                            }
+                        }
+                        callback.onCallback(usuarios);
+                    });
+                })
+                .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
 
-    public interface InscricaoCallback {
-        void onResult(boolean inscrito);
-    }
+
 }
