@@ -18,6 +18,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EventoDAO {
 
@@ -32,6 +33,10 @@ public class EventoDAO {
         void onCallback(List<Usuario> usuarios);
     }
 
+    public interface ValidacaoCallback {
+        void onValidado(boolean sucesso, String mensagem);
+    }
+    
     public interface InscricaoCallback {
         void onResult(boolean inscrito);
     }
@@ -39,6 +44,59 @@ public class EventoDAO {
     public EventoDAO(){
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+    }
+
+    public void validarInscricao(String eventoId, String usuarioId, ValidacaoCallback callback) {
+        db.collection("inscricoes")
+                .whereEqualTo("eventoId", eventoId)
+                .whereEqualTo("usuarioId", usuarioId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        callback.onValidado(false, "Usuário não está inscrito neste evento.");
+                    } else {
+                        callback.onValidado(true, "Inscrição válida!");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onValidado(false, "Erro ao validar inscrição: " + e.getMessage()));
+    }
+
+    public void carregarEventosInscritos(EventoCallback callback) {
+        String uid = auth.getCurrentUser().getUid();
+        if (uid == null) {
+            callback.onCallback(new ArrayList<>());
+            return;
+        }
+
+        db.collection("inscricoes").whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                if (queryDocumentSnapshots.isEmpty()) {
+                    callback.onCallback(new ArrayList<>());
+                    return;
+                }
+
+                List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    String eventoId = doc.getString("eventoId");
+                    tasks.add(db.collection("eventos").document(eventoId).get());
+                }
+
+                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                    List<Evento> eventos = new ArrayList<>();
+                    for (Object res : results) {
+                        DocumentSnapshot eventoDoc = (DocumentSnapshot) res;
+                        if (eventoDoc.exists()) {
+                            Evento evento = eventoDoc.toObject(Evento.class);
+                            if (evento != null) {
+                                evento.setIdEvento(eventoDoc.getId());
+                                eventos.add(evento);
+                            }
+                        }
+                    }
+                    callback.onCallback(eventos);
+                });
+            })
+            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
 
     public void salvarEvento(Activity activity, String nome, String descricao, String local, String data, @Nullable String imgBase64) {
@@ -124,20 +182,46 @@ public class EventoDAO {
     }
 
     public void carregarEventosDisponiveis(EventoCallback callback) {
-        db.collection("eventos")
-                .get()
-                .addOnSuccessListener(query -> {
-                    List<Evento> lista = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : query) {
+        String uid = auth.getCurrentUser().getUid();
+        if (uid == null) {
+            callback.onCallback(new ArrayList<>());
+            return;
+        }
+
+        db.collection("inscricoes").whereEqualTo("usuarioId", uid).get()
+            .addOnSuccessListener(inscricoesSnapshot -> {
+                List<String> idsEventosInscritos = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : inscricoesSnapshot) {
+                    idsEventosInscritos.add(doc.getString("eventoId"));
+                }
+
+                db.collection("eventos").get()
+                    .addOnSuccessListener(eventosSnapshot -> {
+                        List<Evento> eventosDisponiveis;
+                        eventosDisponiveis = eventosSnapshot.getDocuments().stream()
+                            .map(doc -> {
+                                Evento evento = doc.toObject(Evento.class);
+                                if (evento != null) evento.setIdEvento(doc.getId());
+                                return evento;
+                            })
+                            .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
+                            .collect(Collectors.toList());
+
+                        callback.onCallback(eventosDisponiveis);
+                    })
+                    .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+            })
+            .addOnFailureListener(e -> {
+                db.collection("eventos").get().addOnSuccessListener(eventosSnapshot -> {
+                    List<Evento> todosEventos = new ArrayList<>();
+                     for (QueryDocumentSnapshot doc : eventosSnapshot) {
                         Evento evento = doc.toObject(Evento.class);
-                        evento.setIdEvento(doc.getId()); 
-                        lista.add(evento);
+                        if(evento != null) evento.setIdEvento(doc.getId());
+                        todosEventos.add(evento);
                     }
-                    callback.onCallback(lista);
-                })
-                .addOnFailureListener(e -> {
-                    callback.onCallback(new ArrayList<>());
+                    callback.onCallback(todosEventos);
                 });
+            });
     }
 
     public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {
@@ -238,6 +322,4 @@ public class EventoDAO {
                 })
                 .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
-
-
 }

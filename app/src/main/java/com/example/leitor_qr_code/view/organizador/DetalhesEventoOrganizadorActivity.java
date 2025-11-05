@@ -1,5 +1,6 @@
 package com.example.leitor_qr_code.view.organizador;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -28,7 +29,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     private RecyclerView recyclerInscritos;
     private InscritoAdapter adapter;
     private List<Usuario> listaInscritos = new ArrayList<>();
-    private Button btnExcluir; // Variável apenas declarada aqui
+    private Button btnExcluir, btnEscanear;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,44 +45,43 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         TextView txtData = findViewById(R.id.txtDataEvento);
         TextView txtLocal = findViewById(R.id.txtLocalEvento);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
-        btnExcluir = findViewById(R.id.btnExcluirEvento); // Inicialização movida para cá
+        btnExcluir = findViewById(R.id.btnExcluirEvento);
+        btnEscanear = findViewById(R.id.btnEscanearQrCodes);
 
-        // --- Preenchimento dos Dados do Evento ---
+        // --- Ações dos Botões ---
+        btnVoltar.setOnClickListener(v -> finish());
+        
+        btnEscanear.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ScannerOrganizadorActivity.class);
+            intent.putExtra("eventoId", evento.getIdEvento());
+            startActivity(intent);
+        });
+
+        btnExcluir.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Excluir Evento")
+                    .setMessage("Tem certeza que deseja excluir este evento?")
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+                        eventoDAO.excluirEvento(evento.getIdEvento(), this, this::finish);
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
+        
+        // --- Preenchimento dos Dados ---
         if(evento != null){
             txtTitulo.setText(evento.getNome());
             txtDescricao.setText(evento.getDescricao());
             txtData.setText(evento.getData());
             txtLocal.setText(evento.getLocal());
 
-            // --- Configuração da Lista de Inscritos ---
             recyclerInscritos = findViewById(R.id.recyclerInscritos);
             recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));
             adapter = new InscritoAdapter(listaInscritos);
             recyclerInscritos.setAdapter(adapter);
 
-            // --- Carregar os Inscritos ---
             carregarInscritos(evento.getIdEvento());
         }
-
-        // --- Ação do Botão Voltar ---
-        btnVoltar.setOnClickListener(v -> finish());
-
-        //Ação do Botão excluir evento
-        btnExcluir.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Excluir Evento")
-                    .setMessage("Tem certeza que deseja excluir este evento?")
-                    .setPositiveButton("Excluir", (dialog, which) -> {
-
-                        EventoDAO dao = new EventoDAO();
-                        dao.excluirEvento(evento.getIdEvento(), this, () -> {
-                            finish(); // fecha a tela após excluir
-                        });
-
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
-        });
     }
 
     private void carregarInscritos(String eventoId) {

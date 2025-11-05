@@ -16,9 +16,8 @@ public class MainOrganizadorActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Listener de navegação
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            Fragment fragmentSelecionado;
+            Fragment fragmentSelecionado = null;
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
@@ -26,7 +25,8 @@ public class MainOrganizadorActivity extends AppCompatActivity {
             } else if (id == R.id.nav_shows) {
                 fragmentSelecionado = new CriarEventoFragment();
             } else if (id == R.id.nav_qrcode) {
-                fragmentSelecionado = new QrCodeFragment();
+                // CORREÇÃO: Abre a tela de seleção primeiro
+                fragmentSelecionado = new SelecionarEventoFragment(); 
             } else if (id == R.id.nav_perfil) {
                 fragmentSelecionado = new PerfilOrganizadorFragment();
             } else {
@@ -41,7 +41,6 @@ public class MainOrganizadorActivity extends AppCompatActivity {
             return true;
         });
 
-        // Seleciona Home inicialmente
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_home);
         }

@@ -16,7 +16,7 @@
     <!-- Bottom Navigation do usuário -->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation_participante"
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="130dp"
         android:layout_gravity="bottom"

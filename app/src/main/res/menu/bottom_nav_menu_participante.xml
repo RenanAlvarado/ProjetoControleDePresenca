@@ -4,6 +4,10 @@
         android:id="@+id/nav_home"
         android:icon="@drawable/icn_home"
         android:title="Home"/>
+    <item
+        android:id="@+id/nav_inscricoes"
+        android:icon="@drawable/icn_evento"
+        android:title="Inscrições"/>
 
     <item
         android:id="@+id/nav_qrcode"

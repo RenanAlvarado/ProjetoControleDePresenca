@@ -33,7 +33,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- MUDANÇA AQUI: de LinearLayout para ConstraintLayout para mais flexibilidade -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -93,18 +92,32 @@
 
             </LinearLayout>
 
+            <!-- BOTÃO ESCANEAR QR CODES -->
+            <Button
+                android:id="@+id/btnEscanearQrCodes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/verde_musgo"
+                android:paddingVertical="12dp"
+                android:text="Escanear Ingressos"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardDetails" />
+
             <!-- Botão Excluir Evento -->
             <Button
                 android:id="@+id/btnExcluirEvento"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="12dp"
                 android:backgroundTint="@android:color/holo_red_dark"
                 android:text="Excluir Evento"
                 android:textColor="@android:color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cardDetails" />
+                app:layout_constraintTop_toBottomOf="@+id/btnEscanearQrCodes" />
 
             <!-- Título Inscritos -->
             <TextView
@@ -123,7 +136,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerInscritos"
                 android:layout_width="0dp"
-                android:layout_height="400dp"
+                android:layout_height="wrap_content"
+                android:minHeight="200dp"
                 android:paddingTop="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

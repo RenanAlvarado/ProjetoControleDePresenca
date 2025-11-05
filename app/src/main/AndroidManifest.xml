@@ -2,13 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.leitor_qr_code">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Leitor_Qr_Code">
 
-        <!-- Tela de LoginCadastro (inicial) -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -18,35 +19,38 @@
             </intent-filter>
         </activity>
 
-        <!-- Tela de Cadastro -->
         <activity
             android:name=".CadastroActivity"
             android:exported="true" />
 
-        <!-- Tela de Dicas -->
         <activity
             android:name=".view.dicas.DicasActivity"
             android:exported="true" />
 
-        <!-- Tela Principal do participante / Home (contém BottomNavigationView) -->
         <activity
             android:name=".view.participante.MainParticipanteActivity"
             android:exported="true" />
 
-        <!-- Tela Principal do organizador / Home (contém BottomNavigationView) -->
         <activity
             android:name=".view.organizador.MainOrganizadorActivity"
             android:exported="true" />
 
-        <!-- Tela de Detalhes do Evento (Organizador) -->
         <activity
             android:name=".view.organizador.DetalhesEventoOrganizadorActivity"
             android:exported="true" />
 
-        <!-- CORREÇÃO: Tela de Detalhes do Evento (Participante) -->
         <activity
             android:name=".view.participante.DetalhesEventoParticipanteActivity"
             android:exported="true" />
+
+        <activity
+            android:name=".view.organizador.ConfirmacaoEntradaActivity"
+            android:exported="false" />
+
+        <!-- CORREÇÃO: Registra a nova tela de Scanner -->
+        <activity
+            android:name=".view.organizador.ScannerOrganizadorActivity"
+            android:exported="false" />
 
     </application>
 

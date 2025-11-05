@@ -1,5 +1,6 @@
 package com.example.leitor_qr_code.view.participante;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
@@ -62,13 +63,11 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
             if (inscrito) {
                 textStatusInscricao.setVisibility(View.VISIBLE);
                 btnInscrever.setText("Cancelar Inscrição");
-                // CORREÇÃO: Define a cor do botão para vermelho
                 btnInscrever.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bordo)));
                 btnInscrever.setEnabled(true);
             } else {
                 textStatusInscricao.setVisibility(View.GONE);
                 btnInscrever.setText("Inscrever-se");
-                // CORREÇÃO: Define a cor do botão para verde (a cor original)
                 btnInscrever.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.verde_musgo)));
                 btnInscrever.setEnabled(true);
             }
@@ -78,14 +77,18 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
     private void handleInscricaoClick() {
         eventoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
             if (inscrito) {
-                // Se já está inscrito, a ação é cancelar
+                // Se já está inscrito, a ação é cancelar e fechar a tela
                 eventoDAO.cancelarInscricao(evento.getIdEvento(), this, () -> {
-                    atualizarStatusBotao(); // Atualiza a UI após cancelar
+                    finish();
                 });
             } else {
-                // Se não está inscrito, a ação é inscrever
+                // Se não está inscrito, a ação é inscrever e ir para a tela de Inscrições
                 eventoDAO.inscreverEmEvento(evento.getIdEvento(), this, () -> {
-                    atualizarStatusBotao(); // Atualiza a UI após inscrever
+                    Intent intent = new Intent(DetalhesEventoParticipanteActivity.this, MainParticipanteActivity.class);
+                    intent.putExtra("destination", R.id.nav_inscricoes);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
                 });
             }
         });

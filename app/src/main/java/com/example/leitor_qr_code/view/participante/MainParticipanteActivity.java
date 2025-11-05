@@ -1,16 +1,11 @@
 package com.example.leitor_qr_code.view.participante;
 
+import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.leitor_qr_code.R;
-import com.example.leitor_qr_code.view.organizador.CriarEventoFragment;
-import com.example.leitor_qr_code.view.participante.HomeParticipanteFragment;
-
-import com.example.leitor_qr_code.view.organizador.PerfilOrganizadorFragment;
-import com.example.leitor_qr_code.view.organizador.QrCodeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainParticipanteActivity extends AppCompatActivity {
@@ -20,19 +15,20 @@ public class MainParticipanteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_participante);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_participante);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Listener de navegação
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            Fragment fragmentSelecionado;
+            Fragment fragmentSelecionado = null;
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
                 fragmentSelecionado = new HomeParticipanteFragment();
-            } else if (id == R.id.nav_perfil) {
-                fragmentSelecionado = new PerfilParticipanteFragment();
+            } else if (id == R.id.nav_inscricoes) {
+                fragmentSelecionado = new InscricoesParticipanteFragment(); 
             } else if (id == R.id.nav_qrcode) {
                 fragmentSelecionado = new QrCodeParticipanteFragment();
+            } else if (id == R.id.nav_perfil) {
+                fragmentSelecionado = new PerfilParticipanteFragment();
             } else {
                 return false;
             }
@@ -45,9 +41,16 @@ public class MainParticipanteActivity extends AppCompatActivity {
             return true;
         });
 
-        // Seleciona Home inicialmente
-        if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        // CORREÇÃO: Verifica se há uma instrução para abrir uma aba específica
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("destination")) {
+            int destinationId = intent.getIntExtra("destination", R.id.nav_home);
+            bottomNavigationView.setSelectedItemId(destinationId);
+        } else {
+            // Comportamento padrão: seleciona a home
+            if (savedInstanceState == null) {
+                bottomNavigationView.setSelectedItemId(R.id.nav_home);
+            }
         }
     }
 }
