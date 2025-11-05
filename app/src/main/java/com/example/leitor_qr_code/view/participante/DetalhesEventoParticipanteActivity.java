@@ -2,6 +2,7 @@ package com.example.leitor_qr_code.view.participante;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +30,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         TextView textData = findViewById(R.id.txtDataEvento);
         TextView textDescricao = findViewById(R.id.txtDescricaoEvento);
         Button btnInscrever = findViewById(R.id.btnInscrever);
-        Button btnVoltar = findViewById(R.id.btnVoltar);
+        ImageButton btnVoltar = findViewById(R.id.btnVoltar);
 
         // Configurando a ação do botão voltar
         btnVoltar.setOnClickListener(v -> finish());
