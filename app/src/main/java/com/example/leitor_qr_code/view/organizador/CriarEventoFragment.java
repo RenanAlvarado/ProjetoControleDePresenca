@@ -91,7 +91,6 @@ public class CriarEventoFragment extends Fragment {
         editDataLimiteInscricao.setText(eventoParaAlterar.getDataLimiteInscricao());
         switchMultiplasEntradas.setChecked(eventoParaAlterar.isPermiteMultiplasEntradas());
 
-        // LÓGICA CORRIGIDA
         String[] tempos = {"No início do evento", "1 hora antes", "2 horas antes", "3 horas antes"};
         int spinnerPosition = Arrays.asList(tempos).indexOf(eventoParaAlterar.getLiberarScannerAntes());
         if (spinnerPosition >= 0) {
@@ -123,7 +122,6 @@ public class CriarEventoFragment extends Fragment {
         }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show();
     }
 
-    // LÓGICA CORRIGIDA
     private void setupScannerSpinner() {
         String[] tempos = {"No início do evento", "1 hora antes", "2 horas antes", "3 horas antes"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, tempos);
@@ -137,7 +135,7 @@ public class CriarEventoFragment extends Fragment {
             Date inicioDateTime = sdfDateTime.parse(dataInicioStr + " " + horaInicioStr);
             Date fimDateTime = sdfDateTime.parse(dataFimStr + " " + horaFimStr);
 
-            if (eventoParaAlterar == null) { // Validações de data passada apenas para novos eventos
+            if (eventoParaAlterar == null) { 
                 Calendar cal = Calendar.getInstance();
                 cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
                 Date hoje = cal.getTime();
@@ -182,6 +180,7 @@ public class CriarEventoFragment extends Fragment {
         String liberarScanner = spinnerLiberarScanner.getSelectedItem().toString();
         boolean permiteReentrada = switchMultiplasEntradas.isChecked();
 
+        // CORREÇÃO: Validação de campos vazios ANTES da validação de datas
         if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty() || dataLimite.isEmpty()) {
             Toast.makeText(getContext(), "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show();
             return;
@@ -204,8 +203,8 @@ public class CriarEventoFragment extends Fragment {
         evento.setPermiteMultiplasEntradas(permiteReentrada);
 
         if (eventoParaAlterar != null) {
-            // MODO DE ALTERAÇÃO
             eventoDAO.atualizarEvento(evento, () -> {
+                // CORREÇÃO: Verificação de nulidade de contexto
                 if (getContext() == null || !isAdded()) return;
                 Toast.makeText(getContext(), "Evento alterado com sucesso!", Toast.LENGTH_SHORT).show();
                 if (getActivity() != null) {
@@ -216,9 +215,9 @@ public class CriarEventoFragment extends Fragment {
                 Toast.makeText(getContext(), "Ocorreu um erro ao alterar o evento.", Toast.LENGTH_SHORT).show();
             });
         } else {
-            // MODO DE CRIAÇÃO
             eventoDAO.salvarEvento(getContext(), evento, () -> {
-                if (getParentFragmentManager() == null) return;
+                // CORREÇÃO: Verificação de nulidade de contexto
+                if (getParentFragmentManager() == null || !isAdded()) return;
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.frame_container_organizador, new HomeOrganizadorFragment())
                         .commit();

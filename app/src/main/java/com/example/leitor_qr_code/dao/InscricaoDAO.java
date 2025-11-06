@@ -49,7 +49,7 @@ public class InscricaoDAO {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        callback.onComplete(true); // Nenhum inscrito, então a operação é um sucesso.
+                        callback.onComplete(true);
                         return;
                     }
 
@@ -69,13 +69,10 @@ public class InscricaoDAO {
                             if (!registrosQuery.isEmpty()) {
                                 DocumentSnapshot ultimoRegistro = registrosQuery.getDocuments().get(0);
                                 if ("entrada".equals(ultimoRegistro.getString("tipo"))) {
-                                    // Este participante precisa de um registro de saída
                                     DocumentSnapshot inscricaoDoc = queryDocumentSnapshots.getDocuments().get(i);
                                     Map<String, Object> registroSaida = new HashMap<>();
                                     registroSaida.put("tipo", "saida");
-                                    registroSaida.put("timestamp", FieldValue.serverTimestamp()); // Usa a hora do servidor
-
-                                    // Adiciona a operação ao lote
+                                    registroSaida.put("timestamp", FieldValue.serverTimestamp());
                                     batch.set(inscricaoDoc.getReference().collection("registros").document(), registroSaida);
                                     algumaSaidaRegistrada = true;
                                 }
@@ -83,11 +80,9 @@ public class InscricaoDAO {
                         }
 
                         if (algumaSaidaRegistrada) {
-                            // Executa todas as operações de escrita de uma só vez
                             batch.commit().addOnSuccessListener(aVoid -> callback.onComplete(true))
                                     .addOnFailureListener(e -> callback.onComplete(false));
                         } else {
-                            // Nenhum participante precisava de um registro de saída, então consideramos sucesso.
                             callback.onComplete(true);
                         }
                     }).addOnFailureListener(e -> callback.onComplete(false));
@@ -137,7 +132,8 @@ public class InscricaoDAO {
                 .addOnSuccessListener(query -> {
                     if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
                     query.getDocuments().get(0).getReference().collection("registros").orderBy("timestamp", Query.Direction.ASCENDING).get()
-                            .addOnSuccessListener(registrosQuery -> callback.onCallback(registrosQuery.toObjects(Registro.class)));
+                            .addOnSuccessListener(registrosQuery -> callback.onCallback(registrosQuery.toObjects(Registro.class)))
+                            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
                 });
     }
 
@@ -168,7 +164,7 @@ public class InscricaoDAO {
         Map<String, Object> registro = new HashMap<>();
         registro.put("tipo", tipo);
         registro.put("timestamp", FieldValue.serverTimestamp());
-        String msg = "'" + tipo.substring(0, 1).toUpperCase() + tipo.substring(1) + "' registrada com sucesso.";
+        String msg = tipo.substring(0, 1).toUpperCase() + tipo.substring(1) + " registrada com sucesso.";
         inscricaoDoc.getReference().collection("registros").add(registro)
                 .addOnSuccessListener(ref -> callback.onComplete(true, msg))
                 .addOnFailureListener(e -> callback.onComplete(false, "Falha ao registrar " + tipo));
@@ -177,6 +173,7 @@ public class InscricaoDAO {
     public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {
         String uid = auth.getCurrentUser().getUid();
         verificarInscricao(eventoId, uid, isAlreadyInscrito -> {
+            if (activity.isFinishing() || activity.isDestroyed()) return;
             if (isAlreadyInscrito) {
                 Toast.makeText(activity, "Você já está inscrito.", Toast.LENGTH_SHORT).show();
                 return;
@@ -186,6 +183,7 @@ public class InscricaoDAO {
             data.put("usuarioId", uid);
             data.put("dataInscricao", FieldValue.serverTimestamp());
             db.collection("inscricoes").add(data).addOnSuccessListener(ref -> {
+                if (activity.isFinishing() || activity.isDestroyed()) return;
                 Toast.makeText(activity, "Inscrição realizada!", Toast.LENGTH_SHORT).show();
                 callback.run();
             });
@@ -199,6 +197,7 @@ public class InscricaoDAO {
                     if (query.isEmpty()) return;
                     query.getDocuments().get(0).getReference().delete()
                             .addOnSuccessListener(v -> {
+                                if (activity.isFinishing() || activity.isDestroyed()) return;
                                 Toast.makeText(activity, "Inscrição cancelada.", Toast.LENGTH_SHORT).show();
                                 onSuccess.run();
                             });
@@ -276,12 +275,11 @@ public class InscricaoDAO {
                 });
     }
 
-    // NOVO MÉTODO PARA EXCLUSÃO DE CONTA
     public void excluirInscricoesDoUsuario(String usuarioId, SimpleCallback callback) {
         db.collection("inscricoes").whereEqualTo("usuarioId", usuarioId).get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
-                        callback.onComplete(true); // Nenhum inscrição para excluir, sucesso.
+                        callback.onComplete(true);
                         return;
                     }
                     WriteBatch batch = db.batch();

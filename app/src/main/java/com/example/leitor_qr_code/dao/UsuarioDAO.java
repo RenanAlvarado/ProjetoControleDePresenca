@@ -116,9 +116,7 @@ public class UsuarioDAO {
 
         db.collection("usuarios").document(uid)
                 .update(dadosParaAtualizar)
-                .addOnSuccessListener(aVoid -> {
-                    callback.onComplete(true);
-                })
+                .addOnSuccessListener(aVoid -> callback.onComplete(true))
                 .addOnFailureListener(e -> callback.onComplete(false));
     }
 
@@ -183,10 +181,14 @@ public class UsuarioDAO {
 
         auth.signInWithEmailAndPassword(email, senha)
                 .addOnSuccessListener(authResult -> {
+                    if (activity.isFinishing() || activity.isDestroyed()) return;
                     Toast.makeText(activity, "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
                     onSuccess.run();
                 })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Falha no login. Verifique seu e-mail e senha.", Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                    if (activity.isFinishing() || activity.isDestroyed()) return;
+                    Toast.makeText(activity, "Falha no login. Verifique seu e-mail e senha.", Toast.LENGTH_LONG).show();
+                });
     }
 
     public void cadastrarUsuario(Activity activity, String nome, String email, String senha) {
@@ -201,17 +203,24 @@ public class UsuarioDAO {
                     db.collection("usuarios").document(uid)
                             .set(dados)
                             .addOnSuccessListener(unused -> {
+                                if (activity.isFinishing() || activity.isDestroyed()) return;
                                 Toast.makeText(activity, "Cadastro realizado!", Toast.LENGTH_SHORT).show();
                                 activity.startActivity(new Intent(activity, LoginActivity.class));
                                 activity.finish();
                             });
                 })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Falha ao cadastrar. Verifique os dados ou tente um e-mail diferente.", Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                     if (activity.isFinishing() || activity.isDestroyed()) return;
+                    Toast.makeText(activity, "Falha ao cadastrar. Verifique os dados ou tente um e-mail diferente.", Toast.LENGTH_LONG).show();
+                });
     }
 
     public void atualizarFotoUsuario(Activity activity, Bitmap bitmap, ImageView imageView) {
         String uid = auth.getCurrentUser().getUid();
-        if (uid == null) { Toast.makeText(activity, "Usuário não autenticado!", Toast.LENGTH_SHORT).show(); return; }
+        if (uid == null) { 
+            Toast.makeText(activity, "Usuário não autenticado!", Toast.LENGTH_SHORT).show(); 
+            return; 
+        }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos);
@@ -220,12 +229,14 @@ public class UsuarioDAO {
         db.collection("usuarios").document(uid)
                 .update("photoBase64", base64)
                 .addOnSuccessListener(unused -> {
+                    if (activity == null || activity.isFinishing()) return;
                     Toast.makeText(activity, "Foto atualizada!", Toast.LENGTH_SHORT).show();
-                    if (activity != null && !activity.isFinishing()) {
-                        Glide.with(activity).load(baos.toByteArray()).circleCrop().into(imageView);
-                    }
+                    Glide.with(activity).load(baos.toByteArray()).circleCrop().into(imageView);
                 })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao salvar foto", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    if (activity == null || activity.isFinishing()) return;
+                    Toast.makeText(activity, "Erro ao salvar foto", Toast.LENGTH_SHORT).show();
+                });
     }
 
     public void carregarDadosUsuario(ImageView imgPerfil, EditText editNome, EditText editEmail, Fragment fragment) {

@@ -51,7 +51,6 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         setupViewsAndListeners();
 
         if(evento != null){
-            // A chamada inicial ainda é necessária para configurar a RecyclerView na primeira vez
             setupRecyclerView();
         }
     }
@@ -59,22 +58,17 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // LÓGICA DE ATUALIZAÇÃO
         if (evento != null && evento.getIdEvento() != null) {
-            // Busca a versão mais recente do evento no banco de dados
             eventoDAO.carregarEventoPorId(evento.getIdEvento(), eventoAtualizado -> {
                 if (isFinishing() || isDestroyed()) return;
 
                 if (eventoAtualizado == null) {
-                    // Evento pode ter sido excluído
                     Toast.makeText(this, "Evento não encontrado.", Toast.LENGTH_SHORT).show();
                     finish();
                     return;
                 }
-                // Atualiza o objeto local com os dados mais recentes
                 this.evento = eventoAtualizado;
 
-                // Agora, preenche a UI com os dados frescos e carrega os inscritos
                 fillEventData();
                 carregarDadosInscritos(this.evento.getIdEvento());
             });
@@ -132,6 +126,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
                     .setMessage("Deseja marcar este evento como concluído?")
                     .setPositiveButton("Sim", (dialog, which) -> {
                         eventoDAO.concluirEvento(evento.getIdEvento(), success -> {
+                            if (isFinishing() || isDestroyed()) return;
                             if(success) {
                                 Toast.makeText(this, "Evento concluído com sucesso!", Toast.LENGTH_SHORT).show();
                                 finish();
@@ -144,17 +139,19 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
                     .show();
         });
 
+        // LÓGICA DE EXCLUSÃO CORRIGIDA E SEGURA
         findViewById(R.id.btnExcluirEvento).setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Excluir Evento")
                     .setMessage("Tem certeza? Isso apagará o evento e todas as suas inscrições permanentemente.")
                     .setPositiveButton("Excluir", (dialog, which) -> {
                         eventoDAO.excluirEventoIndividual(evento.getIdEvento(), success -> {
+                            if (isFinishing() || isDestroyed()) return;
                             if(success) {
                                 Toast.makeText(this, "Evento excluído com sucesso.", Toast.LENGTH_SHORT).show();
                                 finish();
                             } else {
-                                Toast.makeText(this, "Falha ao excluir o evento.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Falha ao excluir o evento. Verifique sua permissão.", Toast.LENGTH_SHORT).show();
                             }
                         });
                     })
