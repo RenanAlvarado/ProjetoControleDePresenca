@@ -107,6 +107,16 @@
                     android:text="Scanner liberado: 1 hora antes"
                     android:textColor="@color/verde_musgo" />
 
+                <!-- NOVO CAMPO -->
+                <TextView
+                    android:id="@+id/txtPermiteReentrada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="4dp"
+                    android:textStyle="italic"
+                    android:text="Reentrada: Permitida"
+                    android:textColor="@color/azul_cinza" />
+
             </LinearLayout>
 
             <!-- BOTÃO ESCANEAR QR CODES -->

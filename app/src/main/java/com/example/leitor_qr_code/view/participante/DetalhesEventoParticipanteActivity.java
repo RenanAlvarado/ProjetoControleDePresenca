@@ -36,7 +36,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // --- Referências Completas ---
+        // --- Referências ---
         TextView txtTitulo = findViewById(R.id.txtTituloEvento);
         TextView txtDescricao = findViewById(R.id.txtDescricaoEvento);
         TextView txtLocal = findViewById(R.id.txtLocalEvento);
@@ -44,6 +44,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         TextView txtDataHoraFim = findViewById(R.id.txtDataHoraFim);
         TextView txtCriadoPor = findViewById(R.id.txtCriadoPor);
         TextView txtEntradaLiberada = findViewById(R.id.txtEntradaLiberada);
+        TextView txtPermiteReentrada = findViewById(R.id.txtPermiteReentrada); // Referência adicionada
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
         btnInscrever = findViewById(R.id.btnInscrever);
         textStatusInscricao = findViewById(R.id.textStatusInscricao);
@@ -52,7 +53,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         btnVoltar.setOnClickListener(v -> finish());
         btnInscrever.setOnClickListener(v -> handleInscricaoClick());
 
-        // --- Preenchimento Completo dos Dados ---
+        // --- Preenchimento dos Dados ---
         if (evento != null) {
             txtTitulo.setText(evento.getNome());
             txtDescricao.setText(evento.getDescricao());
@@ -60,6 +61,13 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
             txtDataHoraInicio.setText("Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio());
             txtDataHoraFim.setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
             txtEntradaLiberada.setText("Entrada liberada: " + evento.getLiberarScannerAntes());
+
+            // Lógica para exibir a regra de reentrada
+            if (evento.isPermiteMultiplasEntradas()) {
+                txtPermiteReentrada.setText("Reentrada: Permitida");
+            } else {
+                txtPermiteReentrada.setText("Reentrada: Não Permitida");
+            }
 
             usuarioDAO.buscarNomePorId(evento.getOrganizadorId(), nomeOrganizador -> {
                 txtCriadoPor.setText("Criado por: " + nomeOrganizador);

@@ -45,7 +45,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
 
         if(evento != null){
             fillEventData();
-            setupRecyclerView(); 
+            setupRecyclerView();
         }
     }
 
@@ -110,13 +110,20 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.txtDataHoraInicio)).setText("Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio());
         ((TextView) findViewById(R.id.txtDataHoraFim)).setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
         ((TextView) findViewById(R.id.txtLiberarScanner)).setText("Scanner liberado: " + evento.getLiberarScannerAntes());
+        
+        // Lógica para exibir a regra de reentrada
+        TextView txtPermiteReentrada = findViewById(R.id.txtPermiteReentrada);
+        if (evento.isPermiteMultiplasEntradas()) {
+            txtPermiteReentrada.setText("Reentrada: Permitida");
+        } else {
+            txtPermiteReentrada.setText("Reentrada: Não Permitida");
+        }
     }
     
     private void setupRecyclerView(){
         recyclerInscritos = findViewById(R.id.recyclerInscritos);
         recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));
         
-        // CORREÇÃO: Implementa o listener que executa a ação de clique
         adapter = new InscritoAdapter(listaInscritos, usuario -> {
             Intent intent = new Intent(this, HistoricoRegistrosActivity.class);
             intent.putExtra("eventoId", evento.getIdEvento());
