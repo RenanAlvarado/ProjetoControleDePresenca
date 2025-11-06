@@ -8,6 +8,10 @@
     <color name="bordo">#6B0A06</color>
     <color name="verde_musgo">#0D8C00</color>
 
+    <!-- Cores de Texto -->
+    <color name="texto_principal">#333333</color>
+    <color name="texto_subtitulo">#555555</color>
+
     <!-- Cores de Status (para fundos de item) -->
     <color name="status_entrou_bg">#DFF0D8</color>
     <color name="status_saiu_bg">#F5F5F5</color>
