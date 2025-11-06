@@ -20,8 +20,12 @@ import com.example.leitor_qr_code.model.Evento;
 import com.example.leitor_qr_code.util.EventoAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class HomeParticipanteFragment extends Fragment {
@@ -78,13 +82,12 @@ public class HomeParticipanteFragment extends Fragment {
                     .map(Evento::getIdEvento)
                     .collect(Collectors.toList());
 
-            // Chamada correta, sem o UID
             eventoDAO.carregarEventosDisponiveis(idsInscritos, eventosDisponiveis -> {
                 if (getContext() == null || !isAdded()) return;
 
-                // Filtro manual para remover eventos do próprio usuário
                 List<Evento> eventosFiltrados = eventosDisponiveis.stream()
                         .filter(evento -> !uid.equals(evento.getOrganizadorId()))
+                        .filter(evento -> !isEventoIniciado(evento)) // Filtro adicionado
                         .collect(Collectors.toList());
 
                 if (eventosFiltrados.isEmpty()) {
@@ -99,5 +102,17 @@ public class HomeParticipanteFragment extends Fragment {
                 }
             });
         });
+    }
+
+    private boolean isEventoIniciado(Evento evento) {
+        try {
+            String dataHoraInicioStr = evento.getDataInicio() + " " + evento.getHoraInicio();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            Date dataHoraInicio = sdf.parse(dataHoraInicioStr);
+            return new Date().after(dataHoraInicio);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return true; // Em caso de erro, assume que já começou para ser seguro
+        }
     }
 }

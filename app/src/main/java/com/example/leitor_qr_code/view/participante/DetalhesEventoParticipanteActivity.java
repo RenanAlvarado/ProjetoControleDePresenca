@@ -17,6 +17,11 @@ import com.example.leitor_qr_code.dao.UsuarioDAO;
 import com.example.leitor_qr_code.model.Evento;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
 
     private Evento evento;
@@ -49,11 +54,10 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
         btnInscrever = findViewById(R.id.btnInscrever);
         textStatusInscricao = findViewById(R.id.textStatusInscricao);
+        TextView textInscricoesEncerradas = findViewById(R.id.textInscricoesEncerradas);
 
-        // --- Ações ---
         btnVoltar.setOnClickListener(v -> finish());
 
-        // --- Preenchimento dos Dados ---
         if (evento != null) {
             txtTitulo.setText(evento.getNome());
             txtDescricao.setText(evento.getDescricao());
@@ -72,15 +76,29 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
                 txtCriadoPor.setText("Criado por: " + nomeOrganizador);
             });
 
-            // Lógica para desabilitar botão
             if (isHistorico) {
                 btnInscrever.setVisibility(View.GONE);
                 textStatusInscricao.setText("Evento Concluído");
                 textStatusInscricao.setVisibility(View.VISIBLE);
+            } else if (isEventoIniciado()) {
+                btnInscrever.setVisibility(View.GONE);
+                textInscricoesEncerradas.setVisibility(View.VISIBLE);
             } else {
                 btnInscrever.setOnClickListener(v -> handleInscricaoClick());
                 atualizarStatusBotao();
             }
+        }
+    }
+
+    private boolean isEventoIniciado() {
+        try {
+            String dataHoraInicioStr = evento.getDataInicio() + " " + evento.getHoraInicio();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            Date dataHoraInicio = sdf.parse(dataHoraInicioStr);
+            return new Date().after(dataHoraInicio);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return true; // Em caso de erro, assume que já começou para ser seguro
         }
     }
 

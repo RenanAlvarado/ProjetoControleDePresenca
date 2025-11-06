@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils; // Importação adicionada
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -26,7 +28,8 @@ import com.google.firebase.auth.FirebaseAuth;
 public class PerfilParticipanteFragment extends Fragment {
 
     private ImageView imgPerfil, btnEditarFoto;
-    private EditText editNome, editEmail;
+    // Campos adicionados para a senha
+    private EditText editNome, editEmail, editNovaSenha, editConfirmarSenha;
     private Button btnSalvar, btnSair, btnMudarParaParticipante, btnMudarParaOrganizador;
     private ActivityResultLauncher<String> imagePicker;
     private UsuarioDAO usuarioDAO;
@@ -62,6 +65,9 @@ public class PerfilParticipanteFragment extends Fragment {
         btnEditarFoto = view.findViewById(R.id.btnEditarFoto);
         editNome = view.findViewById(R.id.editNome);
         editEmail = view.findViewById(R.id.editEmail);
+        // Referências para os novos campos
+        editNovaSenha = view.findViewById(R.id.editNovaSenha);
+        editConfirmarSenha = view.findViewById(R.id.editConfirmarSenha);
         btnSalvar = view.findViewById(R.id.btnSalvar);
         btnMudarParaParticipante = view.findViewById(R.id.btnMudarParaParticipante);
         btnMudarParaOrganizador = view.findViewById(R.id.btnMudarParaOrganizador);
@@ -72,14 +78,20 @@ public class PerfilParticipanteFragment extends Fragment {
 
         btnEditarFoto.setOnClickListener(v -> imagePicker.launch("image/*"));
 
-        // Chamada atualizada, sem o EditText de tipo
         usuarioDAO.carregarDadosUsuario(imgPerfil, editNome, editEmail, this);
+
+        // LÓGICA DO BOTÃO SALVAR ATUALIZADA
+        btnSalvar.setOnClickListener(v -> {
+            salvarAlteracoes();
+        });
 
         btnMudarParaOrganizador.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), MainOrganizadorActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            getActivity().finish();
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
         });
 
         btnSair.setOnClickListener(v -> {
@@ -87,7 +99,56 @@ public class PerfilParticipanteFragment extends Fragment {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            getActivity().finish();
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
         });
+    }
+
+    private void salvarAlteracoes() {
+        String novoNome = editNome.getText().toString().trim();
+        String novoEmail = editEmail.getText().toString().trim();
+        String novaSenha = editNovaSenha.getText().toString().trim();
+        String confirmarSenha = editConfirmarSenha.getText().toString().trim();
+
+        if (novoNome.isEmpty() || novoEmail.isEmpty()) {
+            Toast.makeText(getContext(), "Nome e email não podem estar vazios.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // --- Lógica para salvar Nome e Email ---
+        usuarioDAO.atualizarDadosUsuario(novoNome, novoEmail, success -> {
+            if (getContext() == null || !isAdded()) return;
+            if (success) {
+                Toast.makeText(getContext(), "Nome e email salvos com sucesso!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Falha ao salvar nome e email.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // --- Lógica para salvar a Senha (se preenchida) ---
+        if (!TextUtils.isEmpty(novaSenha)) {
+            if (!novaSenha.equals(confirmarSenha)) {
+                Toast.makeText(getContext(), "As senhas não coincidem.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (novaSenha.length() < 6) {
+                Toast.makeText(getContext(), "A nova senha deve ter no mínimo 6 caracteres.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            usuarioDAO.atualizarSenha(novaSenha, success -> {
+                if (getContext() == null || !isAdded()) return;
+                if (success) {
+                    Toast.makeText(getContext(), "Senha alterada com sucesso!", Toast.LENGTH_SHORT).show();
+                    // Limpa os campos de senha após o sucesso
+                    editNovaSenha.setText("");
+                    editConfirmarSenha.setText("");
+                } else {
+                    Toast.makeText(getContext(), "Falha ao alterar a senha. Tente fazer login novamente.", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 }

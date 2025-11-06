@@ -47,10 +47,10 @@ public class HomeOrganizadorFragment extends Fragment {
     }
 
     private void carregarEventos() {
+        // Carrega apenas os eventos não concluídos (ativos)
         eventoDAO.carregarEventosPorOrganizador(false, eventos -> {
-            // VERIFICAÇÃO DE SEGURANÇA
             if (getContext() == null || !isAdded()) {
-                return; // Evita o crash se o fragmento não estiver na tela
+                return; // Verificação de segurança
             }
 
             if (eventos.isEmpty()) {
@@ -65,6 +65,22 @@ public class HomeOrganizadorFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        carregarEventos(); 
+
+        // **A LÓGICA ATUALIZADA**
+        // 1. Primeiro, verifica e conclui eventos que já terminaram
+        eventoDAO.verificarEConcluirEventosAutomaticamente(eventosConcluidos -> {
+            if (getContext() == null || !isAdded()) {
+                return; // Verificação de segurança
+            }
+
+            // 2. Dá um feedback para o usuário se algo foi feito
+            if (eventosConcluidos > 0) {
+                String plural = eventosConcluidos > 1 ? "s" : "";
+                Toast.makeText(getContext(), eventosConcluidos + " evento" + plural + " foi concluído automaticamente.", Toast.LENGTH_LONG).show();
+            }
+
+            // 3. Após a verificação, carrega a lista de eventos ativos (que sobraram)
+            carregarEventos();
+        });
     }
 }

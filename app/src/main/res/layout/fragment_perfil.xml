@@ -26,7 +26,6 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
-            <!-- FOTO + ÍCONE EDITAR -->
             <FrameLayout
                 android:layout_width="140dp"
                 android:layout_height="140dp">
@@ -51,15 +50,14 @@
                     android:contentDescription="Editar Foto"/>
             </FrameLayout>
 
-            <!-- CAMPOS -->
             <EditText
                 android:id="@+id/editNome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:background="@android:drawable/edit_text"
-                android:editable="false"
-                android:enabled="true"
                 android:hint="Nome completo"
+                android:inputType="textPersonName"
                 android:padding="12dp"
                 android:textColor="#000" />
 
@@ -69,24 +67,33 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@android:drawable/edit_text"
-                android:editable="false"
-                android:enabled="true"
                 android:hint="Email"
-                android:inputType="phone"
-                android:padding="12dp" />
+                android:inputType="textEmailAddress"
+                android:padding="12dp"
+                android:textColor="#000"/>
 
+            <!-- CAMPOS DE SENHA ADICIONADOS -->
             <EditText
-                android:id="@+id/editTipo"
+                android:id="@+id/editNovaSenha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@android:drawable/edit_text"
-                android:editable="false"
-                android:enabled="true"
-                android:hint="Tipo"
-                android:inputType="number"
-                android:padding="12dp" 
-                android:visibility="gone"/>
+                android:hint="Nova Senha (opcional)"
+                android:inputType="textPassword"
+                android:padding="12dp"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/editConfirmarSenha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@android:drawable/edit_text"
+                android:hint="Confirmar Nova Senha"
+                android:inputType="textPassword"
+                android:padding="12dp"
+                android:textColor="#000"/>
 
             <Button
                 android:id="@+id/btnSalvar"
@@ -97,7 +104,6 @@
                 android:backgroundTint="#0D8C00"
                 android:textColor="#FFFFFF"/>
 
-            <!-- BOTÃO PARA MUDAR PARA ORGANIZADOR -->
             <Button
                 android:id="@+id/btnMudarParaOrganizador"
                 android:layout_width="match_parent"
@@ -107,7 +113,6 @@
                 android:backgroundTint="@color/azul_cinza"
                 android:textColor="#FFFFFF"/>
 
-            <!-- BOTÃO PARA MUDAR PARA PARTICIPANTE -->
             <Button
                 android:id="@+id/btnMudarParaParticipante"
                 android:layout_width="match_parent"

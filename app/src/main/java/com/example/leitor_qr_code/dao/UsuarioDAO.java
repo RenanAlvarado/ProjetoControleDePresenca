@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class UsuarioDAO {
 
@@ -32,11 +33,49 @@ public class UsuarioDAO {
 
     public interface QrCodeDataCallback { void onDataReady(String nome, String email, String jsonData); void onFailure(); }
     public interface NomeUsuarioCallback { void onNomeCarregado(String nome); }
+    public interface SimpleCallback { void onComplete(boolean success); }
 
     public UsuarioDAO() {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
     }
+
+    // NOVO MÉTODO PARA ATUALIZAR A SENHA
+    public void atualizarSenha(String novaSenha, SimpleCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onComplete(false);
+            return;
+        }
+
+        user.updatePassword(novaSenha)
+                .addOnSuccessListener(aVoid -> callback.onComplete(true))
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    callback.onComplete(false);
+                });
+    }
+
+    public void atualizarDadosUsuario(String novoNome, String novoEmail, SimpleCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onComplete(false);
+            return;
+        }
+        String uid = user.getUid();
+
+        Map<String, Object> dadosParaAtualizar = new HashMap<>();
+        dadosParaAtualizar.put("nome", novoNome);
+        dadosParaAtualizar.put("email", novoEmail);
+
+        db.collection("usuarios").document(uid)
+                .update(dadosParaAtualizar)
+                .addOnSuccessListener(aVoid -> {
+                    callback.onComplete(true);
+                })
+                .addOnFailureListener(e -> callback.onComplete(false));
+    }
+
 
     public void buscarNomePorId(String uid, NomeUsuarioCallback callback) {
         if (uid == null || uid.isEmpty()) {
@@ -130,13 +169,12 @@ public class UsuarioDAO {
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(activity, "Foto atualizada!", Toast.LENGTH_SHORT).show();
                     if (activity != null && !activity.isFinishing()) {
-                         Glide.with(activity).load(baos.toByteArray()).circleCrop().into(imageView);
+                        Glide.with(activity).load(baos.toByteArray()).circleCrop().into(imageView);
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao salvar foto", Toast.LENGTH_SHORT).show());
     }
 
-    // MÉTODO ATUALIZADO: Não precisa mais do EditText de tipo
     public void carregarDadosUsuario(ImageView imgPerfil, EditText editNome, EditText editEmail, Fragment fragment) {
         String uid = auth.getCurrentUser().getUid();
         if (uid == null) return;
@@ -156,7 +194,7 @@ public class UsuarioDAO {
                             byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
                             Glide.with(context).load(bytes).circleCrop().into(imgPerfil);
                         } else {
-                            imgPerfil.setImageResource(R.drawable.icn_perfil_2);
+                            Glide.with(context).load(R.drawable.icn_perfil_2).circleCrop().into(imgPerfil);
                         }
                     }
                 })

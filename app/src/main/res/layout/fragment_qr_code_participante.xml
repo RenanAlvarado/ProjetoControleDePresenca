@@ -36,6 +36,7 @@
 
         <!-- Moldura branca com o QR Code -->
         <LinearLayout
+            android:id="@+id/layoutQrCodeParaImpressao" 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -73,15 +74,26 @@
 
         </LinearLayout>
 
+        <!-- Botão para Imprimir -->
+        <Button
+            android:id="@+id/btnImprimirQr"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Imprimir Crachá"
+            android:backgroundTint="@color/verde_musgo"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="32dp" />
+
         <!-- Botão para atualizar ou regenerar -->
         <Button
             android:id="@+id/btnAtualizarQr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Atualizar QR Code"
-            android:backgroundTint="@color/azul_cinza"
-            android:textColor="#FFFFFF"
-            android:layout_marginTop="32dp" />
+            android:backgroundTint="@android:color/transparent"
+            android:textColor="@color/cinza_claro"
+            android:elevation="0dp"
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
 </ScrollView>

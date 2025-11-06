@@ -44,13 +44,13 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingBottom="16dp"
-                android:text="Título do Evento"
                 android:textColor="@android:color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Título do Evento" />
 
             <!-- Card detalhes -->
             <LinearLayout
@@ -68,72 +68,70 @@
                     android:id="@+id/txtDataHoraInicio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Início: DD/MM/AAAA às HH:MM"
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Início: DD/MM/AAAA às HH:MM" />
 
                 <TextView
                     android:id="@+id/txtDataHoraFim"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Fim: DD/MM/AAAA às HH:MM"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"
+                    tools:text="Fim: DD/MM/AAAA às HH:MM" />
 
                 <TextView
                     android:id="@+id/txtLocalEvento"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="8dp"
-                    android:text="Local"
-                    android:textColor="#333333" />
+                    android:textColor="#333333"
+                    tools:text="Local" />
 
                 <TextView
                     android:id="@+id/txtDescricaoEvento"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="12dp"
-                    android:text="Descrição"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"
+                    tools:text="Descrição" />
 
                  <TextView
                     android:id="@+id/txtCriadoPor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="12dp"
-                    android:text="Criado por: ..."
                     android:textStyle="italic"
-                    android:textColor="#555555" />
+                    android:textColor="#555555"
+                    tools:text="Criado por: ..." />
 
                 <TextView
                     android:id="@+id/txtEntradaLiberada"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="4dp"
-                    android:text="Entrada liberada às: ..."
                     android:textStyle="italic"
-                    android:textColor="@color/verde_musgo" />
+                    android:textColor="@color/verde_musgo"
+                    tools:text="Entrada liberada às: ..." />
 
-                 <!-- NOVO CAMPO -->
                 <TextView
                     android:id="@+id/txtPermiteReentrada"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="4dp"
                     android:textStyle="italic"
-                    android:text="Reentrada: Não Permitida"
-                    android:textColor="@color/azul_cinza" />
+                    android:textColor="@color/azul_cinza"
+                    tools:text="Reentrada: Não Permitida" />
 
             </LinearLayout>
 
-            <!-- Status da Inscrição (inicialmente invisível) -->
+            <!-- Status da Inscrição -->
             <TextView
                 android:id="@+id/textStatusInscricao"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Inscrito ✅"
                 android:textColor="@color/status_entrou_text"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -141,9 +139,24 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cardDetails"
+                tools:text="Inscrito ✅"
                 tools:visibility="visible" />
 
-            <!-- Botão Inscrever -->
+            <TextView
+                android:id="@+id/textInscricoesEncerradas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Inscrições encerradas."
+                android:textColor="@color/cinza_medio"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textStatusInscricao"
+                tools:visibility="visible" />
+
             <Button
                 android:id="@+id/btnInscrever"
                 android:layout_width="0dp"
@@ -154,7 +167,7 @@
                 android:textColor="@android:color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textStatusInscricao" />
+                app:layout_constraintTop_toBottomOf="@id/textInscricoesEncerradas" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

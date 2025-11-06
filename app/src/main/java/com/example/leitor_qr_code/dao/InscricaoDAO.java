@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -37,10 +38,60 @@ public class InscricaoDAO {
     public interface HistoricoCallback { void onCallback(List<Registro> registros); }
     public interface StatusPresencaCallback { void onStatusResult(String status); }
     public interface DataInscricaoCallback { void onDataCarregada(Date data); }
+    public interface SimpleCallback { void onComplete(boolean success); }
 
     public InscricaoDAO() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
+    }
+
+    public void registrarSaidaParaTodosPresentes(String eventoId, SimpleCallback callback) {
+        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        callback.onComplete(true); // Nenhum inscrito, então a operação é um sucesso.
+                        return;
+                    }
+
+                    List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+                    for (QueryDocumentSnapshot inscricaoDoc : queryDocumentSnapshots) {
+                        Task<QuerySnapshot> task = inscricaoDoc.getReference().collection("registros")
+                                .orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get();
+                        tasks.add(task);
+                    }
+
+                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                        WriteBatch batch = db.batch();
+                        boolean algumaSaidaRegistrada = false;
+
+                        for (int i = 0; i < results.size(); i++) {
+                            QuerySnapshot registrosQuery = (QuerySnapshot) results.get(i);
+                            if (!registrosQuery.isEmpty()) {
+                                DocumentSnapshot ultimoRegistro = registrosQuery.getDocuments().get(0);
+                                if ("entrada".equals(ultimoRegistro.getString("tipo"))) {
+                                    // Este participante precisa de um registro de saída
+                                    DocumentSnapshot inscricaoDoc = queryDocumentSnapshots.getDocuments().get(i);
+                                    Map<String, Object> registroSaida = new HashMap<>();
+                                    registroSaida.put("tipo", "saida");
+                                    registroSaida.put("timestamp", FieldValue.serverTimestamp()); // Usa a hora do servidor
+
+                                    // Adiciona a operação ao lote
+                                    batch.set(inscricaoDoc.getReference().collection("registros").document(), registroSaida);
+                                    algumaSaidaRegistrada = true;
+                                }
+                            }
+                        }
+
+                        if (algumaSaidaRegistrada) {
+                            // Executa todas as operações de escrita de uma só vez
+                            batch.commit().addOnSuccessListener(aVoid -> callback.onComplete(true))
+                                    .addOnFailureListener(e -> callback.onComplete(false));
+                        } else {
+                            // Nenhum participante precisava de um registro de saída, então consideramos sucesso.
+                            callback.onComplete(true);
+                        }
+                    }).addOnFailureListener(e -> callback.onComplete(false));
+                }).addOnFailureListener(e -> callback.onComplete(false));
     }
 
     public void buscarDataInscricao(String eventoId, String usuarioId, DataInscricaoCallback callback) {

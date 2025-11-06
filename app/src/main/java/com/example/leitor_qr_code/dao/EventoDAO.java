@@ -11,7 +11,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date; // CORREÇÃO: Importa a classe Date correta
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,25 +27,91 @@ public class EventoDAO {
     public interface EventoCallback { void onCallback(List<Evento> eventos); }
     public interface SingleEventoCallback { void onCallback(Evento evento); }
     public interface SimpleCallback { void onComplete(boolean success); }
+    public interface AutoConcludeCallback {
+        void onComplete(int eventosConcluidos);
+    }
+
 
     public EventoDAO() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
     }
 
-    public void concluirEvento(String eventoId, SimpleCallback callback) {
+    public void verificarEConcluirEventosAutomaticamente(AutoConcludeCallback callback) {
         String uid = auth.getCurrentUser().getUid();
-        db.collection("eventos").document(eventoId).get()
-            .addOnSuccessListener(doc -> {
-                if (doc.exists() && doc.getString("organizadorId").equals(uid)) {
-                    doc.getReference().update("concluido", true)
-                        .addOnSuccessListener(v -> callback.onComplete(true))
+        if (uid == null) {
+            callback.onComplete(0);
+            return;
+        }
+
+        db.collection("eventos")
+                .whereEqualTo("organizadorId", uid)
+                .whereEqualTo("concluido", false)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Evento> eventosAtivos = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Evento evento = doc.toObject(Evento.class);
+                        evento.setIdEvento(doc.getId());
+                        eventosAtivos.add(evento);
+                    }
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
+                    Date agora = new Date();
+                    ArrayList<String> eventosParaConcluir = new ArrayList<>();
+
+                    for (Evento evento : eventosAtivos) {
+                        try {
+                            Date dataFim = sdf.parse(evento.getDataFim() + " " + evento.getHoraFim());
+                            if (agora.after(dataFim)) {
+                                eventosParaConcluir.add(evento.getIdEvento());
+                            }
+                        } catch (java.text.ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (eventosParaConcluir.isEmpty()) {
+                        callback.onComplete(0);
+                        return;
+                    }
+
+                    java.util.concurrent.atomic.AtomicInteger contador = new java.util.concurrent.atomic.AtomicInteger(eventosParaConcluir.size());
+                    java.util.concurrent.atomic.AtomicInteger concluidosComSucesso = new java.util.concurrent.atomic.AtomicInteger(0);
+
+                    for (String eventoId : eventosParaConcluir) {
+                        concluirEvento(eventoId, success -> {
+                            if (success) {
+                                concluidosComSucesso.incrementAndGet();
+                            }
+                            if (contador.decrementAndGet() == 0) {
+                                callback.onComplete(concluidosComSucesso.get());
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> callback.onComplete(0));
+    }
+    public void concluirEvento(String eventoId, SimpleCallback callback) {
+        InscricaoDAO inscricaoDAO = new InscricaoDAO();
+        inscricaoDAO.registrarSaidaParaTodosPresentes(eventoId, success -> {
+            if (success) {
+                String uid = auth.getCurrentUser().getUid();
+                db.collection("eventos").document(eventoId).get()
+                        .addOnSuccessListener(doc -> {
+                            if (doc.exists() && doc.getString("organizadorId").equals(uid)) {
+                                doc.getReference().update("concluido", true)
+                                        .addOnSuccessListener(v -> callback.onComplete(true))
+                                        .addOnFailureListener(e -> callback.onComplete(false));
+                            } else {
+                                callback.onComplete(false);
+                            }
+                        })
                         .addOnFailureListener(e -> callback.onComplete(false));
-                } else {
-                    callback.onComplete(false);
-                }
-            })
-            .addOnFailureListener(e -> callback.onComplete(false));
+            } else {
+                callback.onComplete(false);
+            }
+        });
     }
 
     public void salvarEvento(Context context, Evento evento, Runnable onSuccess, Runnable onFailure) {
@@ -95,7 +163,6 @@ public class EventoDAO {
             }).addOnFailureListener(e -> callback.onCallback(null));
     }
 
-    // MÉTODO ATUALIZADO
     public void carregarEventosPorOrganizador(boolean concluidos, EventoCallback callback) {
         String uid = auth.getCurrentUser().getUid();
         Query query = db.collection("eventos")
@@ -141,7 +208,6 @@ public class EventoDAO {
                 });
     }
 
-    // MÉTODO ATUALIZADO
     public void carregarEventosDisponiveis(List<String> idsEventosInscritos, EventoCallback callback) {
         Query query = db.collection("eventos").whereEqualTo("concluido", false);
 

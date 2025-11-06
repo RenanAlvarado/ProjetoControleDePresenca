@@ -20,8 +20,13 @@ import com.example.leitor_qr_code.model.Evento;
 import com.example.leitor_qr_code.model.Usuario;
 import com.example.leitor_qr_code.util.InscritoAdapter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
@@ -56,6 +61,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         super.onResume();
         if (evento != null) {
             carregarDadosInscritos(evento.getIdEvento());
+            fillEventData(); 
         }
     }
 
@@ -63,6 +69,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         textResumoPresentes = findViewById(R.id.textResumoPresentes);
 
         inscricaoDAO.carregarInscritos(eventoId, usuarios -> {
+            if (isFinishing() || isDestroyed()) return;
             if (usuarios.isEmpty()) {
                 listaInscritos.clear();
                 adapter.notifyDataSetChanged();
@@ -75,6 +82,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
                 inscricaoDAO.verificarStatusPresenca(eventoId, usuario.getId(), status -> {
                     usuario.setStatusPresenca(status);
                     if (counter.decrementAndGet() == 0) {
+                        if (isFinishing() || isDestroyed()) return;
                         listaInscritos.clear();
                         listaInscritos.addAll(usuarios);
                         adapter.notifyDataSetChanged();
@@ -130,12 +138,10 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     }
     
     private void fillEventData(){
-        // Referências dos botões e do status
         TextView textStatusEvento = findViewById(R.id.textStatusEvento);
         Button btnConcluir = findViewById(R.id.btnConcluirEvento);
         Button btnEscanear = findViewById(R.id.btnEscanearQrCodes);
 
-        // Preenchimento dos textos
         ((TextView) findViewById(R.id.txtTituloEvento)).setText(evento.getNome());
         ((TextView) findViewById(R.id.txtDescricaoEvento)).setText(evento.getDescricao());
         ((TextView) findViewById(R.id.txtLocalEvento)).setText(evento.getLocal());
@@ -150,15 +156,63 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
             txtPermiteReentrada.setText("Reentrada: Não Permitida");
         }
 
-        // Lógica de visibilidade
         if (evento.isConcluido()) {
             textStatusEvento.setVisibility(View.VISIBLE);
             btnConcluir.setVisibility(View.GONE);
             btnEscanear.setVisibility(View.GONE);
         } else {
             textStatusEvento.setVisibility(View.GONE);
-            btnConcluir.setVisibility(View.VISIBLE);
-            btnEscanear.setVisibility(View.VISIBLE);
+            
+            boolean scannerLiberado = isScannerLiberado();
+            btnEscanear.setEnabled(scannerLiberado);
+            btnEscanear.setAlpha(scannerLiberado ? 1.0f : 0.5f);
+
+            boolean eventoIniciado = isEventoIniciado();
+            btnConcluir.setEnabled(eventoIniciado);
+            btnConcluir.setAlpha(eventoIniciado ? 1.0f : 0.5f);
+        }
+    }
+
+    private boolean isEventoIniciado() {
+        try {
+            String dataHoraInicioStr = evento.getDataInicio() + " " + evento.getHoraInicio();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            Date dataHoraInicio = sdf.parse(dataHoraInicioStr);
+            return new Date().after(dataHoraInicio);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false; 
+        }
+    }
+
+    private boolean isScannerLiberado() {
+        try {
+            String dataHoraInicioStr = evento.getDataInicio() + " " + evento.getHoraInicio();
+            String dataHoraFimStr = evento.getDataFim() + " " + evento.getHoraFim();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            Date dataHoraInicio = sdf.parse(dataHoraInicioStr);
+            Date dataHoraFim = sdf.parse(dataHoraFimStr);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dataHoraInicio);
+            String liberarAntes = evento.getLiberarScannerAntes();
+
+            if (liberarAntes.contains("1 hora antes")) {
+                cal.add(Calendar.HOUR_OF_DAY, -1);
+            } else if (liberarAntes.contains("2 horas antes")) {
+                cal.add(Calendar.HOUR_OF_DAY, -2);
+            } else if (liberarAntes.contains("3 horas antes")) {
+                cal.add(Calendar.HOUR_OF_DAY, -3);
+            }
+
+            Date inicioScanner = cal.getTime();
+            Date agora = new Date();
+
+            return agora.after(inicioScanner) && agora.before(dataHoraFim);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
         }
     }
     
