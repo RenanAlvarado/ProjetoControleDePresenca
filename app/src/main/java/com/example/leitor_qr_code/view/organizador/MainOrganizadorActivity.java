@@ -22,11 +22,10 @@ public class MainOrganizadorActivity extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
                 fragmentSelecionado = new HomeOrganizadorFragment();
-            } else if (id == R.id.nav_shows) {
+            } else if (id == R.id.nav_criar_evento) {
                 fragmentSelecionado = new CriarEventoFragment();
-            } else if (id == R.id.nav_qrcode) {
-                // CORREÇÃO: Abre a tela de seleção primeiro
-                fragmentSelecionado = new SelecionarEventoFragment(); 
+            } else if (id == R.id.nav_historico) {
+                fragmentSelecionado = new HistoricoOrganizadorFragment();
             } else if (id == R.id.nav_perfil) {
                 fragmentSelecionado = new PerfilOrganizadorFragment();
             } else {

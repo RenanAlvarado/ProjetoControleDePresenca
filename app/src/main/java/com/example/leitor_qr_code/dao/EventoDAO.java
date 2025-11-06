@@ -6,8 +6,8 @@ import android.widget.Toast;
 
 import com.example.leitor_qr_code.model.Evento;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -22,18 +22,28 @@ public class EventoDAO {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
-    public interface EventoCallback {
-        void onCallback(List<Evento> eventos);
-    }
-
-    // Novo Callback para um único evento
-    public interface SingleEventoCallback {
-        void onCallback(Evento evento);
-    }
+    public interface EventoCallback { void onCallback(List<Evento> eventos); }
+    public interface SingleEventoCallback { void onCallback(Evento evento); }
+    public interface SimpleCallback { void onComplete(boolean success); }
 
     public EventoDAO() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
+    }
+
+    public void concluirEvento(String eventoId, SimpleCallback callback) {
+        String uid = auth.getCurrentUser().getUid();
+        db.collection("eventos").document(eventoId).get()
+            .addOnSuccessListener(doc -> {
+                if (doc.exists() && doc.getString("organizadorId").equals(uid)) {
+                    doc.getReference().update("concluido", true)
+                        .addOnSuccessListener(v -> callback.onComplete(true))
+                        .addOnFailureListener(e -> callback.onComplete(false));
+                } else {
+                    callback.onComplete(false);
+                }
+            })
+            .addOnFailureListener(e -> callback.onComplete(false));
     }
 
     public void salvarEvento(Context context, Evento evento, Runnable onSuccess, Runnable onFailure) {
@@ -57,6 +67,7 @@ public class EventoDAO {
         dadosEvento.put("permiteMultiplasEntradas", evento.isPermiteMultiplasEntradas());
         dadosEvento.put("organizadorId", uid);
         dadosEvento.put("criadoEm", com.google.firebase.firestore.FieldValue.serverTimestamp());
+        dadosEvento.put("concluido", false);
 
         db.collection("eventos").add(dadosEvento)
                 .addOnSuccessListener(ref -> {
@@ -69,7 +80,6 @@ public class EventoDAO {
                 });
     }
 
-    // Novo método para buscar um evento pelo ID
     public void carregarEventoPorId(String eventoId, SingleEventoCallback callback) {
         db.collection("eventos").document(eventoId).get()
             .addOnSuccessListener(documentSnapshot -> {
@@ -85,19 +95,22 @@ public class EventoDAO {
             }).addOnFailureListener(e -> callback.onCallback(null));
     }
 
-    public void carregarEventosPorOrganizador(EventoCallback callback) {
+    // MÉTODO ATUALIZADO
+    public void carregarEventosPorOrganizador(boolean concluidos, EventoCallback callback) {
         String uid = auth.getCurrentUser().getUid();
-        db.collection("eventos").whereEqualTo("organizadorId", uid).get()
-            .addOnSuccessListener(query -> {
-                List<Evento> lista = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : query) {
-                    Evento evento = doc.toObject(Evento.class);
-                    evento.setIdEvento(doc.getId());
-                    lista.add(evento);
-                }
-                callback.onCallback(lista);
-            })
-            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+        Query query = db.collection("eventos")
+                        .whereEqualTo("organizadorId", uid)
+                        .whereEqualTo("concluido", concluidos);
+
+        query.get().addOnSuccessListener(querySnapshot -> {
+            List<Evento> lista = new ArrayList<>();
+            for (QueryDocumentSnapshot doc : querySnapshot) {
+                Evento evento = doc.toObject(Evento.class);
+                evento.setIdEvento(doc.getId());
+                lista.add(evento);
+            }
+            callback.onCallback(lista);
+        }).addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
 
     public void excluirEvento(String idEvento, Activity activity, Runnable onSuccess, Runnable onFailure) {
@@ -128,19 +141,20 @@ public class EventoDAO {
                 });
     }
 
+    // MÉTODO ATUALIZADO
     public void carregarEventosDisponiveis(List<String> idsEventosInscritos, EventoCallback callback) {
-        db.collection("eventos").get()
-            .addOnSuccessListener(eventosSnapshot -> {
-                List<Evento> eventosDisponiveis = eventosSnapshot.getDocuments().stream()
-                    .map(doc -> {
-                        Evento evento = doc.toObject(Evento.class);
-                        if (evento != null) evento.setIdEvento(doc.getId());
-                        return evento;
-                    })
-                    .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
-                    .collect(Collectors.toList());
-                callback.onCallback(eventosDisponiveis);
-            })
-            .addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+        Query query = db.collection("eventos").whereEqualTo("concluido", false);
+
+        query.get().addOnSuccessListener(eventosSnapshot -> {
+            List<Evento> eventosDisponiveis = eventosSnapshot.getDocuments().stream()
+                .map(doc -> {
+                    Evento evento = doc.toObject(Evento.class);
+                    if (evento != null) evento.setIdEvento(doc.getId());
+                    return evento;
+                })
+                .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
+                .collect(Collectors.toList());
+            callback.onCallback(eventosDisponiveis);
+        }).addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
 }

@@ -2,6 +2,7 @@ package com.example.leitor_qr_code.view.organizador;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     private RecyclerView recyclerInscritos;
     private InscritoAdapter adapter;
     private List<Usuario> listaInscritos = new ArrayList<>();
+    private TextView textResumoPresentes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,10 +60,13 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     }
 
     private void carregarDadosInscritos(String eventoId) {
+        textResumoPresentes = findViewById(R.id.textResumoPresentes);
+
         inscricaoDAO.carregarInscritos(eventoId, usuarios -> {
             if (usuarios.isEmpty()) {
                 listaInscritos.clear();
                 adapter.notifyDataSetChanged();
+                textResumoPresentes.setText("Presentes: 0 / 0");
                 return;
             }
 
@@ -73,6 +78,9 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
                         listaInscritos.clear();
                         listaInscritos.addAll(usuarios);
                         adapter.notifyDataSetChanged();
+
+                        long presentes = usuarios.stream().filter(u -> "Entrou".equals(u.getStatusPresenca())).count();
+                        textResumoPresentes.setText("Presentes: " + presentes + " / " + usuarios.size());
                     }
                 });
             }
@@ -88,10 +96,28 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        findViewById(R.id.btnConcluirEvento).setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                .setTitle("Concluir Evento")
+                .setMessage("Deseja marcar este evento como concluído?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    eventoDAO.concluirEvento(evento.getIdEvento(), success -> {
+                        if(success) {
+                            Toast.makeText(this, "Evento concluído com sucesso!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Falha ao concluir evento.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Não", null)
+                .show();
+        });
+
         findViewById(R.id.btnExcluirEvento).setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                 .setTitle("Excluir Evento")
-                .setMessage("Tem certeza?")
+                .setMessage("Tem certeza? Isso apagará todos os dados permanentemente.")
                 .setPositiveButton("Excluir", (dialog, which) -> {
                     inscricaoDAO.excluirInscricoesPorEvento(evento.getIdEvento(), 
                         () -> eventoDAO.excluirEvento(evento.getIdEvento(), this, this::finish, () -> {}),
@@ -104,6 +130,12 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     }
     
     private void fillEventData(){
+        // Referências dos botões e do status
+        TextView textStatusEvento = findViewById(R.id.textStatusEvento);
+        Button btnConcluir = findViewById(R.id.btnConcluirEvento);
+        Button btnEscanear = findViewById(R.id.btnEscanearQrCodes);
+
+        // Preenchimento dos textos
         ((TextView) findViewById(R.id.txtTituloEvento)).setText(evento.getNome());
         ((TextView) findViewById(R.id.txtDescricaoEvento)).setText(evento.getDescricao());
         ((TextView) findViewById(R.id.txtLocalEvento)).setText(evento.getLocal());
@@ -111,12 +143,22 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.txtDataHoraFim)).setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
         ((TextView) findViewById(R.id.txtLiberarScanner)).setText("Scanner liberado: " + evento.getLiberarScannerAntes());
         
-        // Lógica para exibir a regra de reentrada
         TextView txtPermiteReentrada = findViewById(R.id.txtPermiteReentrada);
         if (evento.isPermiteMultiplasEntradas()) {
             txtPermiteReentrada.setText("Reentrada: Permitida");
         } else {
             txtPermiteReentrada.setText("Reentrada: Não Permitida");
+        }
+
+        // Lógica de visibilidade
+        if (evento.isConcluido()) {
+            textStatusEvento.setVisibility(View.VISIBLE);
+            btnConcluir.setVisibility(View.GONE);
+            btnEscanear.setVisibility(View.GONE);
+        } else {
+            textStatusEvento.setVisibility(View.GONE);
+            btnConcluir.setVisibility(View.VISIBLE);
+            btnEscanear.setVisibility(View.VISIBLE);
         }
     }
     

@@ -35,39 +35,36 @@ public class HomeOrganizadorFragment extends Fragment {
         recyclerEventos.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new EventoAdapter(listaEventos, evento -> {
-            // Cria a intenção para abrir a tela de detalhes
             Intent intent = new Intent(getActivity(), DetalhesEventoOrganizadorActivity.class);
-            
-            // CORREÇÃO: Passa o objeto Evento inteiro de uma só vez
             intent.putExtra("eventoSelecionado", evento);
-            
-            // Inicia a nova tela
             startActivity(intent);
         });
         recyclerEventos.setAdapter(adapter);
 
         eventoDAO = new EventoDAO();
 
-        carregarEventos();
-
         return view;
     }
 
     private void carregarEventos() {
-        eventoDAO.carregarEventosPorOrganizador(eventos -> {
+        eventoDAO.carregarEventosPorOrganizador(false, eventos -> {
+            // VERIFICAÇÃO DE SEGURANÇA
+            if (getContext() == null || !isAdded()) {
+                return; // Evita o crash se o fragmento não estiver na tela
+            }
+
+            if (eventos.isEmpty()) {
+                Toast.makeText(getContext(), "Nenhum evento ativo encontrado.", Toast.LENGTH_SHORT).show();
+            }
             listaEventos.clear();
             listaEventos.addAll(eventos);
             adapter.notifyDataSetChanged();
-
-            if (eventos.isEmpty()) {
-                Toast.makeText(getContext(), "Nenhum evento cadastrado", Toast.LENGTH_SHORT).show();
-            }
         });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        carregarEventos(); // 🔥 Recarrega eventos ao voltar para a tela
+        carregarEventos(); 
     }
 }

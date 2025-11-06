@@ -51,8 +51,6 @@
                     android:contentDescription="Editar Foto"/>
             </FrameLayout>
 
-
-
             <!-- CAMPOS -->
             <EditText
                 android:id="@+id/editNome"
@@ -87,7 +85,8 @@
                 android:enabled="true"
                 android:hint="Tipo"
                 android:inputType="number"
-                android:padding="12dp" />
+                android:padding="12dp" 
+                android:visibility="gone"/>
 
             <Button
                 android:id="@+id/btnSalvar"
@@ -96,6 +95,26 @@
                 android:layout_marginTop="20dp"
                 android:text="Salvar Alterações"
                 android:backgroundTint="#0D8C00"
+                android:textColor="#FFFFFF"/>
+
+            <!-- BOTÃO PARA MUDAR PARA ORGANIZADOR -->
+            <Button
+                android:id="@+id/btnMudarParaOrganizador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Mudar para modo Organizador"
+                android:backgroundTint="@color/azul_cinza"
+                android:textColor="#FFFFFF"/>
+
+            <!-- BOTÃO PARA MUDAR PARA PARTICIPANTE -->
+            <Button
+                android:id="@+id/btnMudarParaParticipante"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Mudar para modo Participante"
+                android:backgroundTint="@color/azul_cinza"
                 android:textColor="#FFFFFF"/>
 
             <Button

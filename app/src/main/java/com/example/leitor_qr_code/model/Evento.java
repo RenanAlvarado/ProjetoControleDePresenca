@@ -15,9 +15,10 @@ public class Evento implements Serializable {
     private String horaFim;
     private String liberarScannerAntes;
     private String dataLimiteInscricao;
+    private boolean permiteMultiplasEntradas;
 
     // NOVO CAMPO
-    private boolean permiteMultiplasEntradas;
+    private boolean concluido = false;
 
     public Evento() {}
 
@@ -61,4 +62,7 @@ public class Evento implements Serializable {
     
     public boolean isPermiteMultiplasEntradas() { return permiteMultiplasEntradas; }
     public void setPermiteMultiplasEntradas(boolean permiteMultiplasEntradas) { this.permiteMultiplasEntradas = permiteMultiplasEntradas; }
+
+    public boolean isConcluido() { return concluido; }
+    public void setConcluido(boolean concluido) { this.concluido = concluido; }
 }

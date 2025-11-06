@@ -23,26 +23,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InscricoesParticipanteFragment extends Fragment {
+public class HistoricoParticipanteFragment extends Fragment {
 
-    private RecyclerView recyclerMeusEventos;
+    private RecyclerView recyclerHistorico;
     private EventoAdapter adapter;
-    private List<Evento> listaMeusEventos = new ArrayList<>();
+    private List<Evento> listaEventosHistorico = new ArrayList<>();
     private TextView textEmptyState;
     private InscricaoDAO inscricaoDAO;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_inscricoes, container, false);
+        return inflater.inflate(R.layout.fragment_historico_participante, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerMeusEventos = view.findViewById(R.id.recyclerMeusEventos);
-        textEmptyState = view.findViewById(R.id.textEmptyState);
+        recyclerHistorico = view.findViewById(R.id.recyclerHistoricoParticipante);
+        textEmptyState = view.findViewById(R.id.textEmptyStateHistoricoParticipante);
         inscricaoDAO = new InscricaoDAO();
 
         setupRecyclerView();
@@ -51,39 +51,39 @@ public class InscricoesParticipanteFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        carregarEventosInscritos();
+        carregarHistoricoEventos();
     }
 
     private void setupRecyclerView() {
-        recyclerMeusEventos.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new EventoAdapter(listaMeusEventos, evento -> {
+        recyclerHistorico.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new EventoAdapter(listaEventosHistorico, evento -> {
             Intent intent = new Intent(getActivity(), DetalhesEventoParticipanteActivity.class);
             intent.putExtra("eventoSelecionado", evento);
+            intent.putExtra("isHistorico", true); // Sinalizador adicionado
             startActivity(intent);
         });
-        recyclerMeusEventos.setAdapter(adapter);
+        recyclerHistorico.setAdapter(adapter);
     }
 
-    private void carregarEventosInscritos() {
+    private void carregarHistoricoEventos() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (uid == null) return;
 
         inscricaoDAO.carregarEventosInscritos(uid, eventos -> {
             if (getContext() == null || !isAdded()) return;
 
-            // Filtra para mostrar apenas eventos NÃO concluídos (ativos)
-            List<Evento> eventosAtivos = eventos.stream()
-                    .filter(e -> !e.isConcluido())
+            List<Evento> eventosConcluidos = eventos.stream()
+                    .filter(Evento::isConcluido)
                     .collect(Collectors.toList());
 
-            if (eventosAtivos.isEmpty()) {
+            if (eventosConcluidos.isEmpty()) {
                 textEmptyState.setVisibility(View.VISIBLE);
-                recyclerMeusEventos.setVisibility(View.GONE);
+                recyclerHistorico.setVisibility(View.GONE);
             } else {
                 textEmptyState.setVisibility(View.GONE);
-                recyclerMeusEventos.setVisibility(View.VISIBLE);
-                listaMeusEventos.clear();
-                listaMeusEventos.addAll(eventosAtivos);
+                recyclerHistorico.setVisibility(View.VISIBLE);
+                listaEventosHistorico.clear();
+                listaEventosHistorico.addAll(eventosConcluidos);
                 adapter.notifyDataSetChanged();
             }
         });

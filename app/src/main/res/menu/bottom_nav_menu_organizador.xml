@@ -4,25 +4,22 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/icn_home"
-        android:title="Home"
-        android:alpha="1"/>
+        android:title="Home" />
 
     <item
-        android:id="@+id/nav_shows"
+        android:id="@+id/nav_criar_evento"
         android:icon="@drawable/icn_evento"
-        android:title="Criar Eventos"
-        android:alpha="1"/>
+        android:title="Criar Evento" />
 
+    <!-- ITEM ATUALIZADO -->
     <item
-        android:id="@+id/nav_qrcode"
-        android:icon="@drawable/icn_qr_code"
-        android:title="Leitor"
-        android:alpha="1"/>
+        android:id="@+id/nav_historico"
+        android:icon="@drawable/ic_historico"
+        android:title="Histórico" />
 
     <item
         android:id="@+id/nav_perfil"
         android:icon="@drawable/icn_perfil_2"
-        android:title="Perfil"
-        android:alpha="1"/>
+        android:title="Perfil" />
 
 </menu>

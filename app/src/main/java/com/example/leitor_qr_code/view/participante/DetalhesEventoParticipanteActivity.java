@@ -34,6 +34,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         inscricaoDAO = new InscricaoDAO();
         usuarioDAO = new UsuarioDAO();
         evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
+        boolean isHistorico = getIntent().getBooleanExtra("isHistorico", false);
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // --- Referências ---
@@ -44,14 +45,13 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         TextView txtDataHoraFim = findViewById(R.id.txtDataHoraFim);
         TextView txtCriadoPor = findViewById(R.id.txtCriadoPor);
         TextView txtEntradaLiberada = findViewById(R.id.txtEntradaLiberada);
-        TextView txtPermiteReentrada = findViewById(R.id.txtPermiteReentrada); // Referência adicionada
+        TextView txtPermiteReentrada = findViewById(R.id.txtPermiteReentrada);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
         btnInscrever = findViewById(R.id.btnInscrever);
         textStatusInscricao = findViewById(R.id.textStatusInscricao);
 
         // --- Ações ---
         btnVoltar.setOnClickListener(v -> finish());
-        btnInscrever.setOnClickListener(v -> handleInscricaoClick());
 
         // --- Preenchimento dos Dados ---
         if (evento != null) {
@@ -62,7 +62,6 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
             txtDataHoraFim.setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
             txtEntradaLiberada.setText("Entrada liberada: " + evento.getLiberarScannerAntes());
 
-            // Lógica para exibir a regra de reentrada
             if (evento.isPermiteMultiplasEntradas()) {
                 txtPermiteReentrada.setText("Reentrada: Permitida");
             } else {
@@ -73,7 +72,15 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
                 txtCriadoPor.setText("Criado por: " + nomeOrganizador);
             });
 
-            atualizarStatusBotao();
+            // Lógica para desabilitar botão
+            if (isHistorico) {
+                btnInscrever.setVisibility(View.GONE);
+                textStatusInscricao.setText("Evento Concluído");
+                textStatusInscricao.setVisibility(View.VISIBLE);
+            } else {
+                btnInscrever.setOnClickListener(v -> handleInscricaoClick());
+                atualizarStatusBotao();
+            }
         }
     }
 

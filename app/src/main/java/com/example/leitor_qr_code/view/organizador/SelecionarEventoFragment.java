@@ -65,8 +65,9 @@ public class SelecionarEventoFragment extends Fragment {
     }
 
     private void carregarEventos() {
-        eventoDAO.carregarEventosPorOrganizador(eventos -> {
-            if (eventos.isEmpty()) {
+        // CORREÇÃO: Passa 'false' para carregar eventos não concluídos (ativos)
+        eventoDAO.carregarEventosPorOrganizador(false, eventos -> {
+            if (eventos.isEmpty()) { // CORREÇÃO: erro de digitação
                 textEmptyState.setVisibility(View.VISIBLE);
                 recyclerEventos.setVisibility(View.GONE);
             } else {

@@ -20,13 +20,14 @@ import androidx.fragment.app.Fragment;
 import com.example.leitor_qr_code.LoginActivity;
 import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.UsuarioDAO;
+import com.example.leitor_qr_code.view.organizador.MainOrganizadorActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class PerfilParticipanteFragment extends Fragment {
 
     private ImageView imgPerfil, btnEditarFoto;
-    private EditText editNome, editEmail, editTipo;
-    private Button btnSalvar, btnSair;
+    private EditText editNome, editEmail;
+    private Button btnSalvar, btnSair, btnMudarParaParticipante, btnMudarParaOrganizador;
     private ActivityResultLauncher<String> imagePicker;
     private UsuarioDAO usuarioDAO;
 
@@ -35,28 +36,21 @@ public class PerfilParticipanteFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         usuarioDAO = new UsuarioDAO();
-
-        imagePicker = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
-                                    requireActivity().getContentResolver(), uri
-                            );
-                            usuarioDAO.atualizarFotoUsuario(requireActivity(), bitmap, imgPerfil);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+        imagePicker = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) {
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+                    usuarioDAO.atualizarFotoUsuario(requireActivity(), bitmap, imgPerfil);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_perfil, container, false);
     }
 
@@ -64,27 +58,30 @@ public class PerfilParticipanteFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Referenciando os componentes do layout
         imgPerfil = view.findViewById(R.id.imgPerfil);
         btnEditarFoto = view.findViewById(R.id.btnEditarFoto);
         editNome = view.findViewById(R.id.editNome);
         editEmail = view.findViewById(R.id.editEmail);
-        editTipo = view.findViewById(R.id.editTipo);
         btnSalvar = view.findViewById(R.id.btnSalvar);
+        btnMudarParaParticipante = view.findViewById(R.id.btnMudarParaParticipante);
+        btnMudarParaOrganizador = view.findViewById(R.id.btnMudarParaOrganizador);
         btnSair = view.findViewById(R.id.btnSair);
+
+        btnMudarParaParticipante.setVisibility(View.GONE);
+        btnMudarParaOrganizador.setVisibility(View.VISIBLE);
 
         btnEditarFoto.setOnClickListener(v -> imagePicker.launch("image/*"));
 
-        // Carrega os dados do usuário (foto e campos de texto)
-        usuarioDAO.carregarDadosUsuario(
-                imgPerfil,
-                editNome,
-                editEmail,
-                editTipo,
-                this
-        );
+        // Chamada atualizada, sem o EditText de tipo
+        usuarioDAO.carregarDadosUsuario(imgPerfil, editNome, editEmail, this);
 
-        // --- Ação do Botão Sair ---
+        btnMudarParaOrganizador.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), MainOrganizadorActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            getActivity().finish();
+        });
+
         btnSair.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(getActivity(), LoginActivity.class);
