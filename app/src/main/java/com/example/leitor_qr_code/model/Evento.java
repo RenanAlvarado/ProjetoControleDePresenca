@@ -8,14 +8,16 @@ public class Evento implements Serializable {
     private String nome;
     private String descricao;
     private String local;
-    private String data; // Mantido por compatibilidade
-
+    private String data;
     private String dataInicio;
     private String horaInicio;
     private String dataFim;
     private String horaFim;
     private String liberarScannerAntes;
-    private String dataLimiteInscricao; // Novo Campo
+    private String dataLimiteInscricao;
+
+    // NOVO CAMPO
+    private boolean permiteMultiplasEntradas;
 
     public Evento() {}
 
@@ -56,4 +58,7 @@ public class Evento implements Serializable {
 
     public String getDataLimiteInscricao() { return dataLimiteInscricao; }
     public void setDataLimiteInscricao(String dataLimiteInscricao) { this.dataLimiteInscricao = dataLimiteInscricao; }
+    
+    public boolean isPermiteMultiplasEntradas() { return permiteMultiplasEntradas; }
+    public void setPermiteMultiplasEntradas(boolean permiteMultiplasEntradas) { this.permiteMultiplasEntradas = permiteMultiplasEntradas; }
 }

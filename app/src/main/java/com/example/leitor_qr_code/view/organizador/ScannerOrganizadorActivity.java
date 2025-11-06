@@ -13,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.leitor_qr_code.R;
+import com.example.leitor_qr_code.dao.EventoDAO;
 import com.example.leitor_qr_code.dao.InscricaoDAO;
+import com.example.leitor_qr_code.model.Evento;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
@@ -23,8 +25,9 @@ import org.json.JSONObject;
 public class ScannerOrganizadorActivity extends AppCompatActivity {
 
     private DecoratedBarcodeView barcodeScannerView;
-    private String eventoId;
+    private EventoDAO eventoDAO;
     private InscricaoDAO inscricaoDAO;
+    private Evento eventoAtual;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -41,8 +44,19 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner_organizador);
 
-        eventoId = getIntent().getStringExtra("eventoId");
+        String eventoId = getIntent().getStringExtra("eventoId");
+        eventoDAO = new EventoDAO();
         inscricaoDAO = new InscricaoDAO();
+
+        // CORREÇÃO: Busca o evento específico pelo ID
+        eventoDAO.carregarEventoPorId(eventoId, evento -> {
+            if (evento == null) {
+                Toast.makeText(this, "Erro: Evento não encontrado.", Toast.LENGTH_LONG).show();
+                finish();
+            } else {
+                eventoAtual = evento;
+            }
+        });
 
         barcodeScannerView = findViewById(R.id.barcode_scanner);
         findViewById(R.id.imgSeta).setOnClickListener(v -> finish());
@@ -56,26 +70,32 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
     }
 
     private void validarEregistrar(String qrCodeContent) {
+        if (eventoAtual == null) {
+            Toast.makeText(this, "Aguardando dados do evento...", Toast.LENGTH_SHORT).show();
+            barcodeScannerView.resume();
+            return;
+        }
+
         try {
             JSONObject json = new JSONObject(qrCodeContent);
             String usuarioId = json.getString("uid");
             String nomeUsuario = json.getString("nome");
 
-            inscricaoDAO.validarInscricao(eventoId, usuarioId, (sucesso, msgValidacao) -> {
+            inscricaoDAO.validarInscricao(eventoAtual.getIdEvento(), usuarioId, (sucesso, msgValidacao) -> {
                 if (sucesso) {
-                    inscricaoDAO.registrarEntradaOuSaida(eventoId, usuarioId, (regSuccess, regMessage) -> {
+                    inscricaoDAO.registrarEntradaOuSaida(eventoAtual, usuarioId, (regSuccess, regMessage) -> {
                         if (regSuccess) {
                             Intent intent = new Intent(this, ConfirmacaoEntradaActivity.class);
                             intent.putExtra("nomeParticipante", nomeUsuario);
                             intent.putExtra("statusRegistro", regMessage);
                             startActivity(intent);
                         } else {
-                            Toast.makeText(this, "Erro no Registro: " + regMessage, Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, regMessage, Toast.LENGTH_LONG).show();
                             barcodeScannerView.resume();
                         }
                     });
                 } else {
-                    Toast.makeText(this, "Validação Falhou: " + msgValidacao, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, msgValidacao, Toast.LENGTH_LONG).show();
                     barcodeScannerView.resume();
                 }
             });

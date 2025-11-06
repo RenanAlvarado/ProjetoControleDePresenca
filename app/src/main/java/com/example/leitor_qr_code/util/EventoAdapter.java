@@ -49,6 +49,9 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         String fim = "Fim: " + evento.getDataFim() + " às " + evento.getHoraFim();
         holder.txtDataHoraFim.setText(fim);
 
+        String local = "Local: " + evento.getLocal();
+        holder.txtLocal.setText(local);
+
         holder.itemView.setOnClickListener(v -> listener.onClick(evento));
         holder.btnDetalhes.setOnClickListener(v -> listener.onClick(evento));
     }

@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.leitor_qr_code.R;
@@ -32,6 +33,7 @@ public class CriarEventoFragment extends Fragment {
     private EditText editNome, editDescricao, editLocal;
     private EditText editDataInicio, editHoraInicio, editDataFim, editHoraFim, editDataLimiteInscricao;
     private Spinner spinnerLiberarScanner;
+    private SwitchCompat switchMultiplasEntradas; // Adicionado
     private Button btnSalvarEvento;
     private EventoDAO eventoDAO;
 
@@ -45,7 +47,6 @@ public class CriarEventoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Referências
         editNome = view.findViewById(R.id.editNomeEvento);
         editDescricao = view.findViewById(R.id.editDescricao);
         editLocal = view.findViewById(R.id.editLocal);
@@ -55,6 +56,7 @@ public class CriarEventoFragment extends Fragment {
         editHoraFim = view.findViewById(R.id.editHoraFim);
         editDataLimiteInscricao = view.findViewById(R.id.editDataLimiteInscricao);
         spinnerLiberarScanner = view.findViewById(R.id.spinnerLiberarScanner);
+        switchMultiplasEntradas = view.findViewById(R.id.switchMultiplasEntradas); // Referência
         btnSalvarEvento = view.findViewById(R.id.btnSalvarEvento);
         eventoDAO = new EventoDAO();
 
@@ -92,15 +94,13 @@ public class CriarEventoFragment extends Fragment {
         spinnerLiberarScanner.setAdapter(adapter);
     }
 
-    // MÉTODO ATUALIZADO
     private boolean validarDatas(String dataInicioStr, String horaInicioStr, String dataFimStr, String horaFimStr, String dataLimiteStr) {
         SimpleDateFormat sdfDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         SimpleDateFormat sdfDateOnly = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         try {
             Date inicioDateTime = sdfDateTime.parse(dataInicioStr + " " + horaInicioStr);
             Date fimDateTime = sdfDateTime.parse(dataFimStr + " " + horaFimStr);
-            
-            // Para comparar apenas as datas, sem as horas
+
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
             Date hoje = cal.getTime();
@@ -116,12 +116,10 @@ public class CriarEventoFragment extends Fragment {
                 Toast.makeText(getContext(), "A data de fim não pode ser anterior à data de início.", Toast.LENGTH_SHORT).show();
                 return false;
             }
-            // NOVA VALIDAÇÃO 1: Limite não pode ser no passado
             if (limiteDate.before(hoje)) {
                 Toast.makeText(getContext(), "A data limite para inscrição não pode ser anterior a hoje.", Toast.LENGTH_SHORT).show();
                 return false;
             }
-            // NOVA VALIDAÇÃO 2: Limite não pode ser depois do início do evento
             if (limiteDate.after(inicioDate)) {
                  Toast.makeText(getContext(), "A data limite de inscrição não pode ser depois da data de início do evento.", Toast.LENGTH_SHORT).show();
                 return false;
@@ -143,6 +141,7 @@ public class CriarEventoFragment extends Fragment {
         String horaFim = editHoraFim.getText().toString().trim();
         String dataLimite = editDataLimiteInscricao.getText().toString().trim();
         String liberarScanner = spinnerLiberarScanner.getSelectedItem().toString();
+        boolean permiteReentrada = switchMultiplasEntradas.isChecked(); // Coletando o valor
 
         if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty() || dataLimite.isEmpty()) {
             Toast.makeText(getContext(), "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show();
@@ -150,7 +149,7 @@ public class CriarEventoFragment extends Fragment {
         }
 
         if (!validarDatas(dataInicio, horaInicio, dataFim, horaFim, dataLimite)) {
-            return; // Interrompe se as datas forem inválidas
+            return;
         }
 
         Evento novoEvento = new Evento();
@@ -163,6 +162,7 @@ public class CriarEventoFragment extends Fragment {
         novoEvento.setHoraFim(horaFim);
         novoEvento.setDataLimiteInscricao(dataLimite);
         novoEvento.setLiberarScannerAntes(liberarScanner);
+        novoEvento.setPermiteMultiplasEntradas(permiteReentrada); // Definindo o valor
 
         eventoDAO.salvarEvento(getContext(), novoEvento, () -> {
             getParentFragmentManager().beginTransaction()

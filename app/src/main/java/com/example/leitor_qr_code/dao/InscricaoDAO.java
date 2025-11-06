@@ -29,7 +29,6 @@ public class InscricaoDAO {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
-    // ... (Interfaces de Callback) ...
     public interface ValidacaoCallback { void onValidado(boolean sucesso, String mensagem); }
     public interface InscricaoCallback { void onResult(boolean inscrito); }
     public interface UsuarioCallback { void onCallback(List<Usuario> usuarios); }
@@ -37,15 +36,13 @@ public class InscricaoDAO {
     public interface RegistroCallback { void onComplete(boolean success, String message); }
     public interface HistoricoCallback { void onCallback(List<Registro> registros); }
     public interface StatusPresencaCallback { void onStatusResult(String status); }
-    public interface DataInscricaoCallback { void onDataCarregada(Date data); } // Novo Callback
-
+    public interface DataInscricaoCallback { void onDataCarregada(Date data); }
 
     public InscricaoDAO() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
     }
 
-    // NOVO MÉTODO
     public void buscarDataInscricao(String eventoId, String usuarioId, DataInscricaoCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
             .addOnSuccessListener(query -> {
@@ -58,7 +55,6 @@ public class InscricaoDAO {
             .addOnFailureListener(e -> callback.onDataCarregada(null));
     }
 
-    // ... (Restante dos métodos intactos) ...
     public void verificarStatusPresenca(String eventoId, String usuarioId, StatusPresencaCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
             .addOnSuccessListener(query -> {
@@ -94,26 +90,37 @@ public class InscricaoDAO {
             });
     }
 
-    public void registrarEntradaOuSaida(String eventoId, String usuarioId, RegistroCallback callback) {
-        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
+    public void registrarEntradaOuSaida(Evento evento, String usuarioId, RegistroCallback callback) {
+        db.collection("inscricoes").whereEqualTo("eventoId", evento.getIdEvento()).whereEqualTo("usuarioId", usuarioId).limit(1).get()
             .addOnSuccessListener(query -> {
-                if (query.isEmpty()) { callback.onComplete(false, "Inscrição não encontrada."); return; }
+                if (query.isEmpty()) {
+                    callback.onComplete(false, "Inscrição não encontrada.");
+                    return;
+                }
                 DocumentSnapshot inscricaoDoc = query.getDocuments().get(0);
                 inscricaoDoc.getReference().collection("registros").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
                     .addOnSuccessListener(registrosQuery -> {
-                        String tipoMovimento = "entrada";
-                        if (!registrosQuery.isEmpty() && "entrada".equals(registrosQuery.getDocuments().get(0).getString("tipo"))) {
-                            tipoMovimento = "saida";
+                        String ultimoTipo = registrosQuery.isEmpty() ? null : registrosQuery.getDocuments().get(0).getString("tipo");
+
+                        if ("saida".equals(ultimoTipo) && !evento.isPermiteMultiplasEntradas()) {
+                            callback.onComplete(false, "Reentrada não permitida para este evento.");
+                            return;
                         }
-                        Map<String, Object> registro = new HashMap<>();
-                        registro.put("tipo", tipoMovimento);
-                        registro.put("timestamp", FieldValue.serverTimestamp());
-                        String msg = "'" + tipoMovimento.substring(0, 1).toUpperCase() + tipoMovimento.substring(1) + "' registrada.";
-                        inscricaoDoc.getReference().collection("registros").add(registro)
-                            .addOnSuccessListener(ref -> callback.onComplete(true, msg))
-                            .addOnFailureListener(e -> callback.onComplete(false, "Falha ao registrar."));
+
+                        String proximoTipo = "entrada".equals(ultimoTipo) ? "saida" : "entrada";
+                        registrarMovimentacao(inscricaoDoc, proximoTipo, callback);
                     });
             });
+    }
+
+    private void registrarMovimentacao(DocumentSnapshot inscricaoDoc, String tipo, RegistroCallback callback) {
+        Map<String, Object> registro = new HashMap<>();
+        registro.put("tipo", tipo);
+        registro.put("timestamp", FieldValue.serverTimestamp());
+        String msg = "'" + tipo.substring(0, 1).toUpperCase() + tipo.substring(1) + "' registrada com sucesso.";
+        inscricaoDoc.getReference().collection("registros").add(registro)
+            .addOnSuccessListener(ref -> callback.onComplete(true, msg))
+            .addOnFailureListener(e -> callback.onComplete(false, "Falha ao registrar " + tipo));
     }
     
     public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {

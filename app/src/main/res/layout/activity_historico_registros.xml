@@ -23,10 +23,16 @@
                 android:id="@+id/btnVoltar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_margin="16dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Voltar"
+                android:elevation="4dp"
+                android:padding="6dp"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_voltar_seta"
-                app:tint="@color/white"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@android:color/white"/>
 
             <TextView
                 android:layout_width="wrap_content"

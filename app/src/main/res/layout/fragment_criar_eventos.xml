@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="24dp"
@@ -14,7 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Título -->
+        <!-- TÍTULO RESTAURADO -->
         <TextView
             android:id="@+id/textTitulo"
             android:layout_width="match_parent"
@@ -34,43 +35,27 @@
             android:padding="24dp"
             android:background="@drawable/bg_conteudo_branco">
 
-            <!-- Campos existentes... -->
             <EditText
                 android:id="@+id/editNomeEvento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nome do Evento"
-                android:padding="12dp"
-                android:background="@android:drawable/edit_text"
-                android:textSize="16sp" />
-
+                android:hint="Nome do Evento"/>
             <EditText
                 android:id="@+id/editDescricao"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
                 android:layout_marginTop="12dp"
-                android:hint="Descrição"
-                android:gravity="top"
-                android:padding="12dp"
-                android:background="@android:drawable/edit_text"
-                android:textSize="16sp" />
-
+                android:hint="Descrição"/>
             <EditText
                 android:id="@+id/editLocal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Local do Evento"
-                android:padding="12dp"
-                android:background="@android:drawable/edit_text"
-                android:textSize="16sp" />
-
+                android:hint="Local do Evento"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Início do Evento"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="16dp"/>
+                android:text="Início do Evento"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -90,18 +75,15 @@
                     android:hint="Hora"
                     android:focusable="false" />
             </LinearLayout>
-
-            <TextView
+             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fim do Evento"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="12dp"/>
+                android:text="Fim do Evento"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <EditText
+                 <EditText
                     android:id="@+id/editDataFim"
                     android:layout_width="0dp"
                     android:layout_weight="1"
@@ -116,32 +98,32 @@
                     android:hint="Hora"
                     android:focusable="false" />
             </LinearLayout>
-
-            <!-- NOVO CAMPO: Data Limite de Inscrição -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Data Limite para Inscrição"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="12dp"/>
+                android:text="Data Limite para Inscrição"/>
             <EditText
                 android:id="@+id/editDataLimiteInscricao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Selecione a data limite"
                 android:focusable="false"/>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Liberar escaneamento"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="12dp"/>
+                android:text="Liberar escaneamento"/>
             <Spinner
                 android:id="@+id/spinnerLiberarScanner"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchMultiplasEntradas"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"/>
+                android:layout_marginTop="16dp"
+                android:text="Permitir reentrada" 
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -149,13 +131,7 @@
             android:id="@+id/btnSalvarEvento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Salvar Evento"
-            android:textAllCaps="false"
-            android:textSize="18sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="@color/azul_cinza"
-            android:layout_marginTop="24dp"
-            android:padding="14dp" />
+            android:text="Salvar Evento" />
 
     </LinearLayout>
 

@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.example.leitor_qr_code.model.Evento;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -23,6 +24,11 @@ public class EventoDAO {
 
     public interface EventoCallback {
         void onCallback(List<Evento> eventos);
+    }
+
+    // Novo Callback para um único evento
+    public interface SingleEventoCallback {
+        void onCallback(Evento evento);
     }
 
     public EventoDAO() {
@@ -48,6 +54,7 @@ public class EventoDAO {
         dadosEvento.put("horaFim", evento.getHoraFim());
         dadosEvento.put("liberarScannerAntes", evento.getLiberarScannerAntes());
         dadosEvento.put("dataLimiteInscricao", evento.getDataLimiteInscricao());
+        dadosEvento.put("permiteMultiplasEntradas", evento.isPermiteMultiplasEntradas());
         dadosEvento.put("organizadorId", uid);
         dadosEvento.put("criadoEm", com.google.firebase.firestore.FieldValue.serverTimestamp());
 
@@ -60,6 +67,22 @@ public class EventoDAO {
                     Toast.makeText(context, "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     onFailure.run();
                 });
+    }
+
+    // Novo método para buscar um evento pelo ID
+    public void carregarEventoPorId(String eventoId, SingleEventoCallback callback) {
+        db.collection("eventos").document(eventoId).get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    Evento evento = documentSnapshot.toObject(Evento.class);
+                    if (evento != null) {
+                        evento.setIdEvento(documentSnapshot.getId());
+                        callback.onCallback(evento);
+                    }
+                } else {
+                    callback.onCallback(null);
+                }
+            }).addOnFailureListener(e -> callback.onCallback(null));
     }
 
     public void carregarEventosPorOrganizador(EventoCallback callback) {
@@ -87,7 +110,6 @@ public class EventoDAO {
                         return;
                     }
 
-                    // LÓGICA DE EXCLUSÃO EM CASCATA RESTAURADA
                     db.collection("inscricoes").whereEqualTo("eventoId", idEvento).get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             WriteBatch batch = db.batch();
@@ -95,7 +117,6 @@ public class EventoDAO {
                                 batch.delete(inscricaoDoc.getReference());
                             }
                             batch.commit().addOnSuccessListener(aVoid -> {
-                                // Somente após excluir as inscrições, exclui o evento
                                 db.collection("eventos").document(idEvento).delete()
                                     .addOnSuccessListener(v -> {
                                         Toast.makeText(activity, "Evento e inscrições foram excluídos.", Toast.LENGTH_SHORT).show();
