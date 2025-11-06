@@ -1,10 +1,11 @@
 package com.example.leitor_qr_code.view.participante;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils; // Importação adicionada
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +29,9 @@ import com.google.firebase.auth.FirebaseAuth;
 public class PerfilParticipanteFragment extends Fragment {
 
     private ImageView imgPerfil, btnEditarFoto;
-    // Campos adicionados para a senha
     private EditText editNome, editEmail, editNovaSenha, editConfirmarSenha;
-    private Button btnSalvar, btnSair, btnMudarParaParticipante, btnMudarParaOrganizador;
+    // Botão de exclusão adicionado
+    private Button btnSalvar, btnExcluirConta, btnSair, btnMudarParaParticipante, btnMudarParaOrganizador;
     private ActivityResultLauncher<String> imagePicker;
     private UsuarioDAO usuarioDAO;
 
@@ -65,10 +66,11 @@ public class PerfilParticipanteFragment extends Fragment {
         btnEditarFoto = view.findViewById(R.id.btnEditarFoto);
         editNome = view.findViewById(R.id.editNome);
         editEmail = view.findViewById(R.id.editEmail);
-        // Referências para os novos campos
         editNovaSenha = view.findViewById(R.id.editNovaSenha);
         editConfirmarSenha = view.findViewById(R.id.editConfirmarSenha);
         btnSalvar = view.findViewById(R.id.btnSalvar);
+        // Referência para o novo botão
+        btnExcluirConta = view.findViewById(R.id.btnExcluirConta);
         btnMudarParaParticipante = view.findViewById(R.id.btnMudarParaParticipante);
         btnMudarParaOrganizador = view.findViewById(R.id.btnMudarParaOrganizador);
         btnSair = view.findViewById(R.id.btnSair);
@@ -80,10 +82,21 @@ public class PerfilParticipanteFragment extends Fragment {
 
         usuarioDAO.carregarDadosUsuario(imgPerfil, editNome, editEmail, this);
 
-        // LÓGICA DO BOTÃO SALVAR ATUALIZADA
-        btnSalvar.setOnClickListener(v -> {
-            salvarAlteracoes();
+        btnSalvar.setOnClickListener(v -> salvarAlteracoes());
+
+        // AÇÃO DO BOTÃO EXCLUIR CONTA
+        btnExcluirConta.setOnClickListener(v -> {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Excluir Conta")
+                    .setMessage("Tem certeza que deseja excluir sua conta? Todos os seus dados, eventos e inscrições serão apagados permanentemente. Esta ação é irreversível.")
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+                        excluirConta();
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
         });
+
 
         btnMudarParaOrganizador.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), MainOrganizadorActivity.class);
@@ -116,7 +129,6 @@ public class PerfilParticipanteFragment extends Fragment {
             return;
         }
 
-        // --- Lógica para salvar Nome e Email ---
         usuarioDAO.atualizarDadosUsuario(novoNome, novoEmail, success -> {
             if (getContext() == null || !isAdded()) return;
             if (success) {
@@ -126,23 +138,19 @@ public class PerfilParticipanteFragment extends Fragment {
             }
         });
 
-        // --- Lógica para salvar a Senha (se preenchida) ---
         if (!TextUtils.isEmpty(novaSenha)) {
             if (!novaSenha.equals(confirmarSenha)) {
                 Toast.makeText(getContext(), "As senhas não coincidem.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (novaSenha.length() < 6) {
                 Toast.makeText(getContext(), "A nova senha deve ter no mínimo 6 caracteres.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             usuarioDAO.atualizarSenha(novaSenha, success -> {
                 if (getContext() == null || !isAdded()) return;
                 if (success) {
                     Toast.makeText(getContext(), "Senha alterada com sucesso!", Toast.LENGTH_SHORT).show();
-                    // Limpa os campos de senha após o sucesso
                     editNovaSenha.setText("");
                     editConfirmarSenha.setText("");
                 } else {
@@ -150,5 +158,24 @@ public class PerfilParticipanteFragment extends Fragment {
                 }
             });
         }
+    }
+
+    // NOVO MÉTODO PARA EXCLUIR A CONTA
+    private void excluirConta() {
+        Toast.makeText(getContext(), "Excluindo conta... Por favor, aguarde.", Toast.LENGTH_LONG).show();
+        usuarioDAO.excluirContaCompleta(success -> {
+            if (getActivity() == null || !isAdded()) return;
+
+            if (success) {
+                Toast.makeText(getContext(), "Conta excluída com sucesso.", Toast.LENGTH_SHORT).show();
+                // Redireciona para a tela de login
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                getActivity().finish();
+            } else {
+                Toast.makeText(getContext(), "Falha ao excluir a conta. Tente fazer login novamente.", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Base64;
+import android.util.Log; // Importação adicionada
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -40,7 +41,58 @@ public class UsuarioDAO {
         db = FirebaseFirestore.getInstance();
     }
 
-    // NOVO MÉTODO PARA ATUALIZAR A SENHA
+    // NOVO MÉTODO - ORQUESTRADOR DA EXCLUSÃO COMPLETA
+    public void excluirContaCompleta(SimpleCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onComplete(false);
+            return;
+        }
+        String uid = user.getUid();
+
+        EventoDAO eventoDAO = new EventoDAO();
+        InscricaoDAO inscricaoDAO = new InscricaoDAO();
+
+        // 1. Excluir eventos criados pelo usuário (e as inscrições nesses eventos)
+        eventoDAO.excluirEventosEInscricoesDoOrganizador(uid, success -> {
+            if (success) {
+                Log.d("DeleteUser", "Eventos do organizador excluídos.");
+                // 2. Excluir inscrições do usuário em eventos de outros
+                inscricaoDAO.excluirInscricoesDoUsuario(uid, success2 -> {
+                    if (success2) {
+                        Log.d("DeleteUser", "Inscrições do usuário excluídas.");
+                        // 3. Excluir o documento do usuário no Firestore
+                        db.collection("usuarios").document(uid).delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("DeleteUser", "Documento do usuário no Firestore excluído.");
+                                    // 4. Excluir a conta de autenticação (passo final)
+                                    user.delete().addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            Log.d("DeleteUser", "Conta de autenticação excluída.");
+                                            callback.onComplete(true);
+                                        } else {
+                                            Log.e("DeleteUser", "Falha ao excluir conta de autenticação.", task.getException());
+                                            callback.onComplete(false);
+                                        }
+                                    });
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("DeleteUser", "Falha ao excluir documento do Firestore.", e);
+                                    callback.onComplete(false);
+                                });
+                    } else {
+                        Log.e("DeleteUser", "Falha ao excluir inscrições do usuário.");
+                        callback.onComplete(false);
+                    }
+                });
+            } else {
+                Log.e("DeleteUser", "Falha ao excluir eventos do organizador.");
+                callback.onComplete(false);
+            }
+        });
+    }
+
+
     public void atualizarSenha(String novaSenha, SimpleCallback callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {

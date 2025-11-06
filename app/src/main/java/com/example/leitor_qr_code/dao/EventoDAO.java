@@ -1,19 +1,20 @@
-package com.example.leitor_qr_code.dao;
-
-import android.app.Activity;
+package com.example.leitor_qr_code.dao;import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
 import com.example.leitor_qr_code.model.Evento;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date; // CORREÇÃO: Importa a classe Date correta
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ public class EventoDAO {
     public interface AutoConcludeCallback {
         void onComplete(int eventosConcluidos);
     }
-
 
     public EventoDAO() {
         this.db = FirebaseFirestore.getInstance();
@@ -92,6 +92,7 @@ public class EventoDAO {
                 })
                 .addOnFailureListener(e -> callback.onComplete(0));
     }
+
     public void concluirEvento(String eventoId, SimpleCallback callback) {
         InscricaoDAO inscricaoDAO = new InscricaoDAO();
         inscricaoDAO.registrarSaidaParaTodosPresentes(eventoId, success -> {
@@ -150,24 +151,24 @@ public class EventoDAO {
 
     public void carregarEventoPorId(String eventoId, SingleEventoCallback callback) {
         db.collection("eventos").document(eventoId).get()
-            .addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    Evento evento = documentSnapshot.toObject(Evento.class);
-                    if (evento != null) {
-                        evento.setIdEvento(documentSnapshot.getId());
-                        callback.onCallback(evento);
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Evento evento = documentSnapshot.toObject(Evento.class);
+                        if (evento != null) {
+                            evento.setIdEvento(documentSnapshot.getId());
+                            callback.onCallback(evento);
+                        }
+                    } else {
+                        callback.onCallback(null);
                     }
-                } else {
-                    callback.onCallback(null);
-                }
-            }).addOnFailureListener(e -> callback.onCallback(null));
+                }).addOnFailureListener(e -> callback.onCallback(null));
     }
 
     public void carregarEventosPorOrganizador(boolean concluidos, EventoCallback callback) {
         String uid = auth.getCurrentUser().getUid();
         Query query = db.collection("eventos")
-                        .whereEqualTo("organizadorId", uid)
-                        .whereEqualTo("concluido", concluidos);
+                .whereEqualTo("organizadorId", uid)
+                .whereEqualTo("concluido", concluidos);
 
         query.get().addOnSuccessListener(querySnapshot -> {
             List<Evento> lista = new ArrayList<>();
@@ -191,20 +192,20 @@ public class EventoDAO {
                     }
 
                     db.collection("inscricoes").whereEqualTo("eventoId", idEvento).get()
-                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                            WriteBatch batch = db.batch();
-                            for(QueryDocumentSnapshot inscricaoDoc : queryDocumentSnapshots){
-                                batch.delete(inscricaoDoc.getReference());
-                            }
-                            batch.commit().addOnSuccessListener(aVoid -> {
-                                db.collection("eventos").document(idEvento).delete()
-                                    .addOnSuccessListener(v -> {
-                                        Toast.makeText(activity, "Evento e inscrições foram excluídos.", Toast.LENGTH_SHORT).show();
-                                        onSuccess.run();
-                                    })
-                                    .addOnFailureListener(e -> onFailure.run());
-                            }).addOnFailureListener(e -> onFailure.run());
-                        });
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                WriteBatch batch = db.batch();
+                                for(QueryDocumentSnapshot inscricaoDoc : queryDocumentSnapshots){
+                                    batch.delete(inscricaoDoc.getReference());
+                                }
+                                batch.commit().addOnSuccessListener(aVoid -> {
+                                    db.collection("eventos").document(idEvento).delete()
+                                            .addOnSuccessListener(v -> {
+                                                Toast.makeText(activity, "Evento e inscrições foram excluídos.", Toast.LENGTH_SHORT).show();
+                                                onSuccess.run();
+                                            })
+                                            .addOnFailureListener(e -> onFailure.run());
+                                }).addOnFailureListener(e -> onFailure.run());
+                            });
                 });
     }
 
@@ -213,14 +214,52 @@ public class EventoDAO {
 
         query.get().addOnSuccessListener(eventosSnapshot -> {
             List<Evento> eventosDisponiveis = eventosSnapshot.getDocuments().stream()
-                .map(doc -> {
-                    Evento evento = doc.toObject(Evento.class);
-                    if (evento != null) evento.setIdEvento(doc.getId());
-                    return evento;
-                })
-                .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
-                .collect(Collectors.toList());
+                    .map(doc -> {
+                        Evento evento = doc.toObject(Evento.class);
+                        if (evento != null) evento.setIdEvento(doc.getId());
+                        return evento;
+                    })
+                    .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
+                    .collect(Collectors.toList());
             callback.onCallback(eventosDisponiveis);
         }).addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
+    }
+
+    // NOVO MÉTODO PARA EXCLUSÃO EM CASCATA DE CONTA
+    public void excluirEventosEInscricoesDoOrganizador(String organizadorId, SimpleCallback callback) {
+        db.collection("eventos").whereEqualTo("organizadorId", organizadorId).get()
+                .addOnSuccessListener(eventosSnapshot -> {
+                    WriteBatch batch = db.batch();
+                    List<Task<QuerySnapshot>> inscricaoTasks = new ArrayList<>();
+
+                    // 1. Marca os eventos do organizador para exclusão
+                    for (QueryDocumentSnapshot eventoDoc : eventosSnapshot) {
+                        batch.delete(eventoDoc.getReference());
+                        // 2. Prepara a busca por todas as inscrições de cada evento
+                        inscricaoTasks.add(db.collection("inscricoes").whereEqualTo("eventoId", eventoDoc.getId()).get());
+                    }
+
+                    if (inscricaoTasks.isEmpty()) {
+                        // Se não há eventos, não há nada a fazer.
+                        callback.onComplete(true);
+                        return;
+                    }
+
+                    Tasks.whenAllSuccess(inscricaoTasks).addOnSuccessListener(results -> {
+                        // 3. Marca todas as inscrições encontradas para exclusão
+                        for (Object result : results) {
+                            QuerySnapshot inscricoesSnapshot = (QuerySnapshot) result;
+                            for (QueryDocumentSnapshot inscricaoDoc : inscricoesSnapshot) {
+                                batch.delete(inscricaoDoc.getReference());
+                            }
+                        }
+
+                        // 4. Executa todas as exclusões (eventos e inscrições) de uma só vez
+                        batch.commit()
+                                .addOnSuccessListener(aVoid -> callback.onComplete(true))
+                                .addOnFailureListener(e -> callback.onComplete(false));
+                    }).addOnFailureListener(e -> callback.onComplete(false));
+                })
+                .addOnFailureListener(e -> callback.onComplete(false));
     }
 }

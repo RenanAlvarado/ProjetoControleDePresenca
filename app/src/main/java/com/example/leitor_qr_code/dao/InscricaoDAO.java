@@ -96,72 +96,72 @@ public class InscricaoDAO {
 
     public void buscarDataInscricao(String eventoId, String usuarioId, DataInscricaoCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
-            .addOnSuccessListener(query -> {
-                if (!query.isEmpty()) {
-                    callback.onDataCarregada(query.getDocuments().get(0).getDate("dataInscricao"));
-                } else {
-                    callback.onDataCarregada(null);
-                }
-            })
-            .addOnFailureListener(e -> callback.onDataCarregada(null));
+                .addOnSuccessListener(query -> {
+                    if (!query.isEmpty()) {
+                        callback.onDataCarregada(query.getDocuments().get(0).getDate("dataInscricao"));
+                    } else {
+                        callback.onDataCarregada(null);
+                    }
+                })
+                .addOnFailureListener(e -> callback.onDataCarregada(null));
     }
 
     public void verificarStatusPresenca(String eventoId, String usuarioId, StatusPresencaCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) {
-                    callback.onStatusResult("Não Entrou");
-                    return;
-                }
-                DocumentSnapshot inscricaoDoc = query.getDocuments().get(0);
-                inscricaoDoc.getReference().collection("registros").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
-                    .addOnSuccessListener(registrosQuery -> {
-                        if (registrosQuery.isEmpty()) {
-                            callback.onStatusResult("Não Entrou");
-                        } else {
-                            String ultimoTipo = registrosQuery.getDocuments().get(0).getString("tipo");
-                            if ("entrada".equals(ultimoTipo)) {
-                                callback.onStatusResult("Entrou");
-                            } else {
-                                callback.onStatusResult("Saiu");
-                            }
-                        }
-                    })
-                    .addOnFailureListener(e -> callback.onStatusResult("Não Entrou"));
-            })
-            .addOnFailureListener(e -> callback.onStatusResult("Não Entrou"));
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) {
+                        callback.onStatusResult("Não Entrou");
+                        return;
+                    }
+                    DocumentSnapshot inscricaoDoc = query.getDocuments().get(0);
+                    inscricaoDoc.getReference().collection("registros").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
+                            .addOnSuccessListener(registrosQuery -> {
+                                if (registrosQuery.isEmpty()) {
+                                    callback.onStatusResult("Não Entrou");
+                                } else {
+                                    String ultimoTipo = registrosQuery.getDocuments().get(0).getString("tipo");
+                                    if ("entrada".equals(ultimoTipo)) {
+                                        callback.onStatusResult("Entrou");
+                                    } else {
+                                        callback.onStatusResult("Saiu");
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(e -> callback.onStatusResult("Não Entrou"));
+                })
+                .addOnFailureListener(e -> callback.onStatusResult("Não Entrou"));
     }
 
     public void carregarRegistros(String eventoId, String usuarioId, HistoricoCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
-                query.getDocuments().get(0).getReference().collection("registros").orderBy("timestamp", Query.Direction.ASCENDING).get()
-                    .addOnSuccessListener(registrosQuery -> callback.onCallback(registrosQuery.toObjects(Registro.class)));
-            });
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
+                    query.getDocuments().get(0).getReference().collection("registros").orderBy("timestamp", Query.Direction.ASCENDING).get()
+                            .addOnSuccessListener(registrosQuery -> callback.onCallback(registrosQuery.toObjects(Registro.class)));
+                });
     }
 
     public void registrarEntradaOuSaida(Evento evento, String usuarioId, RegistroCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", evento.getIdEvento()).whereEqualTo("usuarioId", usuarioId).limit(1).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) {
-                    callback.onComplete(false, "Inscrição não encontrada.");
-                    return;
-                }
-                DocumentSnapshot inscricaoDoc = query.getDocuments().get(0);
-                inscricaoDoc.getReference().collection("registros").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
-                    .addOnSuccessListener(registrosQuery -> {
-                        String ultimoTipo = registrosQuery.isEmpty() ? null : registrosQuery.getDocuments().get(0).getString("tipo");
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) {
+                        callback.onComplete(false, "Inscrição não encontrada.");
+                        return;
+                    }
+                    DocumentSnapshot inscricaoDoc = query.getDocuments().get(0);
+                    inscricaoDoc.getReference().collection("registros").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
+                            .addOnSuccessListener(registrosQuery -> {
+                                String ultimoTipo = registrosQuery.isEmpty() ? null : registrosQuery.getDocuments().get(0).getString("tipo");
 
-                        if ("saida".equals(ultimoTipo) && !evento.isPermiteMultiplasEntradas()) {
-                            callback.onComplete(false, "Reentrada não permitida para este evento.");
-                            return;
-                        }
+                                if ("saida".equals(ultimoTipo) && !evento.isPermiteMultiplasEntradas()) {
+                                    callback.onComplete(false, "Reentrada não permitida para este evento.");
+                                    return;
+                                }
 
-                        String proximoTipo = "entrada".equals(ultimoTipo) ? "saida" : "entrada";
-                        registrarMovimentacao(inscricaoDoc, proximoTipo, callback);
-                    });
-            });
+                                String proximoTipo = "entrada".equals(ultimoTipo) ? "saida" : "entrada";
+                                registrarMovimentacao(inscricaoDoc, proximoTipo, callback);
+                            });
+                });
     }
 
     private void registrarMovimentacao(DocumentSnapshot inscricaoDoc, String tipo, RegistroCallback callback) {
@@ -170,10 +170,10 @@ public class InscricaoDAO {
         registro.put("timestamp", FieldValue.serverTimestamp());
         String msg = "'" + tipo.substring(0, 1).toUpperCase() + tipo.substring(1) + "' registrada com sucesso.";
         inscricaoDoc.getReference().collection("registros").add(registro)
-            .addOnSuccessListener(ref -> callback.onComplete(true, msg))
-            .addOnFailureListener(e -> callback.onComplete(false, "Falha ao registrar " + tipo));
+                .addOnSuccessListener(ref -> callback.onComplete(true, msg))
+                .addOnFailureListener(e -> callback.onComplete(false, "Falha ao registrar " + tipo));
     }
-    
+
     public void inscreverEmEvento(String eventoId, Activity activity, Runnable callback) {
         String uid = auth.getCurrentUser().getUid();
         verificarInscricao(eventoId, uid, isAlreadyInscrito -> {
@@ -195,84 +195,103 @@ public class InscricaoDAO {
     public void cancelarInscricao(String eventoId, Activity activity, Runnable onSuccess) {
         String uid = auth.getCurrentUser().getUid();
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", uid).limit(1).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) return;
-                query.getDocuments().get(0).getReference().delete()
-                    .addOnSuccessListener(v -> {
-                        Toast.makeText(activity, "Inscrição cancelada.", Toast.LENGTH_SHORT).show();
-                        onSuccess.run();
-                    });
-            });
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) return;
+                    query.getDocuments().get(0).getReference().delete()
+                            .addOnSuccessListener(v -> {
+                                Toast.makeText(activity, "Inscrição cancelada.", Toast.LENGTH_SHORT).show();
+                                onSuccess.run();
+                            });
+                });
     }
 
     public void verificarInscricao(String eventoId, String uid, InscricaoCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", uid).limit(1).get()
-            .addOnSuccessListener(query -> callback.onResult(!query.isEmpty()))
-            .addOnFailureListener(e -> callback.onResult(false));
+                .addOnSuccessListener(query -> callback.onResult(!query.isEmpty()))
+                .addOnFailureListener(e -> callback.onResult(false));
     }
 
     public void validarInscricao(String eventoId, String usuarioId, ValidacaoCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) {
-                    callback.onValidado(false, "Participante não inscrito neste evento.");
-                } else {
-                    callback.onValidado(true, "Inscrição Válida!");
-                }
-            });
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) {
+                        callback.onValidado(false, "Participante não inscrito neste evento.");
+                    } else {
+                        callback.onValidado(true, "Inscrição Válida!");
+                    }
+                });
     }
 
     public void carregarInscritos(String eventoId, UsuarioCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
-                List<Task<DocumentSnapshot>> tasks = query.getDocuments().stream()
-                    .map(doc -> db.collection("usuarios").document(doc.getString("usuarioId")).get())
-                    .collect(Collectors.toList());
-                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
-                    List<Usuario> usuarios = new ArrayList<>();
-                    for(Object res : results){
-                        DocumentSnapshot userDoc = (DocumentSnapshot) res;
-                        if (userDoc.exists()) {
-                            Usuario usuario = userDoc.toObject(Usuario.class);
-                            usuario.setId(userDoc.getId()); 
-                            usuarios.add(usuario);
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
+                    List<Task<DocumentSnapshot>> tasks = query.getDocuments().stream()
+                            .map(doc -> db.collection("usuarios").document(doc.getString("usuarioId")).get())
+                            .collect(Collectors.toList());
+                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                        List<Usuario> usuarios = new ArrayList<>();
+                        for(Object res : results){
+                            DocumentSnapshot userDoc = (DocumentSnapshot) res;
+                            if (userDoc.exists()) {
+                                Usuario usuario = userDoc.toObject(Usuario.class);
+                                usuario.setId(userDoc.getId());
+                                usuarios.add(usuario);
+                            }
                         }
-                    }
-                    callback.onCallback(usuarios);
+                        callback.onCallback(usuarios);
+                    });
                 });
-            });
     }
-    
+
     public void carregarEventosInscritos(String userId, EventoCallback callback) {
         db.collection("inscricoes").whereEqualTo("usuarioId", userId).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
-                List<Task<DocumentSnapshot>> tasks = query.getDocuments().stream()
-                    .map(doc -> db.collection("eventos").document(doc.getString("eventoId")).get())
-                    .collect(Collectors.toList());
-                Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
-                    List<Evento> eventos = new ArrayList<>();
-                    for(Object res : results){
-                        DocumentSnapshot doc = (DocumentSnapshot) res;
-                        if(doc.exists()){
-                            Evento evento = doc.toObject(Evento.class);
-                            evento.setIdEvento(doc.getId());
-                            eventos.add(evento);
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) { callback.onCallback(new ArrayList<>()); return; }
+                    List<Task<DocumentSnapshot>> tasks = query.getDocuments().stream()
+                            .map(doc -> db.collection("eventos").document(doc.getString("eventoId")).get())
+                            .collect(Collectors.toList());
+                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
+                        List<Evento> eventos = new ArrayList<>();
+                        for(Object res : results){
+                            DocumentSnapshot doc = (DocumentSnapshot) res;
+                            if(doc.exists()){
+                                Evento evento = doc.toObject(Evento.class);
+                                evento.setIdEvento(doc.getId());
+                                eventos.add(evento);
+                            }
                         }
-                    }
-                    callback.onCallback(eventos);
+                        callback.onCallback(eventos);
+                    });
                 });
-            });
     }
 
     public void excluirInscricoesPorEvento(String eventoId, Runnable onSuccess, Runnable onFailure) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
-            .addOnSuccessListener(query -> {
-                if (query.isEmpty()) { onSuccess.run(); return; }
-                WriteBatch batch = db.batch();
-                for (QueryDocumentSnapshot doc : query) { batch.delete(doc.getReference()); }
-                batch.commit().addOnSuccessListener(v -> onSuccess.run()).addOnFailureListener(e -> onFailure.run());
-            });
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) { onSuccess.run(); return; }
+                    WriteBatch batch = db.batch();
+                    for (QueryDocumentSnapshot doc : query) { batch.delete(doc.getReference()); }
+                    batch.commit().addOnSuccessListener(v -> onSuccess.run()).addOnFailureListener(e -> onFailure.run());
+                });
+    }
+
+    // NOVO MÉTODO PARA EXCLUSÃO DE CONTA
+    public void excluirInscricoesDoUsuario(String usuarioId, SimpleCallback callback) {
+        db.collection("inscricoes").whereEqualTo("usuarioId", usuarioId).get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        callback.onComplete(true); // Nenhum inscrição para excluir, sucesso.
+                        return;
+                    }
+                    WriteBatch batch = db.batch();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> callback.onComplete(true))
+                            .addOnFailureListener(e -> callback.onComplete(false));
+                })
+                .addOnFailureListener(e -> callback.onComplete(false));
     }
 }

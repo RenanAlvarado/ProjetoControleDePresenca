@@ -72,7 +72,6 @@
                 android:padding="12dp"
                 android:textColor="#000"/>
 
-            <!-- CAMPOS DE SENHA ADICIONADOS -->
             <EditText
                 android:id="@+id/editNovaSenha"
                 android:layout_width="match_parent"
@@ -104,6 +103,16 @@
                 android:backgroundTint="#0D8C00"
                 android:textColor="#FFFFFF"/>
 
+            <!-- BOTÃO DE EXCLUSÃO ADICIONADO -->
+            <Button
+                android:id="@+id/btnExcluirConta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Excluir Conta"
+                android:backgroundTint="#B00020"
+                android:textColor="#FFFFFF"/>
+
             <Button
                 android:id="@+id/btnMudarParaOrganizador"
                 android:layout_width="match_parent"
@@ -128,7 +137,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Sair"
-                android:backgroundTint="#B00020"
+                android:backgroundTint="@color/azul_cinza"
                 android:textColor="#FFFFFF"/>
         </LinearLayout>
     </ScrollView>
