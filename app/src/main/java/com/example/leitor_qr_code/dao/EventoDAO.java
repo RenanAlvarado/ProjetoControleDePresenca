@@ -1,4 +1,5 @@
-package com.example.leitor_qr_code.dao;import android.app.Activity;
+package com.example.leitor_qr_code.dao;
+
 import android.content.Context;
 import android.widget.Toast;
 
@@ -35,6 +36,89 @@ public class EventoDAO {
     public EventoDAO() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
+    }
+
+    public void atualizarEvento(Evento evento, Runnable onSuccess, Runnable onFailure) {
+        String uid = auth.getCurrentUser().getUid();
+        if (uid == null || !uid.equals(evento.getOrganizadorId())) {
+            onFailure.run();
+            return;
+        }
+
+        Map<String, Object> dadosEvento = new HashMap<>();
+        dadosEvento.put("nome", evento.getNome());
+        dadosEvento.put("descricao", evento.getDescricao());
+        dadosEvento.put("local", evento.getLocal());
+        dadosEvento.put("dataInicio", evento.getDataInicio());
+        dadosEvento.put("horaInicio", evento.getHoraInicio());
+        dadosEvento.put("dataFim", evento.getDataFim());
+        dadosEvento.put("horaFim", evento.getHoraFim());
+        dadosEvento.put("liberarScannerAntes", evento.getLiberarScannerAntes());
+        dadosEvento.put("dataLimiteInscricao", evento.getDataLimiteInscricao());
+        dadosEvento.put("permiteMultiplasEntradas", evento.isPermiteMultiplasEntradas());
+
+        db.collection("eventos").document(evento.getIdEvento())
+                .update(dadosEvento)
+                .addOnSuccessListener(aVoid -> onSuccess.run())
+                .addOnFailureListener(e -> onFailure.run());
+    }
+
+    // MÉTODO RESTAURADO E CORRIGIDO
+    public void excluirEventoIndividual(String eventoId, SimpleCallback callback) {
+        String uid = auth.getCurrentUser().getUid();
+        db.collection("eventos").document(eventoId).get()
+            .addOnSuccessListener(doc -> {
+                if (!doc.exists() || !doc.getString("organizadorId").equals(uid)) {
+                    callback.onComplete(false);
+                    return;
+                }
+
+                db.collection("inscricoes").whereEqualTo("eventoId", eventoId).get()
+                    .addOnSuccessListener(inscricoesSnapshot -> {
+                        WriteBatch batch = db.batch();
+                        for (QueryDocumentSnapshot inscricaoDoc : inscricoesSnapshot) {
+                            batch.delete(inscricaoDoc.getReference());
+                        }
+                        batch.delete(doc.getReference()); // Exclui o próprio evento
+                        batch.commit()
+                            .addOnSuccessListener(aVoid -> callback.onComplete(true))
+                            .addOnFailureListener(e -> callback.onComplete(false));
+                    })
+                    .addOnFailureListener(e -> callback.onComplete(false));
+            })
+            .addOnFailureListener(e -> callback.onComplete(false));
+    }
+
+    public void excluirEventosEInscricoesDoOrganizador(String organizadorId, SimpleCallback callback) {
+        db.collection("eventos").whereEqualTo("organizadorId", organizadorId).get()
+                .addOnSuccessListener(eventosSnapshot -> {
+                    WriteBatch batch = db.batch();
+                    List<Task<QuerySnapshot>> inscricaoTasks = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot eventoDoc : eventosSnapshot) {
+                        batch.delete(eventoDoc.getReference());
+                        inscricaoTasks.add(db.collection("inscricoes").whereEqualTo("eventoId", eventoDoc.getId()).get());
+                    }
+
+                    if (inscricaoTasks.isEmpty()) {
+                        callback.onComplete(true);
+                        return;
+                    }
+                    
+                    Tasks.whenAllSuccess(inscricaoTasks).addOnSuccessListener(results -> {
+                        for (Object result : results) {
+                            QuerySnapshot inscricoesSnapshot = (QuerySnapshot) result;
+                            for (QueryDocumentSnapshot inscricaoDoc : inscricoesSnapshot) {
+                                batch.delete(inscricaoDoc.getReference());
+                            }
+                        }
+
+                        batch.commit()
+                                .addOnSuccessListener(aVoid -> callback.onComplete(true))
+                                .addOnFailureListener(e -> callback.onComplete(false));
+                    }).addOnFailureListener(e -> callback.onComplete(false));
+                })
+                .addOnFailureListener(e -> callback.onComplete(false));
     }
 
     public void verificarEConcluirEventosAutomaticamente(AutoConcludeCallback callback) {
@@ -92,7 +176,7 @@ public class EventoDAO {
                 })
                 .addOnFailureListener(e -> callback.onComplete(0));
     }
-
+    
     public void concluirEvento(String eventoId, SimpleCallback callback) {
         InscricaoDAO inscricaoDAO = new InscricaoDAO();
         inscricaoDAO.registrarSaidaParaTodosPresentes(eventoId, success -> {
@@ -151,24 +235,24 @@ public class EventoDAO {
 
     public void carregarEventoPorId(String eventoId, SingleEventoCallback callback) {
         db.collection("eventos").document(eventoId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Evento evento = documentSnapshot.toObject(Evento.class);
-                        if (evento != null) {
-                            evento.setIdEvento(documentSnapshot.getId());
-                            callback.onCallback(evento);
-                        }
-                    } else {
-                        callback.onCallback(null);
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    Evento evento = documentSnapshot.toObject(Evento.class);
+                    if (evento != null) {
+                        evento.setIdEvento(documentSnapshot.getId());
+                        callback.onCallback(evento);
                     }
-                }).addOnFailureListener(e -> callback.onCallback(null));
+                } else {
+                    callback.onCallback(null);
+                }
+            }).addOnFailureListener(e -> callback.onCallback(null));
     }
 
     public void carregarEventosPorOrganizador(boolean concluidos, EventoCallback callback) {
         String uid = auth.getCurrentUser().getUid();
         Query query = db.collection("eventos")
-                .whereEqualTo("organizadorId", uid)
-                .whereEqualTo("concluido", concluidos);
+                        .whereEqualTo("organizadorId", uid)
+                        .whereEqualTo("concluido", concluidos);
 
         query.get().addOnSuccessListener(querySnapshot -> {
             List<Evento> lista = new ArrayList<>();
@@ -181,85 +265,19 @@ public class EventoDAO {
         }).addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
     }
 
-    public void excluirEvento(String idEvento, Activity activity, Runnable onSuccess, Runnable onFailure) {
-        String uid = auth.getCurrentUser().getUid();
-        db.collection("eventos").document(idEvento).get()
-                .addOnSuccessListener(doc -> {
-                    if (!doc.exists() || !doc.getString("organizadorId").equals(uid)) {
-                        Toast.makeText(activity, "Operação não permitida.", Toast.LENGTH_SHORT).show();
-                        onFailure.run();
-                        return;
-                    }
-
-                    db.collection("inscricoes").whereEqualTo("eventoId", idEvento).get()
-                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                WriteBatch batch = db.batch();
-                                for(QueryDocumentSnapshot inscricaoDoc : queryDocumentSnapshots){
-                                    batch.delete(inscricaoDoc.getReference());
-                                }
-                                batch.commit().addOnSuccessListener(aVoid -> {
-                                    db.collection("eventos").document(idEvento).delete()
-                                            .addOnSuccessListener(v -> {
-                                                Toast.makeText(activity, "Evento e inscrições foram excluídos.", Toast.LENGTH_SHORT).show();
-                                                onSuccess.run();
-                                            })
-                                            .addOnFailureListener(e -> onFailure.run());
-                                }).addOnFailureListener(e -> onFailure.run());
-                            });
-                });
-    }
-
     public void carregarEventosDisponiveis(List<String> idsEventosInscritos, EventoCallback callback) {
         Query query = db.collection("eventos").whereEqualTo("concluido", false);
 
         query.get().addOnSuccessListener(eventosSnapshot -> {
             List<Evento> eventosDisponiveis = eventosSnapshot.getDocuments().stream()
-                    .map(doc -> {
-                        Evento evento = doc.toObject(Evento.class);
-                        if (evento != null) evento.setIdEvento(doc.getId());
-                        return evento;
-                    })
-                    .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
-                    .collect(Collectors.toList());
+                .map(doc -> {
+                    Evento evento = doc.toObject(Evento.class);
+                    if (evento != null) evento.setIdEvento(doc.getId());
+                    return evento;
+                })
+                .filter(evento -> evento != null && !idsEventosInscritos.contains(evento.getIdEvento()))
+                .collect(Collectors.toList());
             callback.onCallback(eventosDisponiveis);
         }).addOnFailureListener(e -> callback.onCallback(new ArrayList<>()));
-    }
-
-    // NOVO MÉTODO PARA EXCLUSÃO EM CASCATA DE CONTA
-    public void excluirEventosEInscricoesDoOrganizador(String organizadorId, SimpleCallback callback) {
-        db.collection("eventos").whereEqualTo("organizadorId", organizadorId).get()
-                .addOnSuccessListener(eventosSnapshot -> {
-                    WriteBatch batch = db.batch();
-                    List<Task<QuerySnapshot>> inscricaoTasks = new ArrayList<>();
-
-                    // 1. Marca os eventos do organizador para exclusão
-                    for (QueryDocumentSnapshot eventoDoc : eventosSnapshot) {
-                        batch.delete(eventoDoc.getReference());
-                        // 2. Prepara a busca por todas as inscrições de cada evento
-                        inscricaoTasks.add(db.collection("inscricoes").whereEqualTo("eventoId", eventoDoc.getId()).get());
-                    }
-
-                    if (inscricaoTasks.isEmpty()) {
-                        // Se não há eventos, não há nada a fazer.
-                        callback.onComplete(true);
-                        return;
-                    }
-
-                    Tasks.whenAllSuccess(inscricaoTasks).addOnSuccessListener(results -> {
-                        // 3. Marca todas as inscrições encontradas para exclusão
-                        for (Object result : results) {
-                            QuerySnapshot inscricoesSnapshot = (QuerySnapshot) result;
-                            for (QueryDocumentSnapshot inscricaoDoc : inscricoesSnapshot) {
-                                batch.delete(inscricaoDoc.getReference());
-                            }
-                        }
-
-                        // 4. Executa todas as exclusões (eventos e inscrições) de uma só vez
-                        batch.commit()
-                                .addOnSuccessListener(aVoid -> callback.onComplete(true))
-                                .addOnFailureListener(e -> callback.onComplete(false));
-                    }).addOnFailureListener(e -> callback.onComplete(false));
-                })
-                .addOnFailureListener(e -> callback.onComplete(false));
     }
 }

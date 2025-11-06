@@ -33,10 +33,10 @@
         <activity android:name=".view.participante.DetalhesEventoParticipanteActivity" android:exported="true" />
         <activity android:name=".view.organizador.ConfirmacaoEntradaActivity" android:exported="false" />
         <activity android:name=".view.organizador.ScannerOrganizadorActivity" android:exported="false" />
+        <activity android:name=".view.organizador.HistoricoRegistrosActivity" android:exported="false"/>
         
-        <activity 
-            android:name=".view.organizador.HistoricoRegistrosActivity" 
-            android:exported="false"/>
+        <!-- ACTIVITY ADICIONADA -->
+        <activity android:name=".view.organizador.AlterarEventoActivity" android:exported="false" />
 
     </application>
 

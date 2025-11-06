@@ -143,17 +143,30 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cardDetails" />
 
+            <!-- BOTÃO DE ALTERAÇÃO ADICIONADO -->
+            <Button
+                android:id="@+id/btnAlterarEvento"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/azul_cinza"
+                android:text="Alterar Evento"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnEscanearQrCodes" />
+
             <Button
                 android:id="@+id/btnConcluirEvento"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:backgroundTint="@color/azul_cinza"
+                android:backgroundTint="@color/verde_musgo"
                 android:text="Concluir Evento"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnEscanearQrCodes" />
+                app:layout_constraintTop_toBottomOf="@+id/btnAlterarEvento" />
 
             <Button
                 android:id="@+id/btnExcluirEvento"
@@ -167,7 +180,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btnConcluirEvento" />
 
-            <!-- PAINEL DE CONTROLE RESTAURADO -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/painelStatus"
                 android:layout_width="0dp"

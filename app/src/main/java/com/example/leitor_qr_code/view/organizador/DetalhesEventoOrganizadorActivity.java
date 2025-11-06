@@ -51,7 +51,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         setupViewsAndListeners();
 
         if(evento != null){
-            fillEventData();
+            // A chamada inicial ainda é necessária para configurar a RecyclerView na primeira vez
             setupRecyclerView();
         }
     }
@@ -59,9 +59,25 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (evento != null) {
-            carregarDadosInscritos(evento.getIdEvento());
-            fillEventData(); 
+        // LÓGICA DE ATUALIZAÇÃO
+        if (evento != null && evento.getIdEvento() != null) {
+            // Busca a versão mais recente do evento no banco de dados
+            eventoDAO.carregarEventoPorId(evento.getIdEvento(), eventoAtualizado -> {
+                if (isFinishing() || isDestroyed()) return;
+
+                if (eventoAtualizado == null) {
+                    // Evento pode ter sido excluído
+                    Toast.makeText(this, "Evento não encontrado.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+                // Atualiza o objeto local com os dados mais recentes
+                this.evento = eventoAtualizado;
+
+                // Agora, preenche a UI com os dados frescos e carrega os inscritos
+                fillEventData();
+                carregarDadosInscritos(this.evento.getIdEvento());
+            });
         }
     }
 
@@ -94,53 +110,67 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     private void setupViewsAndListeners(){
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
-        
+
         findViewById(R.id.btnEscanearQrCodes).setOnClickListener(v -> {
             Intent intent = new Intent(this, ScannerOrganizadorActivity.class);
             intent.putExtra("eventoId", evento.getIdEvento());
             startActivity(intent);
         });
 
+        findViewById(R.id.btnAlterarEvento).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AlterarEventoActivity.class);
+            intent.putExtra("evento_para_alterar", evento);
+            startActivity(intent);
+        });
+
         findViewById(R.id.btnConcluirEvento).setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                .setTitle("Concluir Evento")
-                .setMessage("Deseja marcar este evento como concluído?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    eventoDAO.concluirEvento(evento.getIdEvento(), success -> {
-                        if(success) {
-                            Toast.makeText(this, "Evento concluído com sucesso!", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Toast.makeText(this, "Falha ao concluir evento.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Não", null)
-                .show();
+                    .setTitle("Concluir Evento")
+                    .setMessage("Deseja marcar este evento como concluído?")
+                    .setPositiveButton("Sim", (dialog, which) -> {
+                        eventoDAO.concluirEvento(evento.getIdEvento(), success -> {
+                            if(success) {
+                                Toast.makeText(this, "Evento concluído com sucesso!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(this, "Falha ao concluir evento.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("Não", null)
+                    .show();
         });
 
         findViewById(R.id.btnExcluirEvento).setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                .setTitle("Excluir Evento")
-                .setMessage("Tem certeza? Isso apagará todos os dados permanentemente.")
-                .setPositiveButton("Excluir", (dialog, which) -> {
-                    inscricaoDAO.excluirInscricoesPorEvento(evento.getIdEvento(), 
-                        () -> eventoDAO.excluirEvento(evento.getIdEvento(), this, this::finish, () -> {}),
-                        () -> Toast.makeText(this, "Falha ao excluir inscrições.", Toast.LENGTH_SHORT).show()
-                    );
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+                    .setTitle("Excluir Evento")
+                    .setMessage("Tem certeza? Isso apagará o evento e todas as suas inscrições permanentemente.")
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+                        eventoDAO.excluirEventoIndividual(evento.getIdEvento(), success -> {
+                            if(success) {
+                                Toast.makeText(this, "Evento excluído com sucesso.", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(this, "Falha ao excluir o evento.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
         });
     }
-    
+
     private void fillEventData(){
+        if (evento == null) return;
+        
         TextView textStatusEvento = findViewById(R.id.textStatusEvento);
         Button btnConcluir = findViewById(R.id.btnConcluirEvento);
         Button btnEscanear = findViewById(R.id.btnEscanearQrCodes);
+        Button btnAlterar = findViewById(R.id.btnAlterarEvento);
+        Button btnExcluir = findViewById(R.id.btnExcluirEvento);
 
         ((TextView) findViewById(R.id.txtTituloEvento)).setText(evento.getNome());
         ((TextView) findViewById(R.id.txtDescricaoEvento)).setText(evento.getDescricao());
@@ -148,7 +178,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.txtDataHoraInicio)).setText("Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio());
         ((TextView) findViewById(R.id.txtDataHoraFim)).setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
         ((TextView) findViewById(R.id.txtLiberarScanner)).setText("Scanner liberado: " + evento.getLiberarScannerAntes());
-        
+
         TextView txtPermiteReentrada = findViewById(R.id.txtPermiteReentrada);
         if (evento.isPermiteMultiplasEntradas()) {
             txtPermiteReentrada.setText("Reentrada: Permitida");
@@ -156,20 +186,31 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
             txtPermiteReentrada.setText("Reentrada: Não Permitida");
         }
 
+        boolean scannerLiberado = isScannerLiberado();
+        boolean eventoIniciado = isEventoIniciado();
+
         if (evento.isConcluido()) {
             textStatusEvento.setVisibility(View.VISIBLE);
             btnConcluir.setVisibility(View.GONE);
             btnEscanear.setVisibility(View.GONE);
+            btnAlterar.setVisibility(View.GONE);
+            btnExcluir.setVisibility(View.GONE);
         } else {
             textStatusEvento.setVisibility(View.GONE);
-            
-            boolean scannerLiberado = isScannerLiberado();
+
             btnEscanear.setEnabled(scannerLiberado);
             btnEscanear.setAlpha(scannerLiberado ? 1.0f : 0.5f);
 
-            boolean eventoIniciado = isEventoIniciado();
             btnConcluir.setEnabled(eventoIniciado);
             btnConcluir.setAlpha(eventoIniciado ? 1.0f : 0.5f);
+
+            if (scannerLiberado) {
+                btnAlterar.setVisibility(View.GONE);
+                btnExcluir.setVisibility(View.GONE);
+            } else {
+                btnAlterar.setVisibility(View.VISIBLE);
+                btnExcluir.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -181,7 +222,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
             return new Date().after(dataHoraInicio);
         } catch (ParseException e) {
             e.printStackTrace();
-            return false; 
+            return false;
         }
     }
 
@@ -215,11 +256,11 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
             return false;
         }
     }
-    
+
     private void setupRecyclerView(){
         recyclerInscritos = findViewById(R.id.recyclerInscritos);
         recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));
-        
+
         adapter = new InscritoAdapter(listaInscritos, usuario -> {
             Intent intent = new Intent(this, HistoricoRegistrosActivity.class);
             intent.putExtra("eventoId", evento.getIdEvento());

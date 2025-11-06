@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -33,9 +35,12 @@ public class CriarEventoFragment extends Fragment {
     private EditText editNome, editDescricao, editLocal;
     private EditText editDataInicio, editHoraInicio, editDataFim, editHoraFim, editDataLimiteInscricao;
     private Spinner spinnerLiberarScanner;
-    private SwitchCompat switchMultiplasEntradas; // Adicionado
+    private SwitchCompat switchMultiplasEntradas;
     private Button btnSalvarEvento;
+    private TextView txtTituloPagina;
     private EventoDAO eventoDAO;
+
+    private Evento eventoParaAlterar;
 
     @Nullable
     @Override
@@ -56,14 +61,44 @@ public class CriarEventoFragment extends Fragment {
         editHoraFim = view.findViewById(R.id.editHoraFim);
         editDataLimiteInscricao = view.findViewById(R.id.editDataLimiteInscricao);
         spinnerLiberarScanner = view.findViewById(R.id.spinnerLiberarScanner);
-        switchMultiplasEntradas = view.findViewById(R.id.switchMultiplasEntradas); // Referência
+        switchMultiplasEntradas = view.findViewById(R.id.switchMultiplasEntradas);
         btnSalvarEvento = view.findViewById(R.id.btnSalvarEvento);
+        txtTituloPagina = view.findViewById(R.id.textTituloPagina);
         eventoDAO = new EventoDAO();
 
         setupDateTimePickers();
         setupScannerSpinner();
 
+        if (getArguments() != null && getArguments().containsKey("evento_para_alterar")) {
+            eventoParaAlterar = (Evento) getArguments().getSerializable("evento_para_alterar");
+            preencherDadosDoEvento();
+        }
+
         btnSalvarEvento.setOnClickListener(v -> salvarEvento());
+    }
+
+    private void preencherDadosDoEvento() {
+        if (eventoParaAlterar == null) return;
+
+        txtTituloPagina.setText("Alterar Evento");
+        editNome.setText(eventoParaAlterar.getNome());
+        editDescricao.setText(eventoParaAlterar.getDescricao());
+        editLocal.setText(eventoParaAlterar.getLocal());
+        editDataInicio.setText(eventoParaAlterar.getDataInicio());
+        editHoraInicio.setText(eventoParaAlterar.getHoraInicio());
+        editDataFim.setText(eventoParaAlterar.getDataFim());
+        editHoraFim.setText(eventoParaAlterar.getHoraFim());
+        editDataLimiteInscricao.setText(eventoParaAlterar.getDataLimiteInscricao());
+        switchMultiplasEntradas.setChecked(eventoParaAlterar.isPermiteMultiplasEntradas());
+
+        // LÓGICA CORRIGIDA
+        String[] tempos = {"No início do evento", "1 hora antes", "2 horas antes", "3 horas antes"};
+        int spinnerPosition = Arrays.asList(tempos).indexOf(eventoParaAlterar.getLiberarScannerAntes());
+        if (spinnerPosition >= 0) {
+            spinnerLiberarScanner.setSelection(spinnerPosition);
+        }
+
+        btnSalvarEvento.setText("Salvar Alterações");
     }
 
     private void setupDateTimePickers() {
@@ -88,6 +123,7 @@ public class CriarEventoFragment extends Fragment {
         }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show();
     }
 
+    // LÓGICA CORRIGIDA
     private void setupScannerSpinner() {
         String[] tempos = {"No início do evento", "1 hora antes", "2 horas antes", "3 horas antes"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, tempos);
@@ -101,27 +137,30 @@ public class CriarEventoFragment extends Fragment {
             Date inicioDateTime = sdfDateTime.parse(dataInicioStr + " " + horaInicioStr);
             Date fimDateTime = sdfDateTime.parse(dataFimStr + " " + horaFimStr);
 
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
-            Date hoje = cal.getTime();
+            if (eventoParaAlterar == null) { // Validações de data passada apenas para novos eventos
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
+                Date hoje = cal.getTime();
 
-            Date limiteDate = sdfDateOnly.parse(dataLimiteStr);
-            Date inicioDate = sdfDateOnly.parse(dataInicioStr);
+                Date limiteDate = sdfDateOnly.parse(dataLimiteStr);
+                Date inicioDate = sdfDateOnly.parse(dataInicioStr);
 
-            if (inicioDateTime.before(new Date())) {
-                Toast.makeText(getContext(), "A data de início não pode ser no passado.", Toast.LENGTH_SHORT).show();
-                return false;
+                if (inicioDateTime.before(new Date())) {
+                    Toast.makeText(getContext(), "A data de início não pode ser no passado.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                if (limiteDate.before(hoje)) {
+                    Toast.makeText(getContext(), "A data limite para inscrição não pode ser anterior a hoje.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                if (limiteDate.after(inicioDate)) {
+                    Toast.makeText(getContext(), "A data limite de inscrição não pode ser depois da data de início do evento.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
             }
+
             if (fimDateTime.before(inicioDateTime)) {
                 Toast.makeText(getContext(), "A data de fim não pode ser anterior à data de início.", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            if (limiteDate.before(hoje)) {
-                Toast.makeText(getContext(), "A data limite para inscrição não pode ser anterior a hoje.", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            if (limiteDate.after(inicioDate)) {
-                 Toast.makeText(getContext(), "A data limite de inscrição não pode ser depois da data de início do evento.", Toast.LENGTH_SHORT).show();
                 return false;
             }
             return true;
@@ -141,7 +180,7 @@ public class CriarEventoFragment extends Fragment {
         String horaFim = editHoraFim.getText().toString().trim();
         String dataLimite = editDataLimiteInscricao.getText().toString().trim();
         String liberarScanner = spinnerLiberarScanner.getSelectedItem().toString();
-        boolean permiteReentrada = switchMultiplasEntradas.isChecked(); // Coletando o valor
+        boolean permiteReentrada = switchMultiplasEntradas.isChecked();
 
         if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty() || dataLimite.isEmpty()) {
             Toast.makeText(getContext(), "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show();
@@ -152,29 +191,47 @@ public class CriarEventoFragment extends Fragment {
             return;
         }
 
-        Evento novoEvento = new Evento();
-        novoEvento.setNome(nome);
-        novoEvento.setDescricao(descricao);
-        novoEvento.setLocal(local);
-        novoEvento.setDataInicio(dataInicio);
-        novoEvento.setHoraInicio(horaInicio);
-        novoEvento.setDataFim(dataFim);
-        novoEvento.setHoraFim(horaFim);
-        novoEvento.setDataLimiteInscricao(dataLimite);
-        novoEvento.setLiberarScannerAntes(liberarScanner);
-        novoEvento.setPermiteMultiplasEntradas(permiteReentrada); // Definindo o valor
+        Evento evento = (eventoParaAlterar != null) ? eventoParaAlterar : new Evento();
+        evento.setNome(nome);
+        evento.setDescricao(descricao);
+        evento.setLocal(local);
+        evento.setDataInicio(dataInicio);
+        evento.setHoraInicio(horaInicio);
+        evento.setDataFim(dataFim);
+        evento.setHoraFim(horaFim);
+        evento.setDataLimiteInscricao(dataLimite);
+        evento.setLiberarScannerAntes(liberarScanner);
+        evento.setPermiteMultiplasEntradas(permiteReentrada);
 
-        eventoDAO.salvarEvento(getContext(), novoEvento, () -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.frame_container_organizador, new HomeOrganizadorFragment())
-                    .commit();
-            
-            BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);
-            if (bottomNav != null) {
-                bottomNav.setSelectedItemId(R.id.nav_home);
-            }
-        }, () -> {
-            Toast.makeText(getContext(), "Ocorreu um erro ao salvar o evento.", Toast.LENGTH_SHORT).show();
-        });
+        if (eventoParaAlterar != null) {
+            // MODO DE ALTERAÇÃO
+            eventoDAO.atualizarEvento(evento, () -> {
+                if (getContext() == null || !isAdded()) return;
+                Toast.makeText(getContext(), "Evento alterado com sucesso!", Toast.LENGTH_SHORT).show();
+                if (getActivity() != null) {
+                    getActivity().finish();
+                }
+            }, () -> {
+                 if (getContext() == null || !isAdded()) return;
+                Toast.makeText(getContext(), "Ocorreu um erro ao alterar o evento.", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            // MODO DE CRIAÇÃO
+            eventoDAO.salvarEvento(getContext(), evento, () -> {
+                if (getParentFragmentManager() == null) return;
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.frame_container_organizador, new HomeOrganizadorFragment())
+                        .commit();
+                
+                if (getActivity() == null) return;
+                BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);
+                if (bottomNav != null) {
+                    bottomNav.setSelectedItemId(R.id.nav_home);
+                }
+            }, () -> {
+                if (getContext() == null || !isAdded()) return;
+                Toast.makeText(getContext(), "Ocorreu um erro ao salvar o evento.", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 }

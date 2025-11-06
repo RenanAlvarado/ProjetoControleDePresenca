@@ -2,4 +2,12 @@
     <string name="app_name">Leitor_Qr_Code</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Array para o Spinner de tempo do scanner -->
+    <string-array name="tempos_scanner">
+        <item>No início do evento</item>
+        <item>1 hora antes</item>
+        <item>2 horas antes</item>
+        <item>3 horas antes</item>
+    </string-array>
 </resources>

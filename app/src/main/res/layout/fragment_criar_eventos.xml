@@ -15,9 +15,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- TÍTULO RESTAURADO -->
+        <!-- TÍTULO CORRIGIDO -->
         <TextView
-            android:id="@+id/textTitulo"
+            android:id="@+id/textTituloPagina" 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
