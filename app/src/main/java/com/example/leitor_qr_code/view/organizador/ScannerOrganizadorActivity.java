@@ -16,7 +16,6 @@ import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
 import com.example.leitor_qr_code.dao.InscricaoDAO;
 import com.example.leitor_qr_code.model.Evento;
-import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
@@ -48,7 +47,6 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
         eventoDAO = new EventoDAO();
         inscricaoDAO = new InscricaoDAO();
 
-        // CORREÇÃO: Busca o evento específico pelo ID
         eventoDAO.carregarEventoPorId(eventoId, evento -> {
             if (evento == null) {
                 Toast.makeText(this, "Erro: Evento não encontrado.", Toast.LENGTH_LONG).show();
@@ -80,13 +78,18 @@ public class ScannerOrganizadorActivity extends AppCompatActivity {
             JSONObject json = new JSONObject(qrCodeContent);
             String usuarioId = json.getString("uid");
             String nomeUsuario = json.getString("nome");
+            // DADO ADICIONADO
+            String emailUsuario = json.getString("email"); 
 
             inscricaoDAO.validarInscricao(eventoAtual.getIdEvento(), usuarioId, (sucesso, msgValidacao) -> {
                 if (sucesso) {
                     inscricaoDAO.registrarEntradaOuSaida(eventoAtual, usuarioId, (regSuccess, regMessage) -> {
                         if (regSuccess) {
                             Intent intent = new Intent(this, ConfirmacaoEntradaActivity.class);
+                            // DADOS ADICIONADOS AO INTENT
+                            intent.putExtra("nomeEvento", eventoAtual.getNome()); 
                             intent.putExtra("nomeParticipante", nomeUsuario);
+                            intent.putExtra("emailParticipante", emailUsuario); 
                             intent.putExtra("statusRegistro", regMessage);
                             startActivity(intent);
                         } else {

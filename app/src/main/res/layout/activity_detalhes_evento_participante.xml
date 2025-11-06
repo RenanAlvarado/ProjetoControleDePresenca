@@ -170,6 +170,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textInscricoesEncerradas" />
 
+            <!-- BOTÃO DE IMPRESSÃO ADICIONADO -->
+            <Button
+                android:id="@+id/btnImprimirCertificado"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Imprimir Certificado"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnInscrever"
+                tools:visibility="visible"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
