@@ -1,6 +1,6 @@
 package com.example.leitor_qr_code.util;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.leitor_qr_code.R;
@@ -37,12 +38,27 @@ public class InscritoAdapter extends RecyclerView.Adapter<InscritoAdapter.Inscri
         holder.txtNome.setText(usuario.getNome());
         holder.txtEmail.setText(usuario.getEmail());
 
-        if ("Presente".equals(usuario.getStatusPresenca())) {
-            holder.textStatus.setVisibility(View.VISIBLE);
-            holder.cardView.setCardBackgroundColor(Color.parseColor("#DFF0D8")); // Verde claro
-        } else {
-            holder.textStatus.setVisibility(View.GONE);
-            holder.cardView.setCardBackgroundColor(Color.WHITE);
+        Context context = holder.itemView.getContext();
+
+        switch (usuario.getStatusPresenca()) {
+            case "Entrou":
+                holder.textStatus.setText("Entrou");
+                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.verde_musgo));
+                holder.textStatus.setVisibility(View.VISIBLE);
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
+                break;
+            case "Saiu":
+                holder.textStatus.setText("Saiu");
+                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.vermelho_escuro));
+                holder.textStatus.setVisibility(View.VISIBLE);
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
+                break;
+            default: // "Não Entrou" ou qualquer outro caso
+                holder.textStatus.setText("Não Entrou");
+                holder.textStatus.setVisibility(View.VISIBLE);
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
+                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.black));
+                break;
         }
     }
 

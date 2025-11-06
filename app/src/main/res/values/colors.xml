@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Cores Principais -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="azul_marinho">#1b1c33</color>
@@ -7,5 +8,43 @@
     <color name="bordo">#6B0A06</color>
     <color name="verde_musgo">#0D8C00</color>
 
+    <!-- Cores de Status (para fundos de item) -->
+    <color name="status_entrou_bg">#DFF0D8</color>
+    <color name="status_saiu_bg">#F5F5F5</color>
+    <color name="status_erro_bg">#F2DEDE</color>
+
+    <!-- Cores de Status (para textos) -->
+    <color name="status_entrou_text">#3C763D</color>
+    <color name="status_saiu_text">#777777</color>
+    <color name="status_erro_text">#A94442</color>
+
+    <!-- Paleta Variada -->
+    <color name="vermelho_claro">#EF5350</color>
+    <color name="vermelho_escuro">#C62828</color>
+
+    <color name="rosa_claro">#EC407A</color>
+    <color name="rosa_escuro">#AD1457</color>
+
+    <color name="roxo_claro">#AB47BC</color>
+    <color name="roxo_escuro">#6A1B9A</color>
+
+    <color name="azul_claro">#42A5F5</color>
+    <color name="azul_escuro">#1565C0</color>
+
+    <color name="ciano_claro">#26C6DA</color>
+    <color name="ciano_escuro">#00838F</color>
+
+    <color name="verde_claro">#66BB6A</color>
+    <color name="verde_escuro_forte">#2E7D32</color>
+
+    <color name="amarelo_claro">#FFEE58</color>
+    <color name="amarelo_escuro">#F9A825</color>
+    
+    <color name="laranja_claro">#FFA726</color>
+    <color name="laranja_escuro">#EF6C00</color>
+
+    <color name="cinza_claro">#EEEEEE</color>
+    <color name="cinza_medio">#9E9E9E</color>
+    <color name="cinza_escuro">#616161</color>
 
 </resources>
