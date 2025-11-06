@@ -175,7 +175,6 @@ public class UsuarioDAO {
                 .addOnFailureListener(e -> callback.onFailure());
     }
 
-    // MÉTODO ATUALIZADO
     public void fazerLogin(Activity activity, String email, String senha, Runnable onSuccess) {
         if (email.isEmpty() || senha.isEmpty()) {
             Toast.makeText(activity, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
@@ -185,9 +184,9 @@ public class UsuarioDAO {
         auth.signInWithEmailAndPassword(email, senha)
                 .addOnSuccessListener(authResult -> {
                     Toast.makeText(activity, "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
-                    onSuccess.run(); // Chama o callback em vez de navegar diretamente
+                    onSuccess.run();
                 })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao entrar: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> Toast.makeText(activity, "Falha no login. Verifique seu e-mail e senha.", Toast.LENGTH_LONG).show());
     }
 
     public void cadastrarUsuario(Activity activity, String nome, String email, String senha) {
@@ -207,7 +206,7 @@ public class UsuarioDAO {
                                 activity.finish();
                             });
                 })
-                .addOnFailureListener(e -> Toast.makeText(activity, "Erro: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> Toast.makeText(activity, "Falha ao cadastrar. Verifique os dados ou tente um e-mail diferente.", Toast.LENGTH_LONG).show());
     }
 
     public void atualizarFotoUsuario(Activity activity, Bitmap bitmap, ImageView imageView) {
