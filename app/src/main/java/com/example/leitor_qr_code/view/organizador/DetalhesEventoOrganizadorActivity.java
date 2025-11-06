@@ -3,7 +3,6 @@ package com.example.leitor_qr_code.view.organizador;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +31,6 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     private RecyclerView recyclerInscritos;
     private InscritoAdapter adapter;
     private List<Usuario> listaInscritos = new ArrayList<>();
-    private Button btnExcluir, btnEscanear;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +45,7 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
 
         if(evento != null){
             fillEventData();
-            setupRecyclerView();
+            setupRecyclerView(); 
         }
     }
 
@@ -55,15 +53,13 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (evento != null) {
-            // CORREÇÃO: Passa o ID do evento para o método
             carregarDadosInscritos(evento.getIdEvento());
         }
     }
 
     private void carregarDadosInscritos(String eventoId) {
         inscricaoDAO.carregarInscritos(eventoId, usuarios -> {
-            if (usuarios == null || usuarios.isEmpty()) {
-                Toast.makeText(this, "Nenhum participante inscrito ainda.", Toast.LENGTH_SHORT).show();
+            if (usuarios.isEmpty()) {
                 listaInscritos.clear();
                 adapter.notifyDataSetChanged();
                 return;
@@ -84,24 +80,22 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     }
     
     private void setupViewsAndListeners(){
-         btnExcluir = findViewById(R.id.btnExcluirEvento);
-        btnEscanear = findViewById(R.id.btnEscanearQrCodes);
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
         
-        btnEscanear.setOnClickListener(v -> {
+        findViewById(R.id.btnEscanearQrCodes).setOnClickListener(v -> {
             Intent intent = new Intent(this, ScannerOrganizadorActivity.class);
             intent.putExtra("eventoId", evento.getIdEvento());
             startActivity(intent);
         });
 
-        btnExcluir.setOnClickListener(v -> {
+        findViewById(R.id.btnExcluirEvento).setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                 .setTitle("Excluir Evento")
                 .setMessage("Tem certeza?")
                 .setPositiveButton("Excluir", (dialog, which) -> {
                     inscricaoDAO.excluirInscricoesPorEvento(evento.getIdEvento(), 
                         () -> eventoDAO.excluirEvento(evento.getIdEvento(), this, this::finish, () -> {}),
-                        () -> {}
+                        () -> Toast.makeText(this, "Falha ao excluir inscrições.", Toast.LENGTH_SHORT).show()
                     );
                 })
                 .setNegativeButton("Cancelar", null)
@@ -121,7 +115,14 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
     private void setupRecyclerView(){
         recyclerInscritos = findViewById(R.id.recyclerInscritos);
         recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new InscritoAdapter(listaInscritos);
+        
+        // CORREÇÃO: Implementa o listener que executa a ação de clique
+        adapter = new InscritoAdapter(listaInscritos, usuario -> {
+            Intent intent = new Intent(this, HistoricoRegistrosActivity.class);
+            intent.putExtra("eventoId", evento.getIdEvento());
+            intent.putExtra("usuarioId", usuario.getId());
+            startActivity(intent);
+        });
         recyclerInscritos.setAdapter(adapter);
     }
 }

@@ -18,6 +18,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class InscricaoDAO {
     public interface RegistroCallback { void onComplete(boolean success, String message); }
     public interface HistoricoCallback { void onCallback(List<Registro> registros); }
     public interface StatusPresencaCallback { void onStatusResult(String status); }
+    public interface DataInscricaoCallback { void onDataCarregada(Date data); } // Novo Callback
 
 
     public InscricaoDAO() {
@@ -43,22 +45,33 @@ public class InscricaoDAO {
         this.auth = FirebaseAuth.getInstance();
     }
 
-    // MÉTODO ATUALIZADO PARA 3 STATUS
+    // NOVO MÉTODO
+    public void buscarDataInscricao(String eventoId, String usuarioId, DataInscricaoCallback callback) {
+        db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
+            .addOnSuccessListener(query -> {
+                if (!query.isEmpty()) {
+                    callback.onDataCarregada(query.getDocuments().get(0).getDate("dataInscricao"));
+                } else {
+                    callback.onDataCarregada(null);
+                }
+            })
+            .addOnFailureListener(e -> callback.onDataCarregada(null));
+    }
+
+    // ... (Restante dos métodos intactos) ...
     public void verificarStatusPresenca(String eventoId, String usuarioId, StatusPresencaCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
             .addOnSuccessListener(query -> {
                 if (query.isEmpty()) {
-                    callback.onStatusResult("Não Entrou"); // Status Padrão
+                    callback.onStatusResult("Não Entrou");
                     return;
                 }
                 DocumentSnapshot inscricaoDoc = query.getDocuments().get(0);
                 inscricaoDoc.getReference().collection("registros").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
                     .addOnSuccessListener(registrosQuery -> {
                         if (registrosQuery.isEmpty()) {
-                            // Se não há registros, ele ainda não entrou.
                             callback.onStatusResult("Não Entrou");
                         } else {
-                            // Se há registros, pega o tipo do último.
                             String ultimoTipo = registrosQuery.getDocuments().get(0).getString("tipo");
                             if ("entrada".equals(ultimoTipo)) {
                                 callback.onStatusResult("Entrou");
@@ -67,18 +80,11 @@ public class InscricaoDAO {
                             }
                         }
                     })
-                    .addOnFailureListener(e -> {
-                        Log.e("DAO_ERROR", "Falha ao buscar registros: " + e.getMessage());
-                        callback.onStatusResult("Não Entrou");
-                    });
+                    .addOnFailureListener(e -> callback.onStatusResult("Não Entrou"));
             })
-            .addOnFailureListener(e -> {
-                Log.e("DAO_ERROR", "Falha ao buscar inscrição para status: " + e.getMessage());
-                callback.onStatusResult("Não Entrou");
-            });
+            .addOnFailureListener(e -> callback.onStatusResult("Não Entrou"));
     }
 
-    // ... (Restante dos métodos do DAO intactos) ...
     public void carregarRegistros(String eventoId, String usuarioId, HistoricoCallback callback) {
         db.collection("inscricoes").whereEqualTo("eventoId", eventoId).whereEqualTo("usuarioId", usuarioId).limit(1).get()
             .addOnSuccessListener(query -> {

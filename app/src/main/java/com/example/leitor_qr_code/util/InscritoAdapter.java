@@ -19,9 +19,17 @@ import java.util.List;
 public class InscritoAdapter extends RecyclerView.Adapter<InscritoAdapter.InscritoViewHolder> {
 
     private final List<Usuario> listaInscritos;
+    private final OnInscritoClickListener listener; // Adicionado
 
-    public InscritoAdapter(List<Usuario> listaInscritos) {
+    // Interface para o clique
+    public interface OnInscritoClickListener {
+        void onInscritoClick(Usuario usuario);
+    }
+
+    // Construtor atualizado
+    public InscritoAdapter(List<Usuario> listaInscritos, OnInscritoClickListener listener) {
         this.listaInscritos = listaInscritos;
+        this.listener = listener;
     }
 
     @NonNull
@@ -43,23 +51,26 @@ public class InscritoAdapter extends RecyclerView.Adapter<InscritoAdapter.Inscri
         switch (usuario.getStatusPresenca()) {
             case "Entrou":
                 holder.textStatus.setText("Entrou");
-                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.verde_musgo));
+                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.status_entrou_text));
                 holder.textStatus.setVisibility(View.VISIBLE);
-                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.status_entrou_bg));
                 break;
             case "Saiu":
                 holder.textStatus.setText("Saiu");
-                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.vermelho_escuro));
+                holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.status_saiu_text));
                 holder.textStatus.setVisibility(View.VISIBLE);
-                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.status_saiu_bg));
                 break;
-            default: // "Não Entrou" ou qualquer outro caso
+            default: // "Não Entrou"
                 holder.textStatus.setText("Não Entrou");
                 holder.textStatus.setVisibility(View.VISIBLE);
-                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
                 holder.textStatus.setTextColor(ContextCompat.getColor(context, R.color.black));
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
                 break;
         }
+        
+        // Define a ação de clique
+        holder.itemView.setOnClickListener(v -> listener.onInscritoClick(usuario));
     }
 
     @Override

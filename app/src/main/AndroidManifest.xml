@@ -28,7 +28,10 @@
         <activity android:name=".view.organizador.ConfirmacaoEntradaActivity" android:exported="false" />
         <activity android:name=".view.organizador.ScannerOrganizadorActivity" android:exported="false" />
         
-
+        <!-- CORREÇÃO: Registra a nova tela de histórico -->
+        <activity 
+            android:name=".view.organizador.HistoricoRegistrosActivity" 
+            android:exported="false"/>
 
     </application>
 
