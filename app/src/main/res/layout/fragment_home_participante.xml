@@ -7,22 +7,36 @@
     android:background="@color/azul_marinho"
     tools:context=".view.participante.HomeParticipanteFragment">
 
+    <!-- LABEL DE BOAS-VINDAS ADICIONADA -->
     <TextView
-        android:id="@+id/textTitulo"
+        android:id="@+id/textSaudacao"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="16dp"
-        android:text="Eventos Disponíveis"
         android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Olá, Nome do Usuário" />
+
+    <TextView
+        android:id="@+id/textTitulo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="16dp"
+        android:text="Eventos Disponíveis"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textSaudacao" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerEventos" 
+        android:id="@+id/recyclerEventos"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
@@ -33,7 +47,7 @@
         tools:listitem="@layout/item_evento" />
 
     <TextView
-        android:id="@+id/textEmptyStateHome" 
+        android:id="@+id/textEmptyStateHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nenhum evento disponível no momento."

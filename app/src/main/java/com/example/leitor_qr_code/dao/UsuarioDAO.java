@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Base64;
-import android.util.Log; // Importação adicionada
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -41,7 +41,6 @@ public class UsuarioDAO {
         db = FirebaseFirestore.getInstance();
     }
 
-    // NOVO MÉTODO - ORQUESTRADOR DA EXCLUSÃO COMPLETA
     public void excluirContaCompleta(SimpleCallback callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
@@ -53,19 +52,15 @@ public class UsuarioDAO {
         EventoDAO eventoDAO = new EventoDAO();
         InscricaoDAO inscricaoDAO = new InscricaoDAO();
 
-        // 1. Excluir eventos criados pelo usuário (e as inscrições nesses eventos)
         eventoDAO.excluirEventosEInscricoesDoOrganizador(uid, success -> {
             if (success) {
                 Log.d("DeleteUser", "Eventos do organizador excluídos.");
-                // 2. Excluir inscrições do usuário em eventos de outros
                 inscricaoDAO.excluirInscricoesDoUsuario(uid, success2 -> {
                     if (success2) {
                         Log.d("DeleteUser", "Inscrições do usuário excluídas.");
-                        // 3. Excluir o documento do usuário no Firestore
                         db.collection("usuarios").document(uid).delete()
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d("DeleteUser", "Documento do usuário no Firestore excluído.");
-                                    // 4. Excluir a conta de autenticação (passo final)
                                     user.delete().addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
                                             Log.d("DeleteUser", "Conta de autenticação excluída.");
@@ -91,7 +86,6 @@ public class UsuarioDAO {
             }
         });
     }
-
 
     public void atualizarSenha(String novaSenha, SimpleCallback callback) {
         FirebaseUser user = auth.getCurrentUser();
@@ -128,6 +122,14 @@ public class UsuarioDAO {
                 .addOnFailureListener(e -> callback.onComplete(false));
     }
 
+    public void buscarNomeUsuarioLogado(NomeUsuarioCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            buscarNomePorId(user.getUid(), callback);
+        } else {
+            callback.onNomeCarregado("Visitante");
+        }
+    }
 
     public void buscarNomePorId(String uid, NomeUsuarioCallback callback) {
         if (uid == null || uid.isEmpty()) {
@@ -173,7 +175,8 @@ public class UsuarioDAO {
                 .addOnFailureListener(e -> callback.onFailure());
     }
 
-    public void fazerLogin(Activity activity, String email, String senha) {
+    // MÉTODO ATUALIZADO
+    public void fazerLogin(Activity activity, String email, String senha, Runnable onSuccess) {
         if (email.isEmpty() || senha.isEmpty()) {
             Toast.makeText(activity, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
             return;
@@ -182,8 +185,7 @@ public class UsuarioDAO {
         auth.signInWithEmailAndPassword(email, senha)
                 .addOnSuccessListener(authResult -> {
                     Toast.makeText(activity, "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
-                    activity.startActivity(new Intent(activity, MainParticipanteActivity.class));
-                    activity.finish();
+                    onSuccess.run(); // Chama o callback em vez de navegar diretamente
                 })
                 .addOnFailureListener(e -> Toast.makeText(activity, "Erro ao entrar: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }

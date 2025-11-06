@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
 import com.example.leitor_qr_code.dao.InscricaoDAO;
+import com.example.leitor_qr_code.dao.UsuarioDAO;
 import com.example.leitor_qr_code.model.Evento;
 import com.example.leitor_qr_code.util.EventoAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,8 +35,10 @@ public class HomeParticipanteFragment extends Fragment {
     private EventoAdapter adapter;
     private List<Evento> listaEventos = new ArrayList<>();
     private TextView textEmptyState;
+    private TextView textSaudacao;
     private EventoDAO eventoDAO;
     private InscricaoDAO inscricaoDAO;
+    private UsuarioDAO usuarioDAO;
 
     @Nullable
     @Override
@@ -49,8 +52,10 @@ public class HomeParticipanteFragment extends Fragment {
 
         recyclerEventos = view.findViewById(R.id.recyclerEventos);
         textEmptyState = view.findViewById(R.id.textEmptyStateHome);
+        textSaudacao = view.findViewById(R.id.textSaudacao);
         eventoDAO = new EventoDAO();
         inscricaoDAO = new InscricaoDAO();
+        usuarioDAO = new UsuarioDAO();
 
         setupRecyclerView();
     }
@@ -58,7 +63,20 @@ public class HomeParticipanteFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        carregarNomeUsuario();
         carregarEventosDisponiveis();
+    }
+
+    private void carregarNomeUsuario() {
+        usuarioDAO.buscarNomeUsuarioLogado(nome -> {
+            if (getContext() == null || !isAdded()) return;
+
+            if (nome != null && !nome.isEmpty()) {
+                textSaudacao.setText("Olá, " + nome);
+            } else {
+                textSaudacao.setText("Olá!");
+            }
+        });
     }
 
     private void setupRecyclerView() {
@@ -74,7 +92,7 @@ public class HomeParticipanteFragment extends Fragment {
     private void carregarEventosDisponiveis() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (uid == null) return;
-        
+
         inscricaoDAO.carregarEventosInscritos(uid, eventosInscritos -> {
             if (getContext() == null || !isAdded()) return;
 
@@ -87,7 +105,7 @@ public class HomeParticipanteFragment extends Fragment {
 
                 List<Evento> eventosFiltrados = eventosDisponiveis.stream()
                         .filter(evento -> !uid.equals(evento.getOrganizadorId()))
-                        .filter(evento -> !isEventoIniciado(evento)) // Filtro adicionado
+                        .filter(evento -> !isEventoIniciado(evento))
                         .collect(Collectors.toList());
 
                 if (eventosFiltrados.isEmpty()) {
