@@ -71,22 +71,30 @@ public class HomeParticipanteFragment extends Fragment {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (uid == null) return;
         
-        // 1. Pega a lista de eventos em que o usuário está inscrito
         inscricaoDAO.carregarEventosInscritos(uid, eventosInscritos -> {
+            if (getContext() == null || !isAdded()) return;
+
             List<String> idsInscritos = eventosInscritos.stream()
-                                                    .map(Evento::getIdEvento)
-                                                    .collect(Collectors.toList());
-            
-            // 2. Passa essa lista para o método que busca os eventos disponíveis
+                    .map(Evento::getIdEvento)
+                    .collect(Collectors.toList());
+
+            // Chamada correta, sem o UID
             eventoDAO.carregarEventosDisponiveis(idsInscritos, eventosDisponiveis -> {
-                if (eventosDisponiveis.isEmpty()) {
+                if (getContext() == null || !isAdded()) return;
+
+                // Filtro manual para remover eventos do próprio usuário
+                List<Evento> eventosFiltrados = eventosDisponiveis.stream()
+                        .filter(evento -> !uid.equals(evento.getOrganizadorId()))
+                        .collect(Collectors.toList());
+
+                if (eventosFiltrados.isEmpty()) {
                     textEmptyState.setVisibility(View.VISIBLE);
                     recyclerEventos.setVisibility(View.GONE);
                 } else {
                     textEmptyState.setVisibility(View.GONE);
                     recyclerEventos.setVisibility(View.VISIBLE);
                     listaEventos.clear();
-                    listaEventos.addAll(eventosDisponiveis);
+                    listaEventos.addAll(eventosFiltrados);
                     adapter.notifyDataSetChanged();
                 }
             });
