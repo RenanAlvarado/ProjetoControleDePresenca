@@ -14,7 +14,6 @@
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingTop="24dp"
-        android:paddingBottom="100dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,7 +23,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:paddingBottom="24dp">
 
             <FrameLayout
                 android:layout_width="140dp"
@@ -50,7 +50,6 @@
                     android:contentDescription="Editar Foto"/>
             </FrameLayout>
 
-            <!-- CAMPO NOME COM FUNDO BRANCO CORRIGIDO -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
@@ -69,7 +68,6 @@
                     android:textColor="#000"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- CAMPO EMAIL COM FUNDO BRANCO CORRIGIDO -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
@@ -88,7 +86,6 @@
                     android:textColor="#000"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- CAMPO SENHA COM OLHO E FUNDO BRANCO CORRIGIDO -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
@@ -108,7 +105,6 @@
                     android:textColor="#000"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- CAMPO CONFIRMAR SENHA COM OLHO E FUNDO BRANCO CORRIGIDO -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"

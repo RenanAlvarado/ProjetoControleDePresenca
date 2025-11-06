@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/azul_marinho">
+    android:background="@color/azul_marinho"
+    android:fitsSystemWindows="true">
 
     <!-- Botão Voltar -->
     <ImageButton
@@ -143,7 +144,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cardDetails" />
 
-            <!-- BOTÃO DE ALTERAÇÃO ADICIONADO -->
             <Button
                 android:id="@+id/btnAlterarEvento"
                 style="@style/Widget.AppCompat.Button.Colored"
