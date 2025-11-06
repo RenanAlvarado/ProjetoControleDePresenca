@@ -50,49 +50,83 @@
                     android:contentDescription="Editar Foto"/>
             </FrameLayout>
 
-            <EditText
-                android:id="@+id/editNome"
+            <!-- CAMPO NOME COM FUNDO BRANCO CORRIGIDO -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:background="@android:drawable/edit_text"
                 android:hint="Nome completo"
-                android:inputType="textPersonName"
-                android:padding="12dp"
-                android:textColor="#000" />
+                app:boxBackgroundColor="@android:color/white"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp">
 
-            <EditText
-                android:id="@+id/editEmail"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editNome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:textColor="#000"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- CAMPO EMAIL COM FUNDO BRANCO CORRIGIDO -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@android:drawable/edit_text"
                 android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:padding="12dp"
-                android:textColor="#000"/>
+                app:boxBackgroundColor="@android:color/white"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp">
 
-            <EditText
-                android:id="@+id/editNovaSenha"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:textColor="#000"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- CAMPO SENHA COM OLHO E FUNDO BRANCO CORRIGIDO -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@android:drawable/edit_text"
                 android:hint="Nova Senha (opcional)"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColor="#000"/>
+                app:boxBackgroundColor="@android:color/white"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:passwordToggleEnabled="true">
 
-            <EditText
-                android:id="@+id/editConfirmarSenha"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editNovaSenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:textColor="#000"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- CAMPO CONFIRMAR SENHA COM OLHO E FUNDO BRANCO CORRIGIDO -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@android:drawable/edit_text"
                 android:hint="Confirmar Nova Senha"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColor="#000"/>
+                app:boxBackgroundColor="@android:color/white"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editConfirmarSenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:textColor="#000"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/btnSalvar"
@@ -103,7 +137,6 @@
                 android:backgroundTint="#0D8C00"
                 android:textColor="#FFFFFF"/>
 
-            <!-- BOTÃO DE EXCLUSÃO ADICIONADO -->
             <Button
                 android:id="@+id/btnExcluirConta"
                 android:layout_width="match_parent"
