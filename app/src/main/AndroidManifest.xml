@@ -19,38 +19,16 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".CadastroActivity"
-            android:exported="true" />
+        <activity android:name=".CadastroActivity" android:exported="true" />
+        <activity android:name=".view.dicas.DicasActivity" android:exported="true" />
+        <activity android:name=".view.participante.MainParticipanteActivity" android:exported="true" />
+        <activity android:name=".view.organizador.MainOrganizadorActivity" android:exported="true" />
+        <activity android:name=".view.organizador.DetalhesEventoOrganizadorActivity" android:exported="true" />
+        <activity android:name=".view.participante.DetalhesEventoParticipanteActivity" android:exported="true" />
+        <activity android:name=".view.organizador.ConfirmacaoEntradaActivity" android:exported="false" />
+        <activity android:name=".view.organizador.ScannerOrganizadorActivity" android:exported="false" />
+        
 
-        <activity
-            android:name=".view.dicas.DicasActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".view.participante.MainParticipanteActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".view.organizador.MainOrganizadorActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".view.organizador.DetalhesEventoOrganizadorActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".view.participante.DetalhesEventoParticipanteActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".view.organizador.ConfirmacaoEntradaActivity"
-            android:exported="false" />
-
-        <!-- CORREÇÃO: Registra a nova tela de Scanner -->
-        <activity
-            android:name=".view.organizador.ScannerOrganizadorActivity"
-            android:exported="false" />
 
     </application>
 

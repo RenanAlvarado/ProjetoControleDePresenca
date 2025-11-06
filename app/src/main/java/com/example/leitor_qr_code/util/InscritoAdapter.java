@@ -1,11 +1,13 @@
 package com.example.leitor_qr_code.util;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.leitor_qr_code.R;
@@ -34,6 +36,14 @@ public class InscritoAdapter extends RecyclerView.Adapter<InscritoAdapter.Inscri
         Usuario usuario = listaInscritos.get(position);
         holder.txtNome.setText(usuario.getNome());
         holder.txtEmail.setText(usuario.getEmail());
+
+        if ("Presente".equals(usuario.getStatusPresenca())) {
+            holder.textStatus.setVisibility(View.VISIBLE);
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#DFF0D8")); // Verde claro
+        } else {
+            holder.textStatus.setVisibility(View.GONE);
+            holder.cardView.setCardBackgroundColor(Color.WHITE);
+        }
     }
 
     @Override
@@ -42,12 +52,15 @@ public class InscritoAdapter extends RecyclerView.Adapter<InscritoAdapter.Inscri
     }
 
     static class InscritoViewHolder extends RecyclerView.ViewHolder {
-        TextView txtNome, txtEmail;
+        TextView txtNome, txtEmail, textStatus;
+        CardView cardView;
 
         public InscritoViewHolder(@NonNull View itemView) {
             super(itemView);
             txtNome = itemView.findViewById(R.id.textNomeInscrito);
             txtEmail = itemView.findViewById(R.id.textEmailInscrito);
+            textStatus = itemView.findViewById(R.id.textStatusPresenca);
+            cardView = itemView.findViewById(R.id.card_inscrito);
         }
     }
 }

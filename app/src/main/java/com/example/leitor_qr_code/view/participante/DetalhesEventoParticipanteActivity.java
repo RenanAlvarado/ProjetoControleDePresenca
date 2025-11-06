@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.leitor_qr_code.R;
-import com.example.leitor_qr_code.dao.EventoDAO;
+import com.example.leitor_qr_code.dao.InscricaoDAO;
 import com.example.leitor_qr_code.dao.UsuarioDAO;
 import com.example.leitor_qr_code.model.Evento;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,8 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
 
     private Evento evento;
-    private EventoDAO eventoDAO;
-
+    private InscricaoDAO inscricaoDAO;
     private UsuarioDAO usuarioDAO;
     private Button btnInscrever;
     private TextView textStatusInscricao;
@@ -32,12 +31,12 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalhes_evento_participante);
 
-        eventoDAO = new EventoDAO();
-        usuarioDAO = new UsuarioDAO(); // Instancia o DAO de usuário
+        inscricaoDAO = new InscricaoDAO();
+        usuarioDAO = new UsuarioDAO();
         evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // --- Referências ---
+        // --- Referências Completas ---
         TextView txtTitulo = findViewById(R.id.txtTituloEvento);
         TextView txtDescricao = findViewById(R.id.txtDescricaoEvento);
         TextView txtLocal = findViewById(R.id.txtLocalEvento);
@@ -53,7 +52,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
         btnVoltar.setOnClickListener(v -> finish());
         btnInscrever.setOnClickListener(v -> handleInscricaoClick());
 
-        // --- Preenchimento dos Dados ---
+        // --- Preenchimento Completo dos Dados ---
         if (evento != null) {
             txtTitulo.setText(evento.getNome());
             txtDescricao.setText(evento.getDescricao());
@@ -62,7 +61,6 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
             txtDataHoraFim.setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
             txtEntradaLiberada.setText("Entrada liberada: " + evento.getLiberarScannerAntes());
 
-            // Busca e exibe o nome do organizador
             usuarioDAO.buscarNomePorId(evento.getOrganizadorId(), nomeOrganizador -> {
                 txtCriadoPor.setText("Criado por: " + nomeOrganizador);
             });
@@ -72,7 +70,7 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
     }
 
     private void atualizarStatusBotao() {
-        eventoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
+        inscricaoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
             if (inscrito) {
                 textStatusInscricao.setVisibility(View.VISIBLE);
                 btnInscrever.setText("Cancelar Inscrição");
@@ -86,11 +84,11 @@ public class DetalhesEventoParticipanteActivity extends AppCompatActivity {
     }
 
     private void handleInscricaoClick() {
-        eventoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
+        inscricaoDAO.verificarInscricao(evento.getIdEvento(), uid, inscrito -> {
             if (inscrito) {
-                eventoDAO.cancelarInscricao(evento.getIdEvento(), this, () -> finish());
+                inscricaoDAO.cancelarInscricao(evento.getIdEvento(), this, () -> finish());
             } else {
-                eventoDAO.inscreverEmEvento(evento.getIdEvento(), this, () -> {
+                inscricaoDAO.inscreverEmEvento(evento.getIdEvento(), this, () -> {
                     Intent intent = new Intent(this, MainParticipanteActivity.class);
                     intent.putExtra("destination", R.id.nav_inscricoes);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

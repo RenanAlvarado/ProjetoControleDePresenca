@@ -24,21 +24,25 @@ public class ConfirmacaoEntradaActivity extends AppCompatActivity {
         Button btnVoltarScanner = findViewById(R.id.btnVoltarScanner);
         TextView textNomeParticipante = findViewById(R.id.textNomeParticipanteConfirmacao);
         TextView textHorarioEntrada = findViewById(R.id.textHorarioEntrada);
+        TextView textStatus = findViewById(R.id.textBoasVindas); // Referência para o título
 
         // --- Ações ---
         btnVoltarScanner.setOnClickListener(v -> finish());
 
         // --- Preenchimento dos Dados ---
         String nome = getIntent().getStringExtra("nomeParticipante");
+        String status = getIntent().getStringExtra("statusRegistro"); // Recebe o status
+
         if (nome != null) {
             textNomeParticipante.setText(nome);
+        }
+        if (status != null) {
+            textStatus.setText(status); // Exibe o status ("Entrada Registrada" ou "Saída Registrada")
         }
 
         // Define o horário atual
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String horarioAtual = sdf.format(new Date());
-        textHorarioEntrada.setText("Entrada registrada às " + horarioAtual);
-
-        // A lógica do botão de imprimir será adicionada depois
+        textHorarioEntrada.setText("Horário do registro: " + horarioAtual);
     }
 }

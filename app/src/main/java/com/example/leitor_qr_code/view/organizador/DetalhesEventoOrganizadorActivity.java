@@ -15,17 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.leitor_qr_code.R;
 import com.example.leitor_qr_code.dao.EventoDAO;
+import com.example.leitor_qr_code.dao.InscricaoDAO;
 import com.example.leitor_qr_code.model.Evento;
 import com.example.leitor_qr_code.model.Usuario;
 import com.example.leitor_qr_code.util.InscritoAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
 
     private Evento evento;
     private EventoDAO eventoDAO;
+    private InscricaoDAO inscricaoDAO;
     private RecyclerView recyclerInscritos;
     private InscritoAdapter adapter;
     private List<Usuario> listaInscritos = new ArrayList<>();
@@ -37,21 +40,53 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detalhes_evento_organizador);
 
         eventoDAO = new EventoDAO();
+        inscricaoDAO = new InscricaoDAO();
         evento = (Evento) getIntent().getSerializableExtra("eventoSelecionado");
 
-        // --- Referências ---
-        TextView txtTitulo = findViewById(R.id.txtTituloEvento);
-        TextView txtDescricao = findViewById(R.id.txtDescricaoEvento);
-        TextView txtLocal = findViewById(R.id.txtLocalEvento);
-        TextView txtDataHoraInicio = findViewById(R.id.txtDataHoraInicio);
-        TextView txtDataHoraFim = findViewById(R.id.txtDataHoraFim);
-        TextView txtLiberarScanner = findViewById(R.id.txtLiberarScanner);
-        ImageButton btnVoltar = findViewById(R.id.btnVoltar);
-        btnExcluir = findViewById(R.id.btnExcluirEvento);
-        btnEscanear = findViewById(R.id.btnEscanearQrCodes);
+        setupViewsAndListeners();
 
-        // --- Ações dos Botões ---
-        btnVoltar.setOnClickListener(v -> finish());
+        if(evento != null){
+            fillEventData();
+            setupRecyclerView();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (evento != null) {
+            // CORREÇÃO: Passa o ID do evento para o método
+            carregarDadosInscritos(evento.getIdEvento());
+        }
+    }
+
+    private void carregarDadosInscritos(String eventoId) {
+        inscricaoDAO.carregarInscritos(eventoId, usuarios -> {
+            if (usuarios == null || usuarios.isEmpty()) {
+                Toast.makeText(this, "Nenhum participante inscrito ainda.", Toast.LENGTH_SHORT).show();
+                listaInscritos.clear();
+                adapter.notifyDataSetChanged();
+                return;
+            }
+
+            AtomicInteger counter = new AtomicInteger(usuarios.size());
+            for (Usuario usuario : usuarios) {
+                inscricaoDAO.verificarStatusPresenca(eventoId, usuario.getId(), status -> {
+                    usuario.setStatusPresenca(status);
+                    if (counter.decrementAndGet() == 0) {
+                        listaInscritos.clear();
+                        listaInscritos.addAll(usuarios);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+    }
+    
+    private void setupViewsAndListeners(){
+         btnExcluir = findViewById(R.id.btnExcluirEvento);
+        btnEscanear = findViewById(R.id.btnEscanearQrCodes);
+        findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
         
         btnEscanear.setOnClickListener(v -> {
             Intent intent = new Intent(this, ScannerOrganizadorActivity.class);
@@ -61,42 +96,32 @@ public class DetalhesEventoOrganizadorActivity extends AppCompatActivity {
 
         btnExcluir.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                    .setTitle("Excluir Evento")
-                    .setMessage("Tem certeza que deseja excluir este evento?")
-                    .setPositiveButton("Excluir", (dialog, which) -> {
-                        eventoDAO.excluirEvento(evento.getIdEvento(), this, this::finish);
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
+                .setTitle("Excluir Evento")
+                .setMessage("Tem certeza?")
+                .setPositiveButton("Excluir", (dialog, which) -> {
+                    inscricaoDAO.excluirInscricoesPorEvento(evento.getIdEvento(), 
+                        () -> eventoDAO.excluirEvento(evento.getIdEvento(), this, this::finish, () -> {}),
+                        () -> {}
+                    );
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
         });
-        
-        // --- Preenchimento dos Dados ---
-        if(evento != null){
-            txtTitulo.setText(evento.getNome());
-            txtDescricao.setText(evento.getDescricao());
-            txtLocal.setText(evento.getLocal());
-            txtDataHoraInicio.setText("Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio());
-            txtDataHoraFim.setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
-            txtLiberarScanner.setText("Scanner liberado: " + evento.getLiberarScannerAntes());
-
-            recyclerInscritos = findViewById(R.id.recyclerInscritos);
-            recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new InscritoAdapter(listaInscritos);
-            recyclerInscritos.setAdapter(adapter);
-
-            carregarInscritos(evento.getIdEvento());
-        }
     }
-
-    private void carregarInscritos(String eventoId) {
-        eventoDAO.carregarInscritos(eventoId, usuarios -> {
-            listaInscritos.clear();
-            listaInscritos.addAll(usuarios);
-            adapter.notifyDataSetChanged();
-
-            if (usuarios.isEmpty()) {
-                Toast.makeText(this, "Nenhum participante inscrito ainda.", Toast.LENGTH_SHORT).show();
-            }
-        });
+    
+    private void fillEventData(){
+        ((TextView) findViewById(R.id.txtTituloEvento)).setText(evento.getNome());
+        ((TextView) findViewById(R.id.txtDescricaoEvento)).setText(evento.getDescricao());
+        ((TextView) findViewById(R.id.txtLocalEvento)).setText(evento.getLocal());
+        ((TextView) findViewById(R.id.txtDataHoraInicio)).setText("Início: " + evento.getDataInicio() + " às " + evento.getHoraInicio());
+        ((TextView) findViewById(R.id.txtDataHoraFim)).setText("Fim: " + evento.getDataFim() + " às " + evento.getHoraFim());
+        ((TextView) findViewById(R.id.txtLiberarScanner)).setText("Scanner liberado: " + evento.getLiberarScannerAntes());
+    }
+    
+    private void setupRecyclerView(){
+        recyclerInscritos = findViewById(R.id.recyclerInscritos);
+        recyclerInscritos.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new InscritoAdapter(listaInscritos);
+        recyclerInscritos.setAdapter(adapter);
     }
 }

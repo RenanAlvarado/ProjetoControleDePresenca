@@ -14,9 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.leitor_qr_code.R;
-import com.example.leitor_qr_code.dao.EventoDAO;
+import com.example.leitor_qr_code.dao.InscricaoDAO;
 import com.example.leitor_qr_code.model.Evento;
 import com.example.leitor_qr_code.util.EventoAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,7 @@ public class InscricoesParticipanteFragment extends Fragment {
     private EventoAdapter adapter;
     private List<Evento> listaMeusEventos = new ArrayList<>();
     private TextView textEmptyState;
-    private EventoDAO eventoDAO;
-
+    private InscricaoDAO inscricaoDAO;
 
     @Nullable
     @Override
@@ -42,7 +42,7 @@ public class InscricoesParticipanteFragment extends Fragment {
 
         recyclerMeusEventos = view.findViewById(R.id.recyclerMeusEventos);
         textEmptyState = view.findViewById(R.id.textEmptyState);
-        eventoDAO = new EventoDAO();
+        inscricaoDAO = new InscricaoDAO(); // CORREÇÃO: DAO inicializado
 
         setupRecyclerView();
     }
@@ -50,7 +50,6 @@ public class InscricoesParticipanteFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // CORREÇÃO: Carrega os eventos toda vez que a tela se torna visível
         carregarEventosInscritos();
     }
 
@@ -65,7 +64,11 @@ public class InscricoesParticipanteFragment extends Fragment {
     }
 
     private void carregarEventosInscritos() {
-        eventoDAO.carregarEventosInscritos(eventos -> {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (uid == null) return;
+
+        // CORREÇÃO: Passa o ID do usuário para o método
+        inscricaoDAO.carregarEventosInscritos(uid, eventos -> {
             if (eventos.isEmpty()) {
                 textEmptyState.setVisibility(View.VISIBLE);
                 recyclerMeusEventos.setVisibility(View.GONE);
