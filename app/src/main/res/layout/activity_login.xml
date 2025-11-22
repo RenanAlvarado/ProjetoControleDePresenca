@@ -35,43 +35,37 @@
             android:text="Login"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:layout_marginBottom="24dp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="E-mail"
-            app:boxBackgroundColor="@android:color/white"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp">
+            android:hint="E-mail">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:textColor="#000000"/>
+                android:textColor="@color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Senha"
-            app:boxBackgroundColor="@android:color/white"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            android:hint="Senha">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editSenha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:textColor="#020202"/>
+                android:textColor="@color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -79,16 +73,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#4c6d9b"
+            android:backgroundTint="@color/azul_cinza"
             android:text="Entrar"
-            android:textColor="@color/azul_marinho" />
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/btnCadastrar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:background="@android:color/transparent"
+            android:background="@color/transparent"
             android:text="Não faz parte do time? Cadastre-se"
             android:textColor="@color/azul_cinza"
             android:textSize="14sp"
@@ -108,7 +102,7 @@
         android:background="@color/azul_cinza"
         android:gravity="center"
         android:text="Makitos - 2025"
-        android:textColor="@color/azul_marinho"
+        android:textColor="@color/white"
         android:textSize="14sp" />
 
 </RelativeLayout>

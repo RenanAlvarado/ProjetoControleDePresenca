@@ -3,6 +3,7 @@
     <!-- Cores Principais -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
     <color name="azul_marinho">#1b1c33</color>
     <color name="azul_cinza">#4c6d9b</color>
     <color name="bordo">#6B0A06</color>

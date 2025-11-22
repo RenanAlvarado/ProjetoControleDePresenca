@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
     android:paddingTop="24dp"
     android:paddingBottom="16dp"
     android:fillViewport="true"
@@ -15,9 +16,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- TÍTULO CORRIGIDO -->
         <TextView
-            android:id="@+id/textTituloPagina" 
+            android:id="@+id/textTituloPagina"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -32,90 +32,144 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:padding="16dp"
             android:background="@drawable/bg_conteudo_branco">
 
-            <EditText
-                android:id="@+id/editNomeEvento"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.App.TextInputLayout.White"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nome do Evento"/>
-            <EditText
-                android:id="@+id/editDescricao"
+                android:hint="Nome do Evento">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editNomeEvento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.App.TextInputLayout.White"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Descrição"/>
-            <EditText
-                android:id="@+id/editLocal"
+                android:hint="Descrição">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editDescricao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:textColor="@color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.App.TextInputLayout.White"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Local do Evento"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Início do Evento"/>
+                android:hint="Local do Evento">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/editDataInicio"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.App.TextInputLayout.White"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Data Início">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editDataInicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.App.TextInputLayout.White"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:hint="Data"
-                    android:focusable="false" />
-                <EditText
-                    android:id="@+id/editHoraInicio"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Hora"
-                    android:focusable="false" />
+                    android:hint="Hora Início">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editHoraInicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Fim do Evento"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                 <EditText
-                    android:id="@+id/editDataFim"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.App.TextInputLayout.White"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Data Fim">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editDataFim"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.App.TextInputLayout.White"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:hint="Data"
-                    android:focusable="false" />
-                <EditText
-                    android:id="@+id/editHoraFim"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Hora"
-                    android:focusable="false" />
+                    android:hint="Hora Fim">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editHoraFim"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Data Limite para Inscrição"/>
-            <EditText
-                android:id="@+id/editDataLimiteInscricao"
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.App.TextInputLayout.White"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Selecione a data limite"
-                android:focusable="false"/>
+                android:layout_marginTop="12dp"
+                android:hint="Data Limite para Inscrição">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editDataLimiteInscricao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:textColor="@color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Liberar escaneamento"/>
+                android:layout_marginTop="16dp"
+                android:text="Liberar escaneamento"
+                android:textColor="@color/black"/>
             <Spinner
                 android:id="@+id/spinnerLiberarScanner"
+                android:theme="@style/AppTheme.SpinnerThemeOverlay"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="48dp"
+                android:popupBackground="@color/white"
+                android:textColor="@color/black"/>
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switchMultiplasEntradas"
@@ -123,6 +177,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Permitir reentrada" 
+                android:textColor="@color/black"
                 android:textSize="16sp"/>
 
         </LinearLayout>
@@ -131,6 +186,7 @@
             android:id="@+id/btnSalvarEvento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Salvar Evento" />
 
     </LinearLayout>

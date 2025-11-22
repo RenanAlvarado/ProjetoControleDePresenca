@@ -1,7 +1,28 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Leitor_Qr_Code" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Base.Theme.Leitor_Qr_Code" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Cores Primárias -->
+        <item name="colorPrimary">@color/azul_cinza</item>
+        <item name="colorPrimaryVariant">@color/azul_marinho</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <!-- Cores Secundárias -->
+        <item name="colorSecondary">@color/verde_musgo</item>
+        <item name="colorSecondaryVariant">@color/verde_escuro_forte</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Cores de Fundo e Superfície -->
+        <item name="android:colorBackground">@color/azul_marinho</item>
+        <item name="colorSurface">@color/cinza_escuro</item> <!-- Fundo branco dos inputs vira cinza escuro -->
+        <item name="colorOnBackground">@color/white</item>
+        <item name="colorOnSurface">@color/white</item> <!-- Texto dentro dos inputs vira branco -->
+
+        <!-- Cor da barra de status -->
+        <item name="android:statusBarColor">@color/azul_marinho</item>
+
+        <!-- Cor do ícone de "olho" da senha -->
+        <item name="passwordToggleTint">@color/cinza_medio</item>
     </style>
+
+    <style name="Theme.Leitor_Qr_Code" parent="Base.Theme.Leitor_Qr_Code" />
 </resources>

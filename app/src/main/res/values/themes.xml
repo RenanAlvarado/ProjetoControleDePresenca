@@ -11,9 +11,48 @@
         <item name="colorSecondaryVariant">@color/verde_escuro_forte</item>
         <item name="colorOnSecondary">@color/white</item>
 
+        <!-- Cores de Fundo e Superfície -->
+        <item name="android:colorBackground">@color/azul_marinho</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnBackground">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+
         <!-- Cor da barra de status -->
         <item name="android:statusBarColor">@color/azul_marinho</item>
+
+        <!-- ESTILO PADRÃO PARA TODOS OS TEXTINPUTLAYOUTS -->
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
     </style>
 
     <style name="Theme.Leitor_Qr_Code" parent="Base.Theme.Leitor_Qr_Code" />
+
+    <!-- Estilo padrão para campos (usado em Login, Cadastro, Perfil) -->
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColorHint">@color/cinza_medio</item>
+        <item name="passwordToggleTint">@color/cinza_escuro</item>
+        <item name="boxBackgroundColor">@color/white</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+    </style>
+
+    <!-- Estilo para campos com borda e fundo branco (usado em Criar Evento) -->
+    <style name="Widget.App.TextInputLayout.White" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/white</item>
+        <item name="android:textColorHint">@color/cinza_medio</item>
+        <item name="boxStrokeColor">@color/azul_cinza</item>
+    </style>
+
+    <!-- CORREÇÃO FINAL: Estilo específico para o TEXTO do item do Spinner -->
+    <style name="AppTheme.SpinnerItem" parent="Widget.AppCompat.TextView.SpinnerItem">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <!-- Tema de sobreposição para o Spinner -->
+    <style name="AppTheme.SpinnerThemeOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <!-- Força a cor da seta do spinner -->
+        <item name="colorControlNormal">@color/cinza_escuro</item>
+        <!-- Usa o estilo customizado para o texto do item selecionado -->
+        <item name="android:spinnerItemStyle">@style/AppTheme.SpinnerItem</item>
+    </style>
+
 </resources>

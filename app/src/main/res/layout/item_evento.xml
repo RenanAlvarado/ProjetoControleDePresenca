@@ -6,7 +6,7 @@
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="6dp"
-    android:background="@color/white">
+    app:cardBackgroundColor="@color/white">
 
     <LinearLayout
         android:orientation="vertical"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Início: DD/MM/AAAA às HH:MM"
-            android:textColor="#333333"
+            android:textColor="@color/texto_principal"
             android:textSize="14sp"
             android:layout_marginTop="8dp"/>
 
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fim: DD/MM/AAAA às HH:MM"
-            android:textColor="#333333"
+            android:textColor="@color/texto_principal"
             android:textSize="14sp"
             android:layout_marginTop="4dp"/>
             
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Local do Evento"
-            android:textColor="#555555"
+            android:textColor="@color/texto_subtitulo"
             android:textSize="14sp"
             android:layout_marginTop="8dp"/>
 

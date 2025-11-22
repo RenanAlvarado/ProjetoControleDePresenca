@@ -124,7 +124,9 @@ public class CriarEventoFragment extends Fragment {
 
     private void setupScannerSpinner() {
         String[] tempos = {"No início do evento", "1 hora antes", "2 horas antes", "3 horas antes"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, tempos);
+        // CORREÇÃO DEFINITIVA: Usa um layout para o item selecionado (com texto preto) e outro para a lista.
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, tempos);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLiberarScanner.setAdapter(adapter);
     }
 
@@ -180,7 +182,6 @@ public class CriarEventoFragment extends Fragment {
         String liberarScanner = spinnerLiberarScanner.getSelectedItem().toString();
         boolean permiteReentrada = switchMultiplasEntradas.isChecked();
 
-        // CORREÇÃO: Validação de campos vazios ANTES da validação de datas
         if (nome.isEmpty() || descricao.isEmpty() || local.isEmpty() || dataInicio.isEmpty() || horaInicio.isEmpty() || dataFim.isEmpty() || horaFim.isEmpty() || dataLimite.isEmpty()) {
             Toast.makeText(getContext(), "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show();
             return;
@@ -204,7 +205,6 @@ public class CriarEventoFragment extends Fragment {
 
         if (eventoParaAlterar != null) {
             eventoDAO.atualizarEvento(evento, () -> {
-                // CORREÇÃO: Verificação de nulidade de contexto
                 if (getContext() == null || !isAdded()) return;
                 Toast.makeText(getContext(), "Evento alterado com sucesso!", Toast.LENGTH_SHORT).show();
                 if (getActivity() != null) {
@@ -216,7 +216,6 @@ public class CriarEventoFragment extends Fragment {
             });
         } else {
             eventoDAO.salvarEvento(getContext(), evento, () -> {
-                // CORREÇÃO: Verificação de nulidade de contexto
                 if (getParentFragmentManager() == null || !isAdded()) return;
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.frame_container_organizador, new HomeOrganizadorFragment())
